@@ -1,0 +1,20 @@
+{
+  "name": "@pvm/artifacts",
+  "version": "0.0.0-stub",
+  "description": "Artifacts manager",
+  "main": "pub/artifacts.js",
+  "repository": "git@github.com:Tinkoff/pvm.git",
+  "author": "Andrey Rublev <box@anru.me>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@pvm/core": "0.0.0-stub",
+    "@pvm/vcs": "0.0.0-stub",
+    "@pvm/vcs-git": "0.0.0-stub",
+    "chalk": "^4.0.0",
+    "fs-extra": "^10.0.0",
+    "tempy": "^1.0.1"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^9.0.11"
+  }
+}

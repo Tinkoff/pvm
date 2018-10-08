@@ -1,0 +1,36 @@
+[versioning]
+unified = true
+source = 'tag'
+
+[changelog]
+front_matter = """
+id: index
+title: Change Log"""
+
+[mark_pr]
+analyze_update = false
+packages_as_labels = false
+packages_table = true
+packages_graph = false
+attach_changelog = true
+
+[publish]
+registry = 'https://registry.npmjs.org'
+
+[update]
+default_release_type = 'patch'
+commit_via_platform = false
+retry_via_platform_if_failed_via_vcs = false
+
+[[update.release_type_overrides]]
+type = 'none'
+files_match = [
+  '**/__tests__/**/*',
+]
+
+[update.graph]
+strip_namespace = false
+
+[notifications.clients_common_config]
+channel = 'pvm'
+author = { name = 'pvm minion (github)', avatarEmoji = ':deciduous_tree:' }

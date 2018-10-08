@@ -1,0 +1,24 @@
+{
+  "name": "@pvm/gitlab",
+  "version": "0.0.0-stub",
+  "description": "GitLab additions for pvm",
+  "main": "lib/public-api.js",
+  "repository": "git@github.com:Tinkoff/pvm.git",
+  "author": "Andrey Rublev <box@anru.me>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@hutson/parse-repository-url": "^5.0.0",
+    "@pvm/core": "0.0.0-stub",
+    "@pvm/cowners": "0.0.0-stub",
+    "@pvm/vcs": "0.0.0-stub",
+    "debug": "^4.1.1",
+    "dedent": "^0.7.0",
+    "get-stdin": "^7.0.0",
+    "git-url-parse": "^11.4.4",
+    "p-map": "^4.0.0",
+    "parse-md": "^2.0.4",
+    "parse-path": "^4.0.1",
+    "semver": "^7.3.0",
+    "string-to-color": "^2.0.1"
+  }
+}

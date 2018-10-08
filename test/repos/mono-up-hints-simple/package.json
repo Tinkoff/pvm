@@ -1,0 +1,7 @@
+{
+  "name": "mono-up-hints-simple",
+  "private": true,
+  "workspaces": [
+    "src/*"
+  ]
+}

@@ -1,0 +1,1 @@
+export { GithubPlatform } from './platform'

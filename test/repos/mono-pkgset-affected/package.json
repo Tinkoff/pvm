@@ -1,0 +1,7 @@
+{
+  "name": "mono-pkgset-affected",
+  "private": true,
+  "workspaces": [
+    "src/*"
+  ]
+}

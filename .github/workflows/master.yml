@@ -1,0 +1,24 @@
+name: 'pvm update'
+
+on:
+  push:
+    branches:
+      - 'master'
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    env:
+      PVM_LL: silly
+      # Should be passed explicitly
+      GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 100
+          # Because of restriction that actions made with GITHUB_TOKEN are not trigger any actions
+          ssh-key: ${{ secrets.DEPLOY_SSH_KEY }}
+      - uses: ./.github/actions/setup
+      - run: yarn build
+      - run: yarn pvm update
+

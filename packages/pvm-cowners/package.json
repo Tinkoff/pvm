@@ -1,0 +1,14 @@
+{
+  "name": "@pvm/cowners",
+  "version": "0.0.0-stub",
+  "description": "A library for working with CODEOWNERS file",
+  "main": "lib/cowners.js",
+  "repository": "git@github.com:Tinkoff/pvm.git",
+  "author": "Andrey Rublev <box@anru.me>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "find-up": "^4.1.0",
+    "ignore": "^5.1.2",
+    "locate-path": "^5.0.0"
+  }
+}

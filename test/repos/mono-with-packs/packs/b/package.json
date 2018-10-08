@@ -1,0 +1,7 @@
+{
+  "name": "@packs/b",
+  "version": "2.0.0",
+  "dependencies": {
+    "packs-a": "1.0.0"
+  }
+}

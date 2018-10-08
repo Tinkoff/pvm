@@ -1,0 +1,15 @@
+{
+  "name": "@pvm/files",
+  "version": "0.0.0-stub",
+  "description": "Возвращает файлы по маске и стратегии",
+  "main": "lib/files",
+  "repository": "git@github.com:Tinkoff/pvm.git",
+  "author": "Andrey Rublev <box@anru.me>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@pvm/core": "0.0.0-stub",
+    "@pvm/pkgset": "0.0.0-stub",
+    "chalk": "^4.0.0",
+    "fast-glob": "^3.1.1"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "@pvm/vcs-git",
+  "version": "0.0.0-stub",
+  "description": "Git layer for pvm",
+  "main": "lib/git-vcs.js",
+  "repository": "git@github.com:Tinkoff/pvm.git",
+  "author": "Andrey Rublev <box@anru.me>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@pvm/core": "0.0.0-stub",
+    "resolve-from": "^5.0.0",
+    "semver": "^7.3.0"
+  },
+  "devDependencies": {
+    "@pvm/vcs": "0.0.0-stub"
+  }
+}

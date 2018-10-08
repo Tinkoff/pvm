@@ -1,0 +1,53 @@
+Filename is taken from config.update.hints_file.
+This file will be deleted from repository in a release commit.
+
+Full example:
+
+# define a release type for all packages
+release-type = "major"
+
+# release types for specific packages (overrides release type which calculated from commit messages)
+[release-types]
+major = [
+  '@pvm/plugin-*',
+  'test-a',
+]
+# release type could be a string also
+minor = 'test-b'
+patch = [ 'foo', 'bar' ]
+
+# choose for which packages we should update dependants
+[[update-dependants-for]]
+match = [
+  'boxy-*',
+  'text-a',
+]
+# as-dep means take same release type which has a dependency of package
+release-type = 'as-dep'
+
+# you can choose different release types for different packages
+# upper entries have highest priority
+# if there are multiple packages matched for single match with release-type=as-dep, highest release-type will be selected
+[[update-dependants-for]]
+match = [ 'boxy-*' ]
+release-type = 'as-dep'
+
+[[update-dependants-for]]
+match = [ 'test-a' ]
+release-type = 'minor'
+
+# also there is short form possible for same entry
+# in this case release type will be taken from config.update.dependants_release_type
+update-dependants-for = [
+  'boxy-*',
+  'test-a',
+]
+
+# include additional packages for updating
+[force-release]
+packages = [
+  'pkg-*',
+  '/src/foo/**',
+]
+
+release-notes = 'republish due to broken pipeline'

@@ -1,0 +1,3 @@
+[[update-dependants-for]]
+match = '*'
+release-type = 'patch'

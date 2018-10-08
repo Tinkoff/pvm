@@ -1,0 +1,23 @@
+name: 'release'
+
+on:
+  push:
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      PVM_LL: silly
+      # Should be passed explicitly
+      GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
+      PVM_SLACK_TOKEN: ${{ secrets.PVM_SLACK_TOKEN }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+      - uses: ./.github/actions/setup
+      - run: yarn build
+      - run: yarn pvm publish --dry-run
+

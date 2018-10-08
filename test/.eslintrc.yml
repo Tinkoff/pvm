@@ -1,0 +1,6 @@
+globals:
+  runScript: true
+  execScript: true
+  initRepo: true
+  writeConfig: true
+  writeRepo: true

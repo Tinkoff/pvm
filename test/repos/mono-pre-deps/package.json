@@ -1,0 +1,7 @@
+{
+  "name": "mono-pre-deps",
+  "private": true,
+  "workspaces": [
+    "src/*"
+  ]
+}

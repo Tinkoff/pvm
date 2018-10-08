@@ -1,0 +1,6 @@
+{
+  "versioning": {
+    "source": "file",
+    "unified_versions_for": ["*"]
+  }
+}

@@ -1,0 +1,65 @@
+/*colors: {*/
+/*  logoColor: '#9ac348',*/
+/*  primaryColor: '#3a4b0a', //  '#a9d62c'*/
+/*  secondaryColor: '#1B2304',*/
+/*},*/
+
+:root {
+  --ifm-color-primary: #165f9c;
+  --ifm-color-primary-dark: #14558c;
+  --ifm-color-primary-darker: #135185;
+  --ifm-color-primary-darkest: #0f426d;
+  --ifm-color-primary-light: #1868ac;
+  --ifm-color-primary-lighter: #196db3;
+  --ifm-color-primary-lightest: #1d7bcb;
+
+  --ifm-navbar-background-color: #f5f5f6;
+  --ifm-navbar-link-hover-color: #165f9c;
+  --ifm-navbar-link-color: #333;
+  --hero-banner-background: #24292e;
+
+  --ifm-color-info: #108fb7;
+  --ifm-color-warning: #e6a903;
+  --ifm-color-success: #049a04;
+}
+
+:root[data-theme="dark"] {
+  /*ff5003*/
+  --ifm-color-primary: #769dc2;
+  --ifm-color-primary-dark: #608eb8;
+  --ifm-color-primary-darker: #5686b4;
+  --ifm-color-primary-darkest: #436e97;
+  --ifm-color-primary-light: #8caccc;
+  --ifm-color-primary-lighter: #96b4d0;
+  --ifm-color-primary-lightest: #b7cbdf;
+}
+
+.navbar {
+  color: var(--ifm-navbar-link-color);
+}
+
+.hero--primary {
+  --ifm-hero-background-color: var(--hero-banner-background);
+  color: #fff;
+}
+
+.x-center {
+  display: flex;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.customAnchor {
+  top: calc(var(--ifm-navbar-height) * -1) !important;
+}
+
+svg > text:not([fill]),
+svg g:not([fill]) text:not([fill]),
+svg text[fill="#000"]{
+  fill: var(--ifm-font-color-base);
+}
+
+[data-theme="dark"] svg path[stroke="#000"] {
+  stroke: var(--ifm-font-color-base);
+}
+

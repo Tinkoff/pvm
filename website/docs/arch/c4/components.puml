@@ -1,0 +1,62 @@
+@startuml components
+skinparam defaultFontName Helvetica
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+AddElementTag("interface component", $bgColor="#lightsteelblue",$borderColor="lightsteelblue")
+
+Component(artifacts, "Artifacts", "@pvm/artifacts", "Работает с данными, сохраняемыми в постоянное хранлищие (чейнджлоги, служебные данные)")
+Component(changelog, "Changelog", "@pvm/changelog", "Генерирует чейнджлоги на основе данных о релизе")
+Component(releases, "Releases", "@pvm/releases", "Предоставляет api для работы с артефактами релизов")
+Component(repository, "Repository", "@pvm/repository", "Единый интерфейс для работы с репозиторием")
+
+Component(pkgset, "Pkgset", "@pvm/pkgset", "Позволяет получать списки пакетов по стратегиям", $tags="interface component")
+Component(pvm, "Pvm", "@pvm/pvm", "Входная точка cli и функционал публикации пакетов", $tags="interface component")
+Component(update, "Update", "@pvm/update", "Предоставляет api для наработки состояния обновления пакетов и манипуляции с ним", $tags="interface component")
+
+Boundary(vcs_group, "vcs") {
+  Component(vcs, "VCS", "@pvm/vcs", "Абстракция для работы с VCS (и fs) и platform api (code hosting api)")
+  Component(vcsFs, "VCS FS", "@pvm/vcs-fs", "Реализация VCS для работы с файловой системой")
+  Component(vcsGit, "VCS Git", "@pvm/vcs-git", "Реализация VCS для работы с git")
+}
+
+Boundary(vcs_platform, "vcs platform") {
+  Component(gitlab, "Gitlab", "@pvm/gitlab", "Модуль интеграции с api gitlab'а")
+  Component(abstract_vcs_platform, "Vcs Platform", "@pvm/vcs", "Абстракция для работы с vcs platform (gitlab или github")
+}
+
+Boundary(messaging_group, "Notification") {
+  Component(messaging, "Notification", "@pvm/notifications", "Модуль для унифицированной работы с нотификациями")
+  Component(slack, "Slack", "@pvm/slack", "Модуль клиента для Slack")
+  Component(mattermost, "Mattermost", "@pvm/mattermost", "Модуль клиента для Mattermost")
+}
+
+
+Rel(pvm, messaging, "Шлет сообщение об успешной публикации через", $tags="relation")
+Rel_D(pvm, pkgset, "Делегирует вызовы pkgset", cli)
+Rel_U(pvm, repository, "Слишком много где используется. Почти в каждой функции pvm пакета..")
+Rel_D(pvm, update, "Инициирует пометку релиза")
+Rel_L(pvm, vcs, "Миграция репозитория на новый конфиг и генерация release notes в cli")
+Rel(pvm, gitlab, "Ходит в апи гитлаба напрямую")
+Rel_U(pvm, abstract_vcs_platform, "Ходит в api абстрактной платформы")
+Rel(update, changelog, "Вызывает генерацию чейнджлога со своими релизными данными", "api, cli")
+Rel(update, artifacts, "Загружает артефакты в файловую систему, где они дополняются данными релиза и выгружает их обратно в хранилище")
+Rel(update, repository, "Получает объект с врЕменным конфигом выполняет миграцию конфига если она необходима")
+Rel_U(update, abstract_vcs_platform, "Создает релиз (в терминах vcs платформы)")
+Rel(update, releases, "Получает и дополняет список релизов")
+Rel_L(update, vcs, "Создает коммит релиза и/или добавляет тег(и) релиза и выполняет коммиты для миграции репозитория и конфига")
+Rel_L(update, pkgset, "Получает пакеты по указанной стратегии")
+Rel_U(update, messaging, "Шлет сообщение об ошибке создания релизного коммита (тега) через")
+Rel_U(pkgset, repository, "Использует поиск зависимых от пакета для добавления в результирующий список")
+Rel(changelog, artifacts, "Загружает данные о релизах", "api")
+Rel(changelog, artifacts, "Делегирует вызовы загрузки/выгрузки чейнджлогов из хранилища", cli)
+Rel(changelog, releases, "Получает список релизов")
+Rel(vcsGit, vcs, "Реализует интерфейс VCS")
+Rel(vcsFs, vcs, "Реализует интерфейс VCS")
+Rel(mattermost, messaging, "Реализует интерфейс AbstractMessengerClient")
+Rel(slack, messaging, Реализует интерфейс AbstractMessengerClient)
+Rel(releases, pkgset, "Получает список всех пакетов из указанного ref")
+Rel(releases, artifacts, "Делегирует вызовы загрузки/выгрузки списка релизов из хранилища")
+Rel(gitlab, vcs, "Реализует интерфейс AbstractPlatform")
+
+SHOW_LEGEND()
+@enduml

@@ -1,0 +1,7 @@
+{
+  "name": "glz-abc",
+  "version": "2.0.0",
+  "dependencies": {
+    "glz": "1.0.0"
+  }
+}

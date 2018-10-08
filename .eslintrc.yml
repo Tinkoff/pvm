@@ -1,0 +1,56 @@
+extends:
+  - standard
+  - plugin:import/errors
+  - plugin:import/warnings
+  - plugin:import/typescript
+  - plugin:jest/recommended
+plugins:
+  - import
+  - jest
+  - "@typescript-eslint"
+parser: "@typescript-eslint/parser"
+rules:
+  comma-dangle:
+    - error
+    - arrays: always-multiline
+      objects: always-multiline
+      imports: always-multiline
+      exports: always-multiline
+      functions: never
+  space-before-function-paren:
+    - error
+    - anonymous: never
+      named: never
+      asyncArrow: always
+  camelcase: off
+  no-labels: off
+  quotes: [
+    "error",
+    "single",
+    {
+      allowTemplateLiterals: true
+    }
+  ]
+  quote-props: "off"
+  no-void: off
+  dot-notation: off
+  array-bracket-spacing: off
+  no-mixed-operators: off
+  multiline-ternary: off
+  import/default: off
+  import/namespace: off
+  no-unreachable-loop: off
+  no-use-before-define: ["error", { "functions": false, "classes": false }]
+  "@typescript-eslint/consistent-type-imports": ["error", { "prefer": "type-imports" }]
+overrides:
+  - files: [ '*.spec.ts' ]
+    globals:
+      runScript: true
+      execScript: true
+      initRepo: true
+      writeConfig: true
+
+env:
+  node: true
+  jest: true
+  es6: true

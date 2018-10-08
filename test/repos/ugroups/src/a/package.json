@@ -1,0 +1,7 @@
+{
+  "name": "a",
+  "version": "10.0.0",
+  "dependencies": {
+    "@utils/bar": "1.0.0"
+  }
+}

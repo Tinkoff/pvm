@@ -1,0 +1,8 @@
+node_modules
+/test/**/website
+__repos
+/packages/**/*.js
+/test/git/gl/commitsToTags.js
+/test/github/**/*.js
+/test/platform-mock-helpers/repo-router-plugin.js
+*.d.ts

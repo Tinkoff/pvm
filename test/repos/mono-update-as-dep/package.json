@@ -1,0 +1,7 @@
+{
+  "name": "mono-update-as-dep",
+  "private": true,
+  "workspaces": [
+    "src/*"
+  ]
+}

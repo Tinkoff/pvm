@@ -1,0 +1,5 @@
+[release-types]
+major = 'a'
+minor = [ 'b' ]
+patch = [ 'c' ]
+

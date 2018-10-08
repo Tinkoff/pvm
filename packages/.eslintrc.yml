@@ -1,0 +1,39 @@
+extends:
+  - "../.eslintrc.yml"
+  - "plugin:@typescript-eslint/eslint-recommended"
+  - "plugin:@typescript-eslint/recommended"
+parser: "@typescript-eslint/parser"
+# tsconfigRootDir: ".."
+plugins:
+  - "@typescript-eslint"
+  - "node"
+  - "pvm"
+rules:
+  pvm/no-process-env: "error"
+  pvm/no-direct-git-fetch: "error"
+  pvm/no-direct-git-tag: "error"
+  import/no-extraneous-dependencies: ["error", { "devDependencies": false } ]
+  node/no-extraneous-import: "error"
+  "@typescript-eslint/indent": ["error", 2]
+  "@typescript-eslint/no-use-before-define": off
+  "@typescript-eslint/no-non-null-assertion": off
+  "@typescript-eslint/no-this-alias": off
+  "@typescript-eslint/member-delimiter-style":
+    - error
+    - multiline:
+        delimiter: comma
+        requireLast: true
+      singleline:
+        delimiter: comma
+        requireLast: false
+  "@typescript-eslint/array-type": off
+  "@typescript-eslint/camelcase": off
+  "@typescript-eslint/explicit-member-accessibility": off
+  "@typescript-eslint/explicit-function-return-type":
+    - warn
+    - allowExpressions: true
+  "@typescript-eslint/no-inferrable-types": warn
+  "@typescript-eslint/ban-ts-ignore": off
+  "@typescript-eslint/ban-ts-comment": off
+  "@typescript-eslint/no-var-requires": off
+  "@typescript-eslint/no-empty-function": off

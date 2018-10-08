@@ -1,0 +1,69 @@
+@startuml
+'https://plantuml.com/activity-diagram-beta
+'как работает команда update c релизами и ченжлогами
+skinparam ConditionEndStyle hline
+
+start
+
+:start pvm update>
+:ReleaseContext -> ReleaseData;
+#palegreen:ReleaseData
+attribution pipeline>
+note right
+User plugins and hooks
+end note
+
+if (config.outputReleaseData ?) then (yes)
+  :write ReleaseData to fs>
+endif
+
+
+partition DownloadArtifacts {
+  fork
+    if (maintain ReleaseList
+    and not in VCS ?) then (yes)
+      :download
+      ReleaseList from s3>
+    endif
+  fork again
+    if (changelog enabled
+    and not in VCS ?) then (yes)
+      :download
+      Changelog.md from s3>
+    endif
+  end fork
+}
+
+if (ReleaseList.enabled?) then (yes)
+  :Append ReleaseData to ReleaseList
+  and reduce result according to limits>
+else (no)
+endif
+
+if (render Changelog.md ?) then (yes)
+  if (renderer incremental ?) then (single-pass )
+    if (ReleaseList.enabled?) then (yes)
+      #82c91e:render
+      ReleaseList –> Changelog.md>
+    endif
+  else ( incremental )
+    #82c91e:append
+    ReleaseData –> Changelog.md>
+    ' :reduce Changelog according to limits>
+  endif
+endif
+
+partition UploadArtifacts {
+  fork
+    :maybe upload
+    ReleaseList to s3>
+  fork again
+    :maybe upload
+    Changelog.md to s3>
+  end fork
+}
+
+stop
+
+
+@enduml

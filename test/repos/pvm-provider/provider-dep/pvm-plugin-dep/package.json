@@ -1,0 +1,5 @@
+{
+  "name": "@company/pvm-plugin-dep",
+  "version": "0.1.0",
+  "main": "plugin-dep.js"
+}

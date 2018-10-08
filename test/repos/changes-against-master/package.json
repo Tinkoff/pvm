@@ -1,0 +1,10 @@
+{
+  "name": "changes-againts-master",
+  "private": true,
+  "workspaces": [
+    "pkgs/*"
+  ],
+  "description": "test repo",
+  "dependencies": {
+  }
+}

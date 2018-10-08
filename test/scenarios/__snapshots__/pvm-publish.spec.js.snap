@@ -1,0 +1,100 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`pvm/publish multi-package: get version for publishing from git 1`] = `
+"{
+  \\"success\\": [
+    {
+      \\"pkg\\": \\"a\\",
+      \\"registryVersion\\": null,
+      \\"publishedVersion\\": \\"10.0.0\\",
+      \\"type\\": \\"success\\"
+    },
+    {
+      \\"pkg\\": \\"b\\",
+      \\"registryVersion\\": null,
+      \\"publishedVersion\\": \\"20.0.0-rc.1\\",
+      \\"type\\": \\"success\\"
+    },
+    {
+      \\"pkg\\": \\"c\\",
+      \\"registryVersion\\": null,
+      \\"publishedVersion\\": \\"0.0.1\\",
+      \\"type\\": \\"success\\"
+    }
+  ],
+  \\"skipped\\": [],
+  \\"error\\": []
+}"
+`;
+
+exports[`pvm/publish single-package: get version for publishing from git 1`] = `
+"{
+  \\"success\\": [
+    {
+      \\"pkg\\": \\"two-releases\\",
+      \\"registryVersion\\": null,
+      \\"publishedVersion\\": \\"10.0.0\\",
+      \\"type\\": \\"success\\"
+    }
+  ],
+  \\"skipped\\": [],
+  \\"error\\": []
+}"
+`;
+
+exports[`pvm/publish команда pvm publish успешно отрабатывает c опцией output-stats 1`] = `
+"{
+  \\"success\\": [
+    {
+      \\"pkg\\": \\"@tinkoff-boxy/desktop-product-footer\\",
+      \\"registryVersion\\": null,
+      \\"publishedVersion\\": \\"2.0.1\\",
+      \\"type\\": \\"success\\"
+    },
+    {
+      \\"pkg\\": \\"a\\",
+      \\"registryVersion\\": null,
+      \\"publishedVersion\\": \\"1.0.1\\",
+      \\"type\\": \\"success\\"
+    },
+    {
+      \\"pkg\\": \\"d\\",
+      \\"registryVersion\\": null,
+      \\"publishedVersion\\": \\"1.1.0\\",
+      \\"type\\": \\"success\\"
+    }
+  ],
+  \\"skipped\\": [],
+  \\"error\\": []
+}"
+`;
+
+exports[`pvm/publish паблиш на релизном тэге вот-с-таким-кейсом 1`] = `
+"{
+  \\"success\\": [
+    {
+      \\"pkg\\": \\"a\\",
+      \\"registryVersion\\": null,
+      \\"publishedVersion\\": \\"1.0.0\\",
+      \\"type\\": \\"success\\"
+    }
+  ],
+  \\"skipped\\": [],
+  \\"error\\": []
+}"
+`;
+
+exports[`pvm/publish паблиш с замапленной папки 1`] = `
+"{
+  \\"success\\": [
+    {
+      \\"pkg\\": \\"c\\",
+      \\"registryVersion\\": null,
+      \\"publishedVersion\\": \\"1.0.0-beta.1\\",
+      \\"type\\": \\"success\\"
+    }
+  ],
+  \\"skipped\\": [],
+  \\"error\\": []
+}"
+`;

@@ -1,0 +1,74 @@
+/**
+ * Copyright (c) 2017-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * CSS files with the .module.css suffix will be treated as CSS modules
+ * and scoped locally.
+ */
+
+.heroBanner {
+  padding: 4rem 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+@media screen and (max-width: 966px) {
+  .heroBanner {
+    padding: 2rem;
+  }
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.section {
+  padding: 72px;
+}
+
+.featureImage {
+  height: 200px;
+  width: 200px;
+}
+
+@keyframes rotateIn {
+  from {
+    transform-origin: center;
+    transform: rotate3d(0, 0, 1, 12deg);
+  }
+
+  to {
+    transform-origin: center;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.heroLogo {
+  animation-name: rotateIn;
+  animation-duration: 1s;
+  animation-delay: 0.7s;
+  animation-fill-mode: both;
+  float: right;
+  padding: 0 20px 20px;
+  width: 160px;
+}
+
+.heroBanner .getStartedBtn {
+  border-radius: 3px;
+  color: #fff;
+  background-color: var(--hero-banner-background);
+  font-weight: normal;
+  border-color: var(--ifm-color-primary-darker);
+  transition: background-color 400ms;
+}
+
+.heroBanner .getStartedBtn:hover {
+  background-color: var(--ifm-color-primary-darker);
+}

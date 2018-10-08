@@ -1,0 +1,7 @@
+{
+  "name": "dedicated",
+  "private": true,
+  "workspaces": [
+    "src/*"
+  ]
+}

@@ -1,0 +1,27 @@
+@startuml context
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons2
+!define FONTAWESOME https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5
+
+!include DEVICONS/npm_original_wordmark.puml
+!include DEVICONS/gitlab.puml
+
+Person(developer, "Разработчик", "Использует pvm для поставки пакетов. Может настроить для этого запуск pvm в CI/CD.")
+Person(user, "Пользователь", "Использует пакет и информацию о релизе, опубликованные с помощью pvm")
+System(codeHostingPlatform, "Code Hosting", "Gitlab, Github, Bitbucket etc", "Платформа, предоставляющая услуги управления кодом и ci/cd", $sprite="gitlab")
+System(messenger, "Мессенджер", "Средство текстового общения, принятое в компании")
+ContainerDb(registry, "Реестр публикуемых пакетов", "Глобальный npm registry или self-hosted", $sprite="npm_original_wordmark")
+Container(pvm, "PVM", "lib", "Система управления версиями пакетов")
+
+
+
+Rel(user, codeHostingPlatform, "Просматривает информацию о релизах", "ui")
+Rel(messenger, user, "Оповещает пользователя о релизе", "ui")
+Rel(user, registry, "Получает опубликованные артефакты", "https")
+Rel(developer, pvm, "Использует")
+Rel(pvm, codeHostingPlatform, "Сохраняет релиз", "https")
+Rel(pvm, registry, "Публикует пакеты", "https")
+Rel(pvm, messenger, "Публикует сообщение о релизе", "https")
+
+
+@enduml

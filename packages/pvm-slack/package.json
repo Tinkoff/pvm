@@ -1,0 +1,17 @@
+{
+  "name": "@pvm/slack",
+  "version": "0.0.0-stub",
+  "description": "Cli and api utilities for sending messages to slack",
+  "main": "./lib",
+  "repository": "git@github.com:Tinkoff/pvm.git",
+  "author": "Andrey Rublev <box@anru.me>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@pvm/core": "^0.0.0-stub",
+    "@pvm/notifications": "^0.0.0-stub",
+    "@pvm/types": "^0.0.0-stub",
+    "get-stdin": "^7.0.0",
+    "resolve-from": "^5.0.0",
+    "slackify-markdown": "4.3.1"
+  }
+}

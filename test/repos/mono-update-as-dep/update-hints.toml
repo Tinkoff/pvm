@@ -1,0 +1,6 @@
+[release-types]
+major = [ 'm' ]
+
+[[update-dependants-for]]
+match = ['c', 'm']
+release-type = 'as-dep'

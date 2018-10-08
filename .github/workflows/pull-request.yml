@@ -1,0 +1,87 @@
+name: 'pull request'
+
+on: pull_request
+
+jobs:
+  mark-pr:
+    runs-on: ubuntu-latest
+    env:
+      PVM_LL: silly
+      # Should be passed explicitly
+      GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 100
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: ./.github/actions/setup
+      - run: yarn build
+      - run: yarn pvm mark-pr
+
+  test:
+    runs-on: ubuntu-latest
+    env:
+      PVM_LL: silly
+      # Should be passed explicitly
+      GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
+      PVM_GITHUB_TEST_REPO_TOKEN: ${{ secrets.PVM_GITHUB_TEST_REPO_TOKEN }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 100
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: ./.github/actions/setup
+      - run: yarn build
+      - run: yarn check-ts-strict
+      - run: yarn lint:config-schema
+      - run: yarn pvm vcs is-branch-actual
+      - run: yarn pvm lint
+      - run: yarn lint
+      - run: yarn test -w `node -p 'Math.min(os.cpus().length, 2)'`
+      - run: node tools/github-test-repos-cleanup.js
+        if: always()
+
+  publish-dry-run:
+    runs-on: ubuntu-latest
+    env:
+      PVM_LL: silly
+      # Should be passed explicitly
+      GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 100
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: ./.github/actions/setup
+      - run: yarn build
+      - run: yarn pvm publish -s changed-since-release -S ref=HEAD --dry-run
+
+  publish-stale-dry-run:
+    runs-on: ubuntu-latest
+    env:
+      PVM_LL: silly
+      # Should be passed explicitly
+      GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 100
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: ./.github/actions/setup
+      - run: yarn build
+      - run: yarn pvm publish -s stale --dry-run
+
+  update-dry-run:
+    runs-on: ubuntu-latest
+    env:
+      PVM_LL: silly
+      # Should be passed explicitly
+      GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 100
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: ./.github/actions/setup
+      - run: yarn build
+      - run: yarn pvm update --dry-run

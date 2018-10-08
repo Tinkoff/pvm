@@ -1,0 +1,7 @@
+{
+  "name": "mono-pkgset-bug",
+  "private": true,
+  "workspaces": [
+    "src/*"
+  ]
+}

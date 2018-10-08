@@ -1,0 +1,10 @@
+{
+  "name": "monouno",
+  "private": true,
+  "workspaces": [
+    "src/*"
+  ],
+  "devDependencies": {
+    "@company/pvm": "file:./provider-dep"
+  }
+}

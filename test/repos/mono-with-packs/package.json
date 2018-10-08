@@ -1,0 +1,8 @@
+{
+  "name": "monorepo-new",
+  "private": true,
+  "workspaces": [
+    "src/*",
+    "packs/*"
+  ]
+}

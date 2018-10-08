@@ -1,0 +1,8 @@
+{
+  "name": "d",
+  "version": "1.0.0",
+  "dependencies": {
+    "@tinkoff-boxy/desktop-product-header": "1.0.0-beta.1",
+    "abcvbs": "3.2.1"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "name": "local-plugins",
+  "private": true,
+  "workspaces": [
+    "src/*"
+  ]
+}

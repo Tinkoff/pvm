@@ -1,0 +1,7 @@
+{
+  "name": "mono-dependants-2",
+  "private": true,
+  "workspaces": [
+    "src/*"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "changes-againts-master-2",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "pkgs/*"
+    ]
+  },
+  "description": "test repo",
+  "dependencies": {
+  }
+}

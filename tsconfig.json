@@ -1,0 +1,47 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "target": "es2018",
+    "experimentalDecorators": true,
+    "resolveJsonModule": true,
+    "strictNullChecks": true,
+    "lib": [
+      "es2015.generator",
+      "es2015.promise",
+      "es2015.iterable",
+      "es2015.symbol",
+      "esnext.asynciterable",
+      "es2015",
+      "es2016",
+      "es2017",
+      "es2018",
+      "es2019",
+      "es7"
+    ],
+    "baseUrl": "packages",
+    "moduleResolution": "node",
+    "module": "CommonJS",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitAny": false,
+    "sourceMap": false,
+    "importsNotUsedAsValues": "error",
+    "paths": {
+      "@octokit/oauth-app": ["../type-overrides/octokit--oauth-app"],
+    }
+  },
+  "include": [
+    "packages",
+    "typedoc",
+    "test"
+  ],
+  "exclude": [
+    "website",
+    "tools",
+    "docs",
+    "declarations"
+//    "**/test/**/*.ts",
+//    "**/*.spec.ts"
+  ]
+}

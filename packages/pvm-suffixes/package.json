@@ -1,0 +1,12 @@
+{
+  "name": "@pvm/suffixes",
+  "version": "0.0.0-stub",
+  "description": "Default list of release suffixes",
+  "main": "lib",
+  "repository": "git@github.com:Tinkoff/pvm.git",
+  "author": "Diokuz <diokuz@gmail.com>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "superheroes": "^3.0.0"
+  }
+}

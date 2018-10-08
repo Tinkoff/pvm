@@ -1,0 +1,11 @@
+{
+  "name": "@company/pvm",
+  "version": "0.1.0",
+  "pvm": {
+    "provider": true,
+    "configDefaults": "./configDefaults.js"
+  },
+  "dependencies": {
+    "@company/pvm-plugin-dep": "file:./pvm-plugin-dep"
+  }
+}

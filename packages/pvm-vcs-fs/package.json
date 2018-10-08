@@ -1,0 +1,16 @@
+{
+  "name": "@pvm/vcs-fs",
+  "version": "0.0.0-stub",
+  "description": "Vcs api for running pvm update without writings to git",
+  "main": "lib/fs-vcs.js",
+  "repository": "git@github.com:Tinkoff/pvm.git",
+  "author": "ext.mshipov@tinkoff.ru",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@pvm/core": "0.0.0-stub",
+    "@pvm/gitlab": "0.0.0-stub"
+  },
+  "devDependencies": {
+    "@pvm/vcs": "0.0.0-stub"
+  }
+}

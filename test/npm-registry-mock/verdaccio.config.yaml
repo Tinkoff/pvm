@@ -1,0 +1,10 @@
+storage: $[STORAGE_PATH]
+logs:
+  - { type: stdout, format: pretty, level: http }
+packages:
+  "*":
+    access: $anonymous
+    publish: $anonymous
+  "*/*":
+    access: $anonymous
+    publish: $anonymous

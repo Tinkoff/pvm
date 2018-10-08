@@ -1,0 +1,7 @@
+{
+  "name": "two-packages-with-same-prefix",
+  "private": true,
+  "workspaces": [
+    "src/*"
+  ]
+}

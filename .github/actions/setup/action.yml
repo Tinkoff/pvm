@@ -1,0 +1,14 @@
+name: 'setup'
+description: ''
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+        cache: yarn
+    - run: yarn --frozen-lockfile
+      shell: bash
+    # without this, strangely, git stash create begin failing without message
+    - run: git diff
+      shell: bash

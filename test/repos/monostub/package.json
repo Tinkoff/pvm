@@ -1,0 +1,7 @@
+{
+  "name": "monostub",
+  "private": true,
+  "workspaces": [
+    "src/*"
+  ]
+}

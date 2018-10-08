@@ -1,0 +1,15 @@
+{
+  "name": "@pvm/add-tag",
+  "version": "0.0.0-stub",
+  "description": "Определение следующего релиза для простых репозиториев",
+  "main": "lib/index.js",
+  "repository": "git@github.com:Tinkoff/pvm.git",
+  "author": "Andrey Rublev <box@anru.me>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@pvm/core": "0.0.0-stub",
+    "@pvm/vcs": "0.0.0-stub",
+    "@pvm/update": "0.0.0-stub",
+    "semver": "^7.3.0"
+  }
+}

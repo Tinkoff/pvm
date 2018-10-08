@@ -1,0 +1,4 @@
+--ignore-dir=.cache
+--ignore-dir=public
+--ignore-dir=website/.docusaurus
+--ignore-dir=website/build

@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`templates шаблонизация списков через cut 1`] = `
+"*test-a@1.0.0*, *test-b@2.0.0* packages have been released
+• https://jira.example.com/browse/PFP-2321 Баг с получением полей структуры
+• коррекция наводки
+• Добавлены валидаторы на максимальное кол-во символов для полей: \`1\`, \`2\`
+"
+`;
+
+exports[`templates шаблонизация списков через cut, 1 пакет 1`] = `
+"*test-a@1.0.0* package has been released
+• https://jira.example.com/browse/PFP-2321 Баг с получением полей структуры
+• коррекция наводки
+• Добавлены валидаторы на максимальное кол-во символов для полей: \`1\`, \`2\`
+"
+`;

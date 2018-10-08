@@ -1,0 +1,11 @@
+{
+  "name": "@pvm/viz",
+  "version": "0.0.0-stub",
+  "description": "cli for viz.js package",
+  "main": "lib/index.js",
+  "author": "Andrey Rublev <box@anru.me>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "viz.js": "^2.1.2"
+  }
+}

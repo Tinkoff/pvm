@@ -1,0 +1,16 @@
+{
+  "name": "@pvm/mattermost",
+  "version": "0.0.0-stub",
+  "description": "Api utilities for sending messages to mattermost",
+  "main": "./lib",
+  "repository": "git@github.com:Tinkoff/pvm.git",
+  "author": "Mikhail Shipov <ext.mshipov@tinkoff.ru>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@pvm/core": "0.0.0-stub",
+    "@pvm/notifications": "0.0.0-stub",
+    "@pvm/types": "0.0.0-stub",
+    "get-stdin": "^7.0.0",
+    "resolve-from": "^5.0.0"
+  }
+}

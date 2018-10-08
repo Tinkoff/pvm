@@ -1,0 +1,20 @@
+{
+  "name": "@pvm/vcs",
+  "version": "0.0.0-stub",
+  "description": "Abstraction layer for vcs",
+  "main": "lib/index",
+  "repository": "git@github.com:Tinkoff/pvm.git",
+  "author": "Andrey Rublev <box@anru.me>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@pvm/core": "0.0.0-stub",
+    "@pvm/cowners": "0.0.0-stub",
+    "@pvm/vcs-git": "0.0.0-stub",
+    "@pvm/gitlab": "0.0.0-stub",
+    "@pvm/github": "0.0.0-stub",
+    "@pvm/vcs-fs": "0.0.0-stub",
+    "hosted-git-info": "^3.0.2",
+    "resolve-from": "^5.0.0",
+    "string-to-color": "^2.2.2"
+  }
+}
