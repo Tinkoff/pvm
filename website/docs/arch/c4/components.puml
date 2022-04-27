@@ -24,14 +24,14 @@ Boundary(vcs_platform, "vcs platform") {
   Component(abstract_vcs_platform, "Vcs Platform", "@pvm/vcs", "Абстракция для работы с vcs platform (gitlab или github")
 }
 
-Boundary(messaging_group, "Notification") {
-  Component(messaging, "Notification", "@pvm/notifications", "Модуль для унифицированной работы с нотификациями")
+Boundary(notifications_group, "Notifications") {
+  Component(notifications, "Notifications", "@pvm/notifications", "Модуль для унифицированной работы с нотификациями")
   Component(slack, "Slack", "@pvm/slack", "Модуль клиента для Slack")
   Component(mattermost, "Mattermost", "@pvm/mattermost", "Модуль клиента для Mattermost")
 }
 
 
-Rel(pvm, messaging, "Шлет сообщение об успешной публикации через", $tags="relation")
+Rel(pvm, notifications, "Шлет сообщение об успешной публикации через", $tags="relation")
 Rel_D(pvm, pkgset, "Делегирует вызовы pkgset", cli)
 Rel_U(pvm, repository, "Слишком много где используется. Почти в каждой функции pvm пакета..")
 Rel_D(pvm, update, "Инициирует пометку релиза")
@@ -45,15 +45,15 @@ Rel_U(update, abstract_vcs_platform, "Создает релиз (в термин
 Rel(update, releases, "Получает и дополняет список релизов")
 Rel_L(update, vcs, "Создает коммит релиза и/или добавляет тег(и) релиза и выполняет коммиты для миграции репозитория и конфига")
 Rel_L(update, pkgset, "Получает пакеты по указанной стратегии")
-Rel_U(update, messaging, "Шлет сообщение об ошибке создания релизного коммита (тега) через")
+Rel_U(update, notifications, "Шлет сообщение об ошибке создания релизного коммита (тега) через")
 Rel_U(pkgset, repository, "Использует поиск зависимых от пакета для добавления в результирующий список")
 Rel(changelog, artifacts, "Загружает данные о релизах", "api")
 Rel(changelog, artifacts, "Делегирует вызовы загрузки/выгрузки чейнджлогов из хранилища", cli)
 Rel(changelog, releases, "Получает список релизов")
 Rel(vcsGit, vcs, "Реализует интерфейс VCS")
 Rel(vcsFs, vcs, "Реализует интерфейс VCS")
-Rel(mattermost, messaging, "Реализует интерфейс AbstractMessengerClient")
-Rel(slack, messaging, Реализует интерфейс AbstractMessengerClient)
+Rel(mattermost, notifications, "Реализует интерфейс AbstractMessengerClient")
+Rel(slack, notifications, Реализует интерфейс AbstractMessengerClient)
 Rel(releases, pkgset, "Получает список всех пакетов из указанного ref")
 Rel(releases, artifacts, "Делегирует вызовы загрузки/выгрузки списка релизов из хранилища")
 Rel(gitlab, vcs, "Реализует интерфейс AbstractPlatform")

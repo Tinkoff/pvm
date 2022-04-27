@@ -26,9 +26,12 @@ async function send(channel: string, content: string) {
 ```
 
 ## CLI
-
+```
 @cli-inline yarn pvm notification --help
+```
 
 ### `pvm notification send`
+```
 @cli-inline yarn pvm notification send --help
+```
 

@@ -5,6 +5,7 @@ import { checkEnv } from '@pvm/core/lib/env'
 import { loggerFor } from '@pvm/core/lib/logger'
 import { gracefullyTruncateText } from '@pvm/core/lib/utils/string'
 import slackifyMarkdown from 'slackify-markdown'
+import omitBy from 'lodash.omitby'
 
 const logger = loggerFor('pvm:slack')
 
@@ -16,7 +17,7 @@ export class SlackClient extends AbstractMessengerClient {
   }
 
   protected async internalSendMessage(message: Message): Promise<void> {
-    await sendMessage(await this.config, {
+    await sendMessage(await this.config, omitBy({
       username: message.author?.name,
       icon_emoji: message.author?.avatarEmoji,
       icon_url: message.author?.avatarUrl,
@@ -41,6 +42,6 @@ export class SlackClient extends AbstractMessengerClient {
         return slackified
       }),
       channel: message.channel,
-    })
+    }, prop => prop === undefined))
   }
 }

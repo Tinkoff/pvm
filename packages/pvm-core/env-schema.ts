@@ -1,5 +1,7 @@
 /**
  * Env variables, used by pvm
+ *
+ * ## [Defaults](config/env-defaults.md)
  */
 export interface Env {
   /**

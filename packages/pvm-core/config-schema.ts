@@ -110,6 +110,8 @@ export interface MessengerClientLoadConfig {
  *   // config goes here
  * }
  * ```
+ *
+ * ## [Defaults](config/config-defaults.md)
  */
 export interface Config {
   versioning: {

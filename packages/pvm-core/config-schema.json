@@ -231,7 +231,7 @@
             "type": "object"
         }
     },
-    "description": "Configuration file schema.\n\nConfig file name should be `.pvm` and extension should be one of the following: `.json`, `.toml`, `.yaml` or `.js` if configuration\nshould be dynamically calculated.\n\n.toml example\n```toml\n[versioning]\nunified = true\nsource = 'tag'\n```\n\n.js example\n```js\nmodule.exports = {\n  // config goes here\n}\n```",
+    "description": "Configuration file schema.\n\nConfig file name should be `.pvm` and extension should be one of the following: `.json`, `.toml`, `.yaml` or `.js` if configuration\nshould be dynamically calculated.\n\n.toml example\n```toml\n[versioning]\nunified = true\nsource = 'tag'\n```\n\n.js example\n```js\nmodule.exports = {\n  // config goes here\n}\n```\n\n## [Defaults](config/config-defaults.md)",
     "properties": {
         "changelog": {
             "allOf": [

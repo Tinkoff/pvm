@@ -32,7 +32,7 @@ export const flagsBuilder = {
     alias: 's',
     desc: `Which packages should be published. Refer to "pvm pkgset" docs for possible options.`,
     default: function() {
-      return yargs.options(canaryFlag).argv.canary ? 'affected' : 'updated'
+      return yargs.options(canaryFlag).help(false).argv.canary ? 'affected' : 'updated'
     } as unknown as string,
   },
   strategyOption: {
@@ -53,7 +53,7 @@ export const flagsBuilder = {
     By default equals to latest or canary (if canary mode enabled) unless registry package version is greater than published.`,
     type: 'string',
     default: function() {
-      return yargs.options(canaryFlag).argv.canary ? revParse('HEAD', process.cwd()) : null
+      return yargs.options(canaryFlag).help(false).argv.canary ? revParse('HEAD', process.cwd()) : null
     } as unknown as string,
   },
   bail: {
@@ -89,7 +89,7 @@ export const flagsBuilder = {
       const { canary, messageChannel } = yargs.options({
         ...messageChannelFlag,
         ...canaryFlag,
-      }).argv
+      }).help(false).argv
       return !canary || !!messageChannel
     } as unknown as boolean,
   },

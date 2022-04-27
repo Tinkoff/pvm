@@ -11,7 +11,7 @@ export abstract class AbstractMessengerClient {
   getMessageWithDefaults(message: Message): Message {
     const clientConfig = this.clientConfig
 
-    return defaultsDeep({}, message, {
+    return defaultsDeep({}, message, { author: { name: this.config.slack_notification?.username } }, {
       channel: clientConfig.channel,
       author: clientConfig.author,
     })
@@ -24,12 +24,10 @@ export abstract class AbstractMessengerClient {
 
     if (!withDefaults.channel) {
       logger.error('"channel" should be defined via configuration or passed argument')
-      return
     }
 
     if (withDefaults.content === undefined) {
       logger.error('"content" should be defined via configuration or passed argument')
-      return
     }
 
     return this.internalSendMessage(withDefaults)

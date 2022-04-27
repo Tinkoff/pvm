@@ -1,6 +1,6 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "description": "Env variables, used by pvm",
+    "description": "Env variables, used by pvm\n\n## [Defaults](config/env-defaults.md)",
     "properties": {
         "CI": {
             "description": "Flag that script running in continuous integration environment",

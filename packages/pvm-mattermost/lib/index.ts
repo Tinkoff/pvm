@@ -13,6 +13,34 @@ export class MattermostClient extends AbstractMessengerClient {
     return checkEnv(['PVM_MATTERMOST_TOKEN', 'PVM_MATTERMOST_URL'], 'mattermost integration', { logger, silent: true })
   }
 
+  async getSelfId(): Promise<string | null> {
+    try {
+      const userInfo = await this.requestApi({
+        path: `users/me`,
+        method: 'GET',
+      })
+
+      return userInfo.json.id
+    } catch (e) {
+      logger.error('Retrieving self id failed')
+      throw e
+    }
+  }
+
+  async getUserIdFromUserName(userName: string): Promise<string> {
+    try {
+      const userInfo = await this.requestApi({
+        path: `users/username/${userName}`,
+        method: 'GET',
+      })
+
+      return userInfo.json.id
+    } catch (e) {
+      logger.error('Retrieving user id from username failed. Maybe it is user id already..')
+      throw e
+    }
+  }
+
   async getChannelIdFromChannelName(channelName: string): Promise<string | null> {
     const { PVM_MATTERMOST_TEAM } = env
 
@@ -28,10 +56,31 @@ export class MattermostClient extends AbstractMessengerClient {
         method: 'GET',
       })
 
-      return channelInfo.id
+      return channelInfo.json.id
     } catch (e) {
       logger.warn('Retrieving channel id from channel name failed. Maybe it is channel id already..')
       return null
+    }
+  }
+
+  async createDirectChannel(userName: string): Promise<string> {
+    const selfId = await this.getSelfId()
+    const userId = await this.getUserIdFromUserName(userName)
+
+    try {
+      const channelInfo = await this.requestApi({
+        path: `channels/direct`,
+        method: 'POST',
+        body: [
+          selfId,
+          userId,
+        ],
+      })
+
+      return channelInfo.json.id
+    } catch (e) {
+      logger.error(`Creating direct messaging channel for user ${userName} failed`)
+      throw e
     }
   }
 
@@ -43,11 +92,14 @@ export class MattermostClient extends AbstractMessengerClient {
    * @protected
    */
   protected async internalSendMessage(message: Message & { channel: string, content: string }): Promise<void> {
+    const userName = message.channel.startsWith('@') ? message.channel.slice(1) : null
+    const channelName = message.channel.startsWith('#') ? message.channel.slice(1) : message.channel
+
     await this.requestApi({
       path: 'posts',
       method: 'POST',
       body: {
-        channel_id: await this.getChannelIdFromChannelName(message.channel) ?? message.channel,
+        channel_id: userName ? await this.createDirectChannel(userName) : await this.getChannelIdFromChannelName(channelName) ?? channelName,
         message: gracefullyTruncateText(message.content, MAX_TEXT_LENGTH),
         props: {
           attachments: message.attachments,

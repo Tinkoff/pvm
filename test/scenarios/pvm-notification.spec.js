@@ -497,6 +497,41 @@ describe('pvm-notification', () => {
         })
       })
 
+      it('should be backward compatible with slack_nofitication', async () => {
+        const slackRequestsBody = collectSlackRequests(slackMocker)
+        const repo = await initRepo('simple-one')
+        await repo.updateConfig({
+          slack_notification: {
+            channel: 'c2',
+            username: 'pfpa-tools deploy',
+            icon_emoji: ':hammer_and_wrench:',
+          },
+          notifications: {
+            target: ['slack'],
+            clients: [
+              {
+                name: 'slack',
+                pkg: '@pvm/slack',
+              },
+            ],
+          },
+        })
+
+        await runScript(repo, 'pvm notification send -m hello', {
+          env: {
+            ...process.env,
+            SLACK_API_URL: slackMocker.mockerUrl,
+            SLACK_TOKEN: 'test',
+          },
+        })
+        expect(slackRequestsBody.length).toEqual(1)
+        expect(slackRequestsBody[0]).toMatchObject({
+          channel: 'c2',
+          username: 'pfpa-tools deploy',
+          icon_emoji: ':hammer_and_wrench:',
+        })
+      })
+
       testCLI(
         `pvm notification send -m hello`,
         {

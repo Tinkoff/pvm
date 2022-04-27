@@ -59,6 +59,9 @@ const siteConfig = {
   favicon: 'img/pvm-64.png',
 
   themeConfig: {
+    prism: {
+      additionalLanguages: ['bash', 'toml'],
+    },
     navbar: {
       title: 'Pvm',
       logo: {
