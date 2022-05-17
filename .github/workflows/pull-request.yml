@@ -7,7 +7,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PVM_LL: silly
-      # Should be passed explicitly
       GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
     steps:
       - uses: actions/checkout@v2
@@ -18,11 +17,28 @@ jobs:
       - run: yarn build
       - run: yarn pvm mark-pr
 
+  docs-test:
+    runs-on: ubuntu-latest
+    container: mshipov/plantuml:0.0.1
+    env:
+      PVM_LL: silly
+      GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+      - uses: ./.github/actions/build-docs
+      - uses: actions/upload-artifact@v3
+        with:
+          name: docs
+          path: ./website/build
+
   test:
     runs-on: ubuntu-latest
     env:
       PVM_LL: silly
-      # Should be passed explicitly
       GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
       PVM_GITHUB_TEST_REPO_TOKEN: ${{ secrets.PVM_GITHUB_TEST_REPO_TOKEN }}
     steps:
@@ -45,7 +61,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PVM_LL: silly
-      # Should be passed explicitly
       GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
     steps:
       - uses: actions/checkout@v2
@@ -60,7 +75,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PVM_LL: silly
-      # Should be passed explicitly
       GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
     steps:
       - uses: actions/checkout@v2
@@ -75,7 +89,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PVM_LL: silly
-      # Should be passed explicitly
       GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
     steps:
       - uses: actions/checkout@v2

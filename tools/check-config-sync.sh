@@ -1,1 +1,1 @@
-(yarn generate-config-schema && yarn check-no-staged-schema) || (echo "Config schema at \`packages/pvm-core/config-schema.json\` is not in sync with \`config-schema.ts\`. Please run \`yarn generate-config-schema\` and commit the result" && exit 1)
+(yarn generate-config-schema && yarn check-no-staged-changes) || (echo "Config schema at \`packages/pvm-core/config-schema.json\` is not in sync with \`config-schema.ts\`. Please run \`yarn generate-config-schema\` and commit the result" && exit 1)

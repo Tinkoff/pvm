@@ -10,7 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PVM_LL: silly
-      # Should be passed explicitly
       GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
       PVM_SLACK_TOKEN: ${{ secrets.PVM_SLACK_TOKEN }}
     steps:
@@ -21,3 +20,21 @@ jobs:
       - run: yarn build
       - run: yarn pvm publish --dry-run
 
+  docs:
+    runs-on: ubuntu-latest
+    container: mshipov/plantuml:0.0.1
+    env:
+      PVM_LL: silly
+      GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+      - uses: ./.github/actions/build-docs
+      - uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./website/build
+          force_orphan: true
