@@ -19,25 +19,12 @@ import TabItem from '@theme/TabItem'
 >
 <TabItem value="yarn">
 
-Для начала, нужно настроить `.npmrc` для установки pvm внутри сети банка:
-
-```
-_auth=
-@pvm:registry = https://registry.npmjs.org/
-strict-ssl = false
-ca = ''
-```
-
-После этого можно добавлять пакет:
-
 ```bash
 yarn add @pvm/pvm --dev
 ```
 
 </TabItem>
 <TabItem value="npm">
-
-Добавляем в `.npmrc` строку `@pvm:registry = https://registry.npmjs.org/`
 
 ```bash
 npm install -D @pvm/pvm
