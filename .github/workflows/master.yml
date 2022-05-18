@@ -10,7 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PVM_LL: silly
-      # Should be passed explicitly
       GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
     steps:
       - uses: actions/checkout@v2
