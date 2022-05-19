@@ -31,6 +31,20 @@ files_match = [
 [update.graph]
 strip_namespace = false
 
+[notifications]
+target = 'all'
+
+[[notifications.clients]]
+name = 'slack'
+pkg = '@pvm/slack'
+
+[[notifications.clients]]
+name = 'mattermost'
+pkg = '@pvm/mattermost'
+
+[notifications.client_configs.mattermost]
+team = 'tinkoff'
+
 [notifications.clients_common_config]
 channel = 'pvm'
 author = { name = 'pvm minion (github)', avatarEmoji = ':deciduous_tree:' }

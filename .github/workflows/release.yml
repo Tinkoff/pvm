@@ -18,4 +18,4 @@ jobs:
           fetch-depth: 1
       - uses: ./.github/actions/setup
       - run: yarn build
-      - run: yarn pvm publish --dry-run
+      - run: yarn pvm publish

@@ -9,5 +9,3 @@
 ```
 @cli-inline yarn pvm --help
 ```
-
-`release trigger`
