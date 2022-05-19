@@ -3,6 +3,11 @@ id: index
 title: Change Log
 ---
 
+## v0.54.3
+**2022.05.19**
+
+chore: fix npm registry authentication
+
 ## v0.54.2
 **2022.05.19**
 
