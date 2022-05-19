@@ -16,6 +16,7 @@ attach_changelog = true
 
 [publish]
 registry = 'https://registry.npmjs.org'
+cli_args = '--access public'
 
 [update]
 default_release_type = 'patch'
