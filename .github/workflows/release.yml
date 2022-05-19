@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          fetch-depth: 1
+          fetch-depth: 150
       - uses: ./.github/actions/setup
       - run: yarn build
       - run: yarn pvm publish
