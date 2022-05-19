@@ -3,6 +3,18 @@ id: index
 title: Change Log
 ---
 
+## v0.54.6
+**2022.05.19**
+
+
+
+### Other
+
+* enable conventional changelog plugin ([#527421a](https://github.com/Tinkoff/pvm/commit/527421a9c4c05ce523eb5c0891fe5658a6a5f58e))
+
+
+
+
 ## v0.54.5
 **2022.05.19**
 
