@@ -3,6 +3,11 @@ id: index
 title: Change Log
 ---
 
+## v0.54.5
+**2022.05.19**
+
+chore: fetch more commits in release job
+
 ## v0.54.4
 **2022.05.19**
 
