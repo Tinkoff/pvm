@@ -12,6 +12,9 @@ jobs:
       PVM_LL: silly
       GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
       PVM_SLACK_TOKEN: ${{ secrets.PVM_SLACK_TOKEN }}
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      PVM_MATTERMOST_URL: ${{ secrets.PVM_MATTERMOST_URL }}
+      PVM_MATTERMOST_TOKEN: ${{ secrets.PVM_MATTERMOST_TOKEN }}
     steps:
       - uses: actions/checkout@v2
         with:
