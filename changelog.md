@@ -3,6 +3,11 @@ id: index
 title: Change Log
 ---
 
+## v0.54.4
+**2022.05.19**
+
+chore: set `--access public` for publication
+
 ## v0.54.3
 **2022.05.19**
 
