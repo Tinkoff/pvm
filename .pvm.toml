@@ -49,3 +49,6 @@ team = 'tinkoff'
 [notifications.clients_common_config]
 channel = 'pvm'
 author = { name = 'pvm minion (github)', avatarEmoji = ':deciduous_tree:' }
+
+[plugins]
+local_plugins = ['packages/pvm-plugin-conventional-changelog']
