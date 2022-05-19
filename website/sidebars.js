@@ -40,9 +40,6 @@ module.exports = {
       'how-to/reviewers',
       'how-to/local-releases',
     ],
-    'Migrations': [
-      'how-to/migrations/0.53.0',
-    ],
   },
   'API': [
     {
