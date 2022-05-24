@@ -44,11 +44,10 @@ Pvm использует формат [yarn workspaces](https://yarnpkg.com/lang
 [update]
 dependants_release_type = 'as-dep'
 
-# Конфигурация slack нотификаций при релизах библиотек
-[slack_notification]
+# Конфигурация нотификаций при релизах библиотек
+[notifications.clients_common_config]
 channel = '#temp'
-username = 'Release bot'
-icon_emoji = ':ghost:'
+author = { name = 'pvm minion', avatarEmoji = ':deciduous_tree:' }
 ```
 
 Помимо прочего мы здесь задали опцию `dependants_release_type` и теперь у нас при изменении пакетов, все пакеты, которые зависели от первых, будут наследовать тип релиза.
