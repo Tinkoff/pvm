@@ -57,7 +57,9 @@ function ensureCommitsDepth(cwd: string, from: string, to: string): void {
 // вычисляет последний релиз, и на основе него получаем коммиты и список пакетов на новый релиз
 async function sinceLastRelease(targetRef: string, opts: SinceLastReleaseOpts): Promise<ChangedContext> {
   const config = await getConfig(opts.cwd)
-  const vcsPlatform = await initVcsPlatform()
+  const vcsPlatform = await initVcsPlatform({
+    cwd: opts.cwd,
+  })
   const updConfig = config.update
 
   const {

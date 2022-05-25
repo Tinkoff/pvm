@@ -165,7 +165,7 @@ const githubClient = new Octokit({
       }
 
       for await (const release of githubPlatform.releasesIterator()) {
-        const sourceReleaseParams = releases.pop()!
+        const sourceReleaseParams = releases.shift()!
         expect(release.commit!.id).toBe(sourceReleaseParams.commit)
         expect(release.name).toBe(sourceReleaseParams.name)
         expect(release.description).toBe(sourceReleaseParams.description)

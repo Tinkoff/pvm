@@ -80,14 +80,13 @@ yarn pvm local update
 ### publish
 
 `pvm publish` – команда публикует все пакеты, которые поменяли свою версию в используемый registry,
-а также оповещает о публикации в слак если задан токен `PVM_SLACK_TOKEN` через переменные окружения.
-Также понадобится настройка `slack_notification` в конфиге pvm, например такая:
+а также оповещает о публикации в мессенджеры если задан токен `PVM_SLACK_TOKEN` или `PVM_MATTERMOST_TOKEN` и `PVM_MATTERMOST_URL` через переменные окружения.
+Также понадобится настройка `notifications.clients_common_config` в конфиге pvm, например такая:
 
 ```toml
-[slack_notification]
-channel = '#pvm'
-username = 'pvm minion'
-icon_emoji = ':deciduous_tree:'
+[notifications.clients_common_config]
+channel = '#temp'
+author = { name = 'pvm minion', avatarEmoji = ':deciduous_tree:' }
 ```
 
 Подробно рассмотрим публикацию в отдельной [главе], сейчас остановимся на этом и перейдем к другому, альтернативному процессу релиза.

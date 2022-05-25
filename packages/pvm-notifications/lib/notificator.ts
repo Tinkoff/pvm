@@ -7,6 +7,7 @@ import { logger } from './logger'
 import resolveFrom from 'resolve-from'
 import { requireDefault } from '@pvm/core'
 import defaultsDeep from 'lodash.defaultsdeep'
+import { getHostApi } from '@pvm/core/lib/plugins'
 
 export class Notificator {
   private messengers: MessengerClients
@@ -36,6 +37,8 @@ export class Notificator {
   }
 
   static async create(cwd: string = process.cwd()): Promise<Notificator> {
+    // initializing plugins
+    await getHostApi(cwd)
     return new Notificator(await getConfig(cwd))
   }
 
