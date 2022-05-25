@@ -3,7 +3,7 @@ const { execSync } = require('child_process')
 const CLI_INLINE_REGEXP = /\s*@cli-inline\s+(.*)$/
 const CLI_INLINE_MARKDOWN_REGEXP = /\s*@cli-inline-md\s+(.*)$/
 
-module.exports = ({ cwd = '' } = {}) => {
+module.exports = ({ cwd = process.cwd() } = {}) => {
   return async (tree, file) => {
     const promises = []
     const currentCwd = cwd
@@ -29,7 +29,8 @@ module.exports = ({ cwd = '' } = {}) => {
             node.children = mdast.children
           }
         } catch (error) {
-          console.error(`Error in cli-inline plugin, file ${file.history[0]}`, error.message)
+          console.error(`Error in cli-inline plugin, file ${file.history[0]}. Command "${commonMatch[1]}"`)
+          console.error(error.message)
           throw error
         }
       }

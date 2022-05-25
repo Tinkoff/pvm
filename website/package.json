@@ -22,9 +22,7 @@
     "svgo": "^2.8.0",
     "signales": "^2.0.5",
     "chalk": "^4.1.2",
-    "command-exists": "^1.2.9",
-    "unist-util-visit": "^4.1.0",
-    "mdast-util-from-markdown": "^1.2.0"
+    "command-exists": "^1.2.9"
   },
   "requiredCommands": ["java", "curl"]
 }

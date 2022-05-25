@@ -14,4 +14,4 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: ./.github/actions/setup
-      - run: node tools/github-test-repos-cleanup.js
+      - run: node scripts/github-test-repos-cleanup.js
