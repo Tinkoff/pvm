@@ -274,12 +274,12 @@ describe('pvm-notification', () => {
         },
       })
       expect(slackRequestsBody.length).toEqual(2)
-      expect(slackRequestsBody[0]).toMatchObject({
+      expect(slackRequestsBody).toContainEqual(expect.objectContaining({
         channel: 'c2',
-      })
-      expect(slackRequestsBody[1]).toMatchObject({
+      }))
+      expect(slackRequestsBody).toContainEqual(expect.objectContaining({
         channel: 'c1',
-      })
+      }))
     })
   })
 
