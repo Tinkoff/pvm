@@ -7,21 +7,21 @@
   },
   "workspaces": {
     "packages": [
-      "packages/*"
+      "packages/*",
+      "tools/*"
     ]
   },
   "scripts": {
     "test": "jest --verbose",
     "build": "tsc -p tsconfig.json -d",
-    "postinstall": "node ./tools/postinstall.js",
     "watch": "tsc -p tsconfig.json -d --watch --sourceMap",
-    "build-docs": "bash -c './tools/build-doc.sh'",
+    "build-docs": "bash -c 'scripts/build-doc.sh'",
     "check-ts-strict": "tsc -p tsconfig.strict.json -d --noEmit",
     "watch-ts-strict": "tsc -p tsconfig.strict.json -d --watch --noEmit",
     "lint": "eslint --ext .js,.ts packages test",
     "generate-config-schema": "cross-env NODE_OPTIONS=\"--unhandled-rejections=strict\" yarn typescript-json-schema --out packages/pvm-core/config-schema.json packages/pvm-core/config-schema.ts Config && yarn typescript-json-schema --out packages/pvm-core/env-schema.json packages/pvm-core/env-schema.ts Env",
     "check-no-staged-changes": "git diff --name-only --exit-code",
-    "lint:config-schema": "bash -c './tools/check-config-sync.sh'"
+    "lint:config-schema": "bash -c 'scripts/check-config-sync.sh'"
   },
   "repository": "git@github.com:Tinkoff/pvm.git",
   "author": "Andrey Rublev <box@anru.me>",
@@ -68,10 +68,14 @@
     "typescript": "^4.4.3",
     "verdaccio": "^5.1.6",
     "typescript-json-schema": "^0.51.0",
-    "eslint-plugin-pvm": "file:./eslint-plugin",
+    "eslint-plugin-pvm": "file:./tools/eslint-plugin",
     "fkill": "^7.0.0",
     "dotenv": "^10.0.0",
     "node-fetch": "^3.1.0",
-    "cross-env": "^7.0.3"
+    "cross-env": "^7.0.3",
+    "unified": "^10.1.2",
+    "glob": "^7.2.0",
+    "remark-parse": "^10.0.1",
+    "remark-stringify": "^10.0.2"
   }
 }

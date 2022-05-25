@@ -33,7 +33,7 @@ const siteConfig = {
           // Sidebars file relative to website dir.
           sidebarPath: require.resolve('./sidebars.js'),
           sidebarCollapsible: false,
-          beforeDefaultRemarkPlugins: [[require('./remark-plugins/cli-inline'), {
+          beforeDefaultRemarkPlugins: [[require('@pvm/cli-inline-remark-plugin'), {
             cwd: path.join(process.cwd(), '..'),
           }]],
         },

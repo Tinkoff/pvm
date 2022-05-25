@@ -1,5 +1,5 @@
 [versioning]
-unified = true
+unified = ['/packages/*']
 source = 'tag'
 
 [changelog]
