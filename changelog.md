@@ -3,6 +3,29 @@ id: index
 title: Change Log
 ---
 
+## v0.54.7
+**2022.05.25**
+
+
+
+### 🐛 Bug Fixes
+
+* initialize plugins in notificator factory ([#3f1bdc2](https://github.com/Tinkoff/pvm/commit/3f1bdc2dfa09b86ede19fb2376f4481f280a105e))
+* pass cwd to since-last-release ([#82e5f2a](https://github.com/Tinkoff/pvm/commit/82e5f2a6de8fb318032c623b3c267adc8862d0d7))
+
+
+### 📝 Documentation
+
+* remove slack mentions from docs ([#295eefb](https://github.com/Tinkoff/pvm/commit/295eefb086da6493a4ca85ec23a742890b151967))
+
+
+### 🧪 Tests
+
+* fix unstable github and notificator tests ([#9c303ba](https://github.com/Tinkoff/pvm/commit/9c303ba18d352f61c9db62d0158c2a8117b93b08))
+
+
+
+
 ## v0.54.6
 **2022.05.19**
 
