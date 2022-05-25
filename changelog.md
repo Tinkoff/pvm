@@ -3,6 +3,18 @@ id: index
 title: Change Log
 ---
 
+## v0.54.8
+**2022.05.25**
+
+
+
+### 📝 Documentation
+
+* setup readme.md files compilation ([#e0fb9e6](https://github.com/Tinkoff/pvm/commit/e0fb9e6585930d2a6a365a0522bf71b94ea6e0ff))
+
+
+
+
 ## v0.54.7
 **2022.05.25**
 
