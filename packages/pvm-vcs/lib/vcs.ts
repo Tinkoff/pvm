@@ -6,24 +6,17 @@ import { logger } from '@pvm/core/lib/logger'
 import { wdShell } from '@pvm/core/lib/shell'
 import type { HostApi } from '@pvm/core/lib/plugins'
 import { getHostApi } from '@pvm/core/lib/plugins'
-import { GitlabPlatform } from '@pvm/gitlab/lib/platform'
 import { cachedRealPath } from '@pvm/core/lib/fs'
 import { initFsVcs } from '@pvm/vcs-fs'
 import { initGitVcs } from '@pvm/vcs-git/lib/git-vcs'
 
-import type { SyncAttachmentOpts } from '@pvm/gitlab/lib/hal/mark-pr'
 import type { GitCommitContext } from '@pvm/vcs-git/lib/git-vcs'
 import type {
   ReleasePayload, CreateReleasePayload, VcsRelease, VcsOnly, UnknownCommitContext,
   AbstractVcs, AddTagOptions, CommitResult, GetReleaseResult, PushOptions, PlatformReleaseTag,
 } from '../types'
 import { env } from '@pvm/core/lib/env'
-import { GithubPlatform } from '@pvm/github'
-
-const Platforms = {
-  gitlab: GitlabPlatform,
-  github: GithubPlatform,
-}
+import { mema } from '@pvm/core/lib/memoize'
 
 const VcsMap = {
   git: initGitVcs,
@@ -73,10 +66,32 @@ async function loadBuiltinVcs(cwd: string, customVcsType?: string): Promise<void
   hostApi.provideRecord('vcs', VcsMap[vcsType](cwd))
 }
 
+const getPlatforms = mema(async function getPlatformsRaw() {
+  const gitlabPlatform = (await (import('@pvm/gitlab/lib/platform').catch(() => {
+    logger.info('@pvm/gitlab not installed. Gitlab platform support is disabled')
+    return {
+      GitlabPlatform: undefined,
+    }
+  }))).GitlabPlatform
+
+  const githubPlatform = (await (import('@pvm/github').catch(() => {
+    logger.info('@pvm/github not installed. Github platform support is disabled')
+    return {
+      GithubPlatform: undefined,
+    }
+  }))).GithubPlatform
+
+  return {
+    gitlab: gitlabPlatform,
+    github: githubPlatform,
+  }
+})
+
 async function loadBuiltinPlatform(cwd: string): Promise<void> {
+  const platforms = await getPlatforms()
   const platformType = detectPlatformType(cwd)
 
-  if (!Platforms[platformType]) {
+  if (!platforms[platformType]) {
     // если нет платформы ничего страшного, возможно она и не понадобится вообще
     return
   }
@@ -84,7 +99,7 @@ async function loadBuiltinPlatform(cwd: string): Promise<void> {
   const hostApi = await getHostApi(cwd)
   const config = await getConfig(cwd)
 
-  hostApi.provideClass('platform', new Platforms[platformType](config))
+  hostApi.provideClass('platform', new platforms[platformType](config))
 }
 
 function dryRunStub(method: string, ...args: any[]): void {
@@ -297,7 +312,7 @@ export class VcsPlatform implements VcsOnly {
     }
   }
 
-  async syncAttachment(kind: string, attachment: Buffer, opts: SyncAttachmentOpts = {}): Promise<unknown> {
+  async syncAttachment(kind: string, attachment: Buffer, opts = {}): Promise<unknown> {
     if (!this._localMode) {
       return this.mutHostApi.run('platform.syncAttachment', kind, attachment, opts)
     }
