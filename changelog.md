@@ -3,6 +3,18 @@ id: index
 title: Change Log
 ---
 
+## v0.55.0
+**2022.05.27**
+
+
+
+### 🚀 Features
+
+* **@pvm/vcs:** make platform packages optional ([#a4210dc](https://github.com/Tinkoff/pvm/commit/a4210dca7376da5294aea521cdd9a14e38731fcc))
+
+
+
+
 ## v0.54.8
 **2022.05.25**
 
