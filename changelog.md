@@ -3,6 +3,18 @@ id: index
 title: Change Log
 ---
 
+## v0.55.1
+**2022.06.01**
+
+
+
+### 🐛 Bug Fixes
+
+* **@pvm/mattermost:** incoming webhooks support added ([#b44fc0e](https://github.com/Tinkoff/pvm/commit/b44fc0ef9c099bf88e165e95ed50382486fb97cd))
+
+
+
+
 ## v0.55.0
 **2022.05.27**
 
