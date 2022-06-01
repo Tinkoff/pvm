@@ -10,7 +10,14 @@ const MAX_TEXT_LENGTH = 4000 // ограничение блока текста �
 
 export class MattermostClient extends AbstractMessengerClient {
   isReady(): boolean {
-    return checkEnv(['PVM_MATTERMOST_TOKEN', 'PVM_MATTERMOST_URL'], 'mattermost integration', { logger, silent: true })
+    const someEnvsSpecified = Boolean(env.PVM_MATTERMOST_INCOMING_WEBHOOK) || checkEnv(['PVM_MATTERMOST_TOKEN', 'PVM_MATTERMOST_URL'], 'mattermost integration', { logger, silent: true })
+
+    if (!someEnvsSpecified) {
+      logger.info('Mattermost integration require PVM_MATTERMOST_TOKEN and PVM_MATTERMOST_URL or PVM_MATTERMOST_INCOMING_WEBHOOK environment variables ' +
+        'to be specified')
+    }
+
+    return someEnvsSpecified
   }
 
   async getSelfId(): Promise<string | null> {
@@ -95,17 +102,30 @@ export class MattermostClient extends AbstractMessengerClient {
     const userName = message.channel.startsWith('@') ? message.channel.slice(1) : null
     const channelName = message.channel.startsWith('#') ? message.channel.slice(1) : message.channel
 
-    await this.requestApi({
-      path: 'posts',
-      method: 'POST',
-      body: {
-        channel_id: userName ? await this.createDirectChannel(userName) : await this.getChannelIdFromChannelName(channelName) ?? channelName,
-        message: gracefullyTruncateText(message.content, MAX_TEXT_LENGTH),
-        props: {
-          attachments: message.attachments,
+    if (env.PVM_MATTERMOST_INCOMING_WEBHOOK) {
+      await httpreq(env.PVM_MATTERMOST_INCOMING_WEBHOOK, {
+        body: {
+          channel: userName ? message.channel : channelName,
+          username: message.author?.name,
+          icon_url: message.author?.avatarUrl,
+          icon_emoji: message.author?.avatarEmoji,
+          text: message.content,
         },
-      },
-    })
+        method: 'POST',
+      })
+    } else {
+      await this.requestApi({
+        path: 'posts',
+        method: 'POST',
+        body: {
+          channel_id: userName ? await this.createDirectChannel(userName) : await this.getChannelIdFromChannelName(channelName) ?? channelName,
+          message: gracefullyTruncateText(message.content, MAX_TEXT_LENGTH),
+          props: {
+            attachments: message.attachments,
+          },
+        },
+      })
+    }
   }
 
   async requestApi({ path, method, body }: {

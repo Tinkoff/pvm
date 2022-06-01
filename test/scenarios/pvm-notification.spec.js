@@ -469,6 +469,23 @@ describe('pvm-notification', () => {
           },
         }
       )
+
+      testCLI(
+        `pvm notification send -m test`,
+        {
+          requestsCount: 1,
+          channel: 'm1',
+          content: `test`,
+          target: 'mattermost',
+        }, {
+          testName: 'should send message via INCOMING_WEBHOOK',
+          env: {
+            PVM_MATTERMOST_TOKEN: '',
+            PVM_MATTERMOST_URL: '',
+            PVM_MATTERMOST_INCOMING_WEBHOOK: 'PVM_MATTERMOST_INCOMING_WEBHOOK',
+          },
+        }
+      )
     })
 
     describe('slack', () => {
@@ -667,15 +684,17 @@ function testCLIFactory(contextReceiver) {
       }
 
       const slackRequestsBody = collectSlackRequests(slackMocker)
+      const webhookMode = env?.PVM_MATTERMOST_INCOMING_WEBHOOK
       const { stderr: resultStdErr } = await execScript(repo, cmd, {
         input: stdin,
         env: {
           ...process.env,
-          ...env,
-          SLACK_API_URL: slackMocker.mockerUrl,
-          SLACK_TOKEN: 'test',
           PVM_MATTERMOST_URL: slackMocker.mockerUrl,
           PVM_MATTERMOST_TOKEN: 'test',
+          SLACK_API_URL: slackMocker.mockerUrl,
+          SLACK_TOKEN: 'test',
+          ...env,
+          ...(webhookMode ? { PVM_MATTERMOST_INCOMING_WEBHOOK: slackMocker.mockerUrl } : {}),
         },
       })
       slackMocker.clear()
@@ -696,8 +715,8 @@ function testCLIFactory(contextReceiver) {
           const appliedChannel = Array.isArray(channel) ? channel[i] : channel
           // eslint-disable-next-line jest/no-conditional-expect
           expect(body).toMatchObject({
-            ...(content !== undefined ? messageByTarget(appliedTarget, content) : {}),
-            ...(channel !== undefined ? channelByTarget(appliedTarget, appliedChannel) : {}),
+            ...(content !== undefined ? messageByTarget(appliedTarget, content, { webhookMode }) : {}),
+            ...(channel !== undefined ? channelByTarget(appliedTarget, appliedChannel, { webhookMode }) : {}),
             ...(attachments !== undefined ? attachmentsByTarget(appliedTarget, attachments) : {}),
           })
         })
@@ -706,11 +725,11 @@ function testCLIFactory(contextReceiver) {
   }
 }
 
-function messageByTarget(target, content) {
+function messageByTarget(target, content, { webhookMode } = {}) {
   switch (target) {
     case 'mattermost':
       return {
-        message: content,
+        [webhookMode ? 'text' : 'message']: content,
       }
     case 'slack':
     default:
@@ -726,11 +745,11 @@ function messageByTarget(target, content) {
   }
 }
 
-function channelByTarget(target, channel) {
+function channelByTarget(target, channel, { webhookMode } = {}) {
   switch (target) {
     case 'mattermost':
       return {
-        channel_id: channel,
+        [webhookMode ? 'channel' : 'channel_id']: channel,
       }
     case 'slack':
     default:
