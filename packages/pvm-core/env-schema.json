@@ -161,6 +161,10 @@
             "description": "Logging level",
             "type": "string"
         },
+        "PVM_MATTERMOST_INCOMING_WEBHOOK": {
+            "description": "Optional incoming webhook. https://docs.mattermost.com/developer/webhooks-incoming.html.\nIt will be used prior to token if specified",
+            "type": "string"
+        },
         "PVM_MATTERMOST_TEAM": {
             "description": "If provided than mattermost client will try first to get channel id from team and passed channel and, if failed,\nthen try to use channel as channel_id.",
             "type": "string"

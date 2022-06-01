@@ -50,6 +50,11 @@ export interface Env {
    */
   PVM_MATTERMOST_URL?: string,
   /**
+   * Optional incoming webhook. https://docs.mattermost.com/developer/webhooks-incoming.html.
+   * It will be used prior to token if specified
+   */
+  PVM_MATTERMOST_INCOMING_WEBHOOK?: string,
+  /**
    * Flag that script running in continuous integration environment
    */
   CI?: 'true' | 'false',

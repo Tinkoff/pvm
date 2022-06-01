@@ -77,7 +77,7 @@ export class Notificator {
         }
     }
     if (errors.length) {
-      throw new Error(`Message sent is finished with errors:\n${errors.map(e => e.message).join('\n')}`)
+      throw new Error(`Message sent is finished with errors:\n${errors.map(e => `${e.message}\n${e.stack}`).join('\n')}`)
     }
   }
 }

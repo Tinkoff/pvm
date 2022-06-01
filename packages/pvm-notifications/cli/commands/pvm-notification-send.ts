@@ -21,7 +21,7 @@ export const builder = (yargs: Argv) => {
     })
     .option('file', {
       alias: 'f',
-      desc: 'message json file',
+      desc: 'message json file. Available fields described in doc https://tinkoff.github.io/pvm/docs/api/modules/pvm_types#message',
     })
     .option('channel', {
       alias: 'c',
