@@ -32,7 +32,7 @@ export abstract class AbstractMessengerClient {
 
     return this.internalSendMessage(withDefaults)
       .catch(e => {
-        e.message = `[messenger "${this.name}"] ${e.message}`
+        e.message = `[messenger "${this.name}"]${e.statusCode ? ` responseCode = ${e.statusCode} ` : ' '}${!e.message || e.message === 'null' ? 'No error message specified' : e.message}`
         throw e
       })
   }

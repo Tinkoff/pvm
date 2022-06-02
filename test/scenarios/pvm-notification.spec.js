@@ -17,7 +17,7 @@ describe('pvm-notification', () => {
 
   describe('target = all', () => {
     it('should work', async () => {
-      const slackRequestsBody = collectSlackRequests(slackMocker)
+      const slackRequests = collectSlackRequests(slackMocker)
       const repo = await initRepo('simple-one', {
         notifications: {
           target: 'all',
@@ -49,8 +49,8 @@ describe('pvm-notification', () => {
           SLACK_TOKEN: 'test',
         },
       })
-      expect(slackRequestsBody.length).toEqual(2)
-      expect(slackRequestsBody[0]).toMatchObject({
+      expect(slackRequests.length).toEqual(2)
+      expect(slackRequests[0].body).toMatchObject({
         channel: 'c1',
         blocks: [{
           'type': 'section',
@@ -60,7 +60,7 @@ describe('pvm-notification', () => {
           },
         }],
       })
-      expect(slackRequestsBody[1]).toMatchObject({
+      expect(slackRequests[1].body).toMatchObject({
         channel: 'c2',
         blocks: [{
           'type': 'section',
@@ -73,7 +73,7 @@ describe('pvm-notification', () => {
     })
 
     it('should send all messages and throw error if some failed', async () => {
-      const slackRequestsBody = collectSlackRequests(slackMocker)
+      const slackRequests = collectSlackRequests(slackMocker)
       const repo = await initRepo('simple-one')
       await repo.linkNodeModules()
       const failingMessengerClientPath = await createFailingMessengerClient(repo)
@@ -108,14 +108,14 @@ describe('pvm-notification', () => {
           SLACK_TOKEN: 'test',
         },
       })).rejects.toBeTruthy()
-      expect(slackRequestsBody.length).toEqual(1)
-      expect(slackRequestsBody[0]).toMatchObject({
+      expect(slackRequests.length).toEqual(1)
+      expect(slackRequests[0].body).toMatchObject({
         channel: 'c2',
       })
     })
 
     it('should handle common defaults', async () => {
-      const slackRequestsBody = collectSlackRequests(slackMocker)
+      const slackRequests = collectSlackRequests(slackMocker)
       const repo = await initRepo('simple-one')
       await repo.updateConfig({
         notifications: {
@@ -143,11 +143,11 @@ describe('pvm-notification', () => {
           SLACK_TOKEN: 'test',
         },
       })
-      expect(slackRequestsBody.length).toEqual(2)
-      expect(slackRequestsBody[0]).toMatchObject({
+      expect(slackRequests.length).toEqual(2)
+      expect(slackRequests[0].body).toMatchObject({
         channel: 'c1',
       })
-      expect(slackRequestsBody[1]).toMatchObject({
+      expect(slackRequests[1].body).toMatchObject({
         channel: 'c1',
       })
     })
@@ -155,7 +155,7 @@ describe('pvm-notification', () => {
 
   describe('target = first_available', () => {
     it('should work', async () => {
-      const slackRequestsBody = collectSlackRequests(slackMocker)
+      const slackRequests = collectSlackRequests(slackMocker)
       const repo = await initRepo('simple-one')
       await repo.linkNodeModules()
       const notReadyMessageClientPath = await createNotReadyMessageClient(repo)
@@ -191,8 +191,8 @@ describe('pvm-notification', () => {
           SLACK_TOKEN: 'test',
         },
       })
-      expect(slackRequestsBody.length).toEqual(1)
-      expect(slackRequestsBody[0]).toMatchObject({
+      expect(slackRequests.length).toEqual(1)
+      expect(slackRequests[0].body).toMatchObject({
         channel: 'c2',
       })
     })
@@ -200,7 +200,7 @@ describe('pvm-notification', () => {
 
   describe('target = custom', () => {
     it('should work with single target', async () => {
-      const slackRequestsBody = collectSlackRequests(slackMocker)
+      const slackRequests = collectSlackRequests(slackMocker)
       const repo = await initRepo('simple-one')
       await repo.updateConfig({
         notifications: {
@@ -233,14 +233,14 @@ describe('pvm-notification', () => {
           SLACK_TOKEN: 'test',
         },
       })
-      expect(slackRequestsBody.length).toEqual(1)
-      expect(slackRequestsBody[0]).toMatchObject({
+      expect(slackRequests.length).toEqual(1)
+      expect(slackRequests[0].body).toMatchObject({
         channel: 'c2',
       })
     })
 
     it('should work with target array', async () => {
-      const slackRequestsBody = collectSlackRequests(slackMocker)
+      const slackRequests = collectSlackRequests(slackMocker)
       const repo = await initRepo('simple-one')
       await repo.updateConfig({
         notifications: {
@@ -273,12 +273,16 @@ describe('pvm-notification', () => {
           SLACK_TOKEN: 'test',
         },
       })
-      expect(slackRequestsBody.length).toEqual(2)
-      expect(slackRequestsBody).toContainEqual(expect.objectContaining({
-        channel: 'c2',
+      expect(slackRequests.length).toEqual(2)
+      expect(slackRequests).toContainEqual(expect.objectContaining({
+        body: expect.objectContaining({
+          channel: 'c2',
+        }),
       }))
-      expect(slackRequestsBody).toContainEqual(expect.objectContaining({
-        channel: 'c1',
+      expect(slackRequests).toContainEqual(expect.objectContaining({
+        body: expect.objectContaining({
+          channel: 'c1',
+        }),
       }))
     })
   })
@@ -486,6 +490,36 @@ describe('pvm-notification', () => {
           },
         }
       )
+
+      testCLI(
+        `pvm notification send -m test`,
+        {
+          // two unsuccessful requests and one successful
+          requestsCount: 3,
+        }, {
+          testName: 'should retry requests with 408 response code',
+          statusCode({ reqIndex }) {
+            if (reqIndex === 2) {
+              return 200
+            }
+
+            return 408
+          },
+        }
+      )
+
+      testCLI(
+        `pvm notification send -m test`,
+        {
+          stderr: /responseCode = 500/,
+        }, {
+          testName: 'should immediately fail on other than 408 response codes',
+          statusCode() {
+            return 500
+          },
+          only: true,
+        }
+      )
     })
 
     describe('slack', () => {
@@ -515,7 +549,7 @@ describe('pvm-notification', () => {
       })
 
       it('should be backward compatible with slack_nofitication', async () => {
-        const slackRequestsBody = collectSlackRequests(slackMocker)
+        const slackRequests = collectSlackRequests(slackMocker)
         const repo = await initRepo('simple-one')
         await repo.updateConfig({
           slack_notification: {
@@ -541,8 +575,8 @@ describe('pvm-notification', () => {
             SLACK_TOKEN: 'test',
           },
         })
-        expect(slackRequestsBody.length).toEqual(1)
-        expect(slackRequestsBody[0]).toMatchObject({
+        expect(slackRequests.length).toEqual(1)
+        expect(slackRequests[0].body).toMatchObject({
           channel: 'c2',
           username: 'pfpa-tools deploy',
           icon_emoji: ':hammer_and_wrench:',
@@ -620,12 +654,18 @@ describe('pvm-notification', () => {
   })
 })
 
-function collectSlackRequests(slackMocker) {
-  const slackRequestsBody = []
-  slackMocker.spy((req) => {
-    slackRequestsBody.push(req.body)
+function collectSlackRequests(slackMocker, cb = () => {}) {
+  const slackRequests = []
+  let reqIndex = 0
+  slackMocker.spy((req, res) => {
+    slackRequests.push({ body: req.body, res })
+
+    // eslint-disable-next-line node/no-callback-literal
+    cb({ body: req.body, res, reqIndex })
+
+    reqIndex++
   })
-  return slackRequestsBody
+  return slackRequests
 }
 
 async function createFailingMessengerClient(repo) {
@@ -675,42 +715,54 @@ function testCLIFactory(contextReceiver) {
       testName,
       message,
       stdin,
-    } = inputConfig
+      statusCode,
+      only,
+    } = inputConfig;
     // eslint-disable-next-line jest/valid-title
-    it(testName ?? cmd.substring(0, 1000), async () => {
+    (only ? it.only : it)(testName ?? cmd.substring(0, 1000), async () => {
       const { repo, slackMocker } = contextReceiver()
       if (message) {
         repo.writeFile('msg.json', JSON.stringify(message))
       }
 
-      const slackRequestsBody = collectSlackRequests(slackMocker)
-      const webhookMode = env?.PVM_MATTERMOST_INCOMING_WEBHOOK
-      const { stderr: resultStdErr } = await execScript(repo, cmd, {
-        input: stdin,
-        env: {
-          ...process.env,
-          PVM_MATTERMOST_URL: slackMocker.mockerUrl,
-          PVM_MATTERMOST_TOKEN: 'test',
-          SLACK_API_URL: slackMocker.mockerUrl,
-          SLACK_TOKEN: 'test',
-          ...env,
-          ...(webhookMode ? { PVM_MATTERMOST_INCOMING_WEBHOOK: slackMocker.mockerUrl } : {}),
-        },
+      const slackRequests = collectSlackRequests(slackMocker, ({ req, res, reqIndex }) => {
+        if (statusCode) {
+          res.status(statusCode({ req, res, reqIndex }))
+        }
       })
+      const webhookMode = env?.PVM_MATTERMOST_INCOMING_WEBHOOK
+      let procStderr
+      try {
+        const proc = await execScript(repo, cmd, {
+          input: stdin,
+          env: {
+            ...process.env,
+            PVM_MATTERMOST_URL: slackMocker.mockerUrl,
+            PVM_MATTERMOST_TOKEN: 'test',
+            SLACK_API_URL: slackMocker.mockerUrl,
+            SLACK_TOKEN: 'test',
+            ...env,
+            ...(webhookMode ? { PVM_MATTERMOST_INCOMING_WEBHOOK: slackMocker.mockerUrl } : {}),
+          },
+        })
+        procStderr = proc.stderr
+      } catch (e) {
+        procStderr = e.stderr
+      }
       slackMocker.clear()
 
       if (requestsCount !== undefined) {
         // eslint-disable-next-line jest/no-conditional-expect
-        expect(slackRequestsBody.length).toEqual(requestsCount)
+        expect(slackRequests.length).toEqual(requestsCount)
       }
 
       if (stderr !== undefined) {
         // eslint-disable-next-line jest/no-conditional-expect
-        expect(resultStdErr).toMatch(stderr)
+        expect(procStderr).toMatch(stderr)
       }
 
       if (content !== undefined || channel !== undefined) {
-        slackRequestsBody.forEach((body, i) => {
+        slackRequests.forEach(({ body }, i) => {
           const appliedTarget = Array.isArray(target) ? target[i] : target
           const appliedChannel = Array.isArray(channel) ? channel[i] : channel
           // eslint-disable-next-line jest/no-conditional-expect

@@ -121,3 +121,36 @@ export default function request<T = any>(urlString: string, opts: HttpReqOptions
     req.end()
   })
 }
+
+const defaultRetryTimeouts = [
+  1000, 3000, 10000, 15000, 25000,
+]
+
+const defaultRetryCodes = [
+  429,
+]
+
+function wait(ms): Promise<void> {
+  return new Promise(resolve => {
+    setTimeout(resolve, ms)
+  })
+}
+
+export async function requestWithRetries(requestFn: () => any, retryOpts: { retryCodes?: number[], timeouts?: number[] } = {}, retryIndex = 0) {
+  const {
+    timeouts = defaultRetryTimeouts,
+    retryCodes = defaultRetryCodes,
+  } = retryOpts
+  try {
+    return await requestFn()
+  } catch (e) {
+    // retry later
+    if (retryCodes.indexOf(e.statusCode) !== -1) {
+      const timeout = timeouts[retryIndex]
+      if (timeout) {
+        return wait(timeout).then(() => requestWithRetries(requestFn, retryOpts, retryIndex + 1))
+      }
+    }
+    throw e
+  }
+}

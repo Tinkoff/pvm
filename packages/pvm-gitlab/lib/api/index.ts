@@ -1,5 +1,5 @@
 import type { HttpReqOptions, HttpResponseSuccess } from '@pvm/core/lib/httpreq'
-import httpreq from '@pvm/core/lib/httpreq'
+import httpreq, { requestWithRetries } from '@pvm/core/lib/httpreq'
 import shell from '@pvm/core/lib/shell'
 import { getConfig } from '@pvm/core/lib/config'
 
@@ -11,13 +11,7 @@ const retryTimeouts = [
   5000, 15000, 60000, 200000, 300000,
 ]
 
-function wait(ms): Promise<void> {
-  return new Promise(resolve => {
-    setTimeout(resolve, ms)
-  })
-}
-
-async function glapi<T = any>(uri: string, opts: HttpReqOptions = {}, retryCount = 0): Promise<HttpResponseSuccess<T>> {
+async function glapi<T = any>(uri: string, opts: HttpReqOptions = {}): Promise<HttpResponseSuccess<T>> {
   const {
     GL_TOKEN,
     GITLAB_TOKEN,
@@ -47,7 +41,6 @@ async function glapi<T = any>(uri: string, opts: HttpReqOptions = {}, retryCount
   const config = await getConfig()
 
   const { headers = {} } = opts
-  let result
 
   const authHeaders: Record<string, string> = {}
   if (config.gitlab.authorization_type === 'private-token') {
@@ -56,25 +49,13 @@ async function glapi<T = any>(uri: string, opts: HttpReqOptions = {}, retryCount
     authHeaders['Authorization'] = `Bearer ${privateToken}`
   }
 
-  try {
-    result = await httpreq<T>(`${getApiUrl(config)}${config.gitlab.api_prefix}${uri}`, {
-      ...opts,
-      headers: {
-        ...headers,
-        ...authHeaders,
-      },
-    })
-  } catch (e) {
-    // retry later
-    if (e.statusCode === 429) {
-      const timeout = retryTimeouts[retryCount]
-      if (timeout) {
-        return wait(timeout).then(() => glapi(uri, opts, retryCount + 1))
-      }
-    }
-    throw e
-  }
-  return result
+  return await requestWithRetries(() => httpreq<T>(`${getApiUrl(config)}${config.gitlab.api_prefix}${uri}`, {
+    ...opts,
+    headers: {
+      ...headers,
+      ...authHeaders,
+    },
+  }), { timeouts: retryTimeouts, retryCodes: [429] })
 }
 
 export {
