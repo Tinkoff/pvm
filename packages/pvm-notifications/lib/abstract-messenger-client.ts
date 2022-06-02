@@ -22,10 +22,6 @@ export abstract class AbstractMessengerClient {
   async sendMessage(message: Message): Promise<void> {
     const withDefaults = this.getMessageWithDefaults(message)
 
-    if (!withDefaults.channel) {
-      logger.error('"channel" should be defined via configuration or passed argument')
-    }
-
     if (withDefaults.content === undefined) {
       logger.error('"content" should be defined via configuration or passed argument')
     }

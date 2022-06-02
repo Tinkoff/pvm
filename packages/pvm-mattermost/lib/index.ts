@@ -100,8 +100,8 @@ export class MattermostClient extends AbstractMessengerClient {
    * @protected
    */
   protected async internalSendMessage(message: Message & { channel: string, content: string }): Promise<void> {
-    const userName = message.channel.startsWith('@') ? message.channel.slice(1) : null
-    const channelName = message.channel.startsWith('#') ? message.channel.slice(1) : message.channel
+    const userName = message.channel?.startsWith('@') ? message.channel.slice(1) : null
+    const channelName = message.channel?.startsWith('#') ? message.channel.slice(1) : message.channel
 
     if (env.PVM_MATTERMOST_INCOMING_WEBHOOK) {
       await this.requestWithRetries(() => httpreq(env.PVM_MATTERMOST_INCOMING_WEBHOOK!, {
