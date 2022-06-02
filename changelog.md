@@ -3,6 +3,18 @@ id: index
 title: Change Log
 ---
 
+## v0.55.3
+**2022.06.02**
+
+
+
+### 🐛 Bug Fixes
+
+* **@pvm/mattermost:** incoming hooks now working without channel name ([#50f8341](https://github.com/Tinkoff/pvm/commit/50f8341f2240edd3a131ba7452dab44e1c88c30b))
+
+
+
+
 ## v0.55.2
 **2022.06.02**
 
