@@ -4,6 +4,7 @@ import { httpreq } from '@pvm/core'
 import { checkEnv, env } from '@pvm/core/lib/env'
 import { loggerFor } from '@pvm/core/lib/logger'
 import { gracefullyTruncateText } from '@pvm/core/lib/utils/string'
+import { requestWithRetries } from '@pvm/core/lib/httpreq'
 
 const logger = loggerFor('pvm:mattermost')
 const MAX_TEXT_LENGTH = 4000 // ограничение блока текста в mattermost
@@ -103,7 +104,7 @@ export class MattermostClient extends AbstractMessengerClient {
     const channelName = message.channel.startsWith('#') ? message.channel.slice(1) : message.channel
 
     if (env.PVM_MATTERMOST_INCOMING_WEBHOOK) {
-      await httpreq(env.PVM_MATTERMOST_INCOMING_WEBHOOK, {
+      await this.requestWithRetries(() => httpreq(env.PVM_MATTERMOST_INCOMING_WEBHOOK!, {
         body: {
           channel: userName ? message.channel : channelName,
           username: message.author?.name,
@@ -112,7 +113,7 @@ export class MattermostClient extends AbstractMessengerClient {
           text: message.content,
         },
         method: 'POST',
-      })
+      }))
     } else {
       await this.requestApi({
         path: 'posts',
@@ -135,13 +136,17 @@ export class MattermostClient extends AbstractMessengerClient {
 
     const apiUrl = `${PVM_MATTERMOST_URL!.replace(/\/$/, '')}/api/v4/${path}`
 
-    return httpreq(apiUrl, {
+    return this.requestWithRetries(() => httpreq(apiUrl, {
       body,
       method,
       headers: {
         Authorization: `Bearer ${PVM_MATTERMOST_TOKEN}`,
       },
-    })
+    }))
+  }
+
+  async requestWithRetries(requestFn: () => Promise<any>): Promise<any> {
+    return requestWithRetries(requestFn, { retryCodes: [408] })
   }
 }
 

@@ -22,7 +22,7 @@ module.exports.runMessengerMocker = async function runMessengerMocker() {
     const server = express()
       .use(express.json())
       .post('*', (req, res) => {
-        spies.forEach(s => s(req))
+        spies.forEach(s => s(req, res))
         res.send()
       })
       .listen(port)
