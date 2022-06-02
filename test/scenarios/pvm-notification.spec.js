@@ -517,7 +517,6 @@ describe('pvm-notification', () => {
           statusCode() {
             return 500
           },
-          only: true,
         }
       )
     })
