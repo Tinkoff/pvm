@@ -3,6 +3,18 @@ id: index
 title: Change Log
 ---
 
+## v0.55.2
+**2022.06.02**
+
+
+
+### 🐛 Bug Fixes
+
+* **@pvm/mattermost:** add progressive retry on 408 response code ([#bfc7f49](https://github.com/Tinkoff/pvm/commit/bfc7f4948a6f1d7bfc93a23da95ba2ad7cc1c7c6))
+
+
+
+
 ## v0.55.1
 **2022.06.01**
 
