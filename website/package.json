@@ -1,7 +1,7 @@
 {
   "scripts": {
     "start": "node ./check-required-commands.js && docusaurus start",
-    "build": "node ./check-required-commands.js && docusaurus build",
+    "build": "node ./check-required-commands.js && docusaurus build && node ./download-pvm-packages.js",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy"
   },
