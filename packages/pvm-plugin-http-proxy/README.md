@@ -1,8 +1,8 @@
 # @pvm/plugin-http-proxy
 
-Подключает библиотеку [global-agent](https://www.npmjs.com/package/global-agent) которая переопределяет
-стандартные http(s) клиенты nodejs и добавляет в них поддержку прокси. 
+Includes the [global-agent](https://www.npmjs.com/package/global-agent) library which overrides
+standard http(s) nodejs clients and adds proxy support to them.
 
-Конфигурируется [переменными окружения](https://www.npmjs.com/package/global-agent#environment-variables). 
-Namespace при инициализации мы указываем пустой, поэтому имена переменных не содержат префикса 
-`${NAMESPACE}_` как в документации выше.
+Configurable with [environment variables](https://www.npmjs.com/package/global-agent#environment-variables).
+Namespace at initialization we specify as empty, so variable names do not contain a prefix
+`${NAMESPACE}_` as in the documentation above.
