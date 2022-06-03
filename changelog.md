@@ -3,6 +3,18 @@ id: index
 title: Change Log
 ---
 
+## v0.55.6
+**2022.06.03**
+
+
+
+### 📝 Documentation
+
+* **@pvm/pvm:** readme translated to english ([#6f2c288](https://github.com/Tinkoff/pvm/commit/6f2c2888be76893e4ee054819c4049aec090c684))
+
+
+
+
 ## v0.55.5
 **2022.06.03**
 
