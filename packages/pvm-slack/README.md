@@ -1,8 +1,8 @@
 # @pvm/slack
 
-Предоставляет клиент для мессенджера `slack`. Клиент реализует интерфейс [AbstractMessengerClient](api/classes/pvm_notifications.AbstractMessengerClient.md).
+Provides client for `slack` messenger. Client implementing [AbstractMessengerClient](api/classes/pvm_notifications.AbstractMessengerClient.md).
 
-## Подключение в проекте
+## Enabling in project
 
 `.pvm.toml`
 ```toml
@@ -11,5 +11,4 @@
 name = 'slack'
 pkg = '@pvm/slack'
 ```
-После этого, в зависимости от настроек [нотификаций](api/interfaces/pvm_core.Config.md#notifications), сообщения будут отправляться
-в мессенджер `slack`
+After that, depending on settings [нотификаций](api/interfaces/pvm_core.Config.md#notifications), messages will be sending to `slack` messenger
