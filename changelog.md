@@ -3,6 +3,26 @@ id: index
 title: Change Log
 ---
 
+## v0.55.5
+**2022.06.03**
+
+
+
+### 📝 Documentation
+
+* **@pvm/slack:** readme translated to english ([#75ec3b1](https://github.com/Tinkoff/pvm/commit/75ec3b1db678111fbdf497cb4b310dd937f5b1cc))
+* correct fetch depth for docs generation ([#a3b5737](https://github.com/Tinkoff/pvm/commit/a3b5737246c066f2cfde8d3bcf39a81f31891bca))
+* correct fetch depth for docs generation on master ([#dad114d](https://github.com/Tinkoff/pvm/commit/dad114d49bc098dd7e65ec4954ec8a89fa438e29))
+* use @pvm/pkgset to collect packages ([#c525d6d](https://github.com/Tinkoff/pvm/commit/c525d6db9e698dcbee72a9523f1e3b89ba4bdb9c))
+
+
+### Other
+
+* generate doc on release too ([#5f78e7a](https://github.com/Tinkoff/pvm/commit/5f78e7a87d9c3ddadac5188bd47c31cb4076556f))
+
+
+
+
 ## v0.55.4
 **2022.06.03**
 
