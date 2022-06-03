@@ -3,6 +3,18 @@ id: index
 title: Change Log
 ---
 
+## v0.55.7
+**2022.06.03**
+
+
+
+### 📝 Documentation
+
+* **@pvm/plugin-http-proxy:** readme translated to english ([#380a1ef](https://github.com/Tinkoff/pvm/commit/380a1ef89ba3c5d16a54510b1ea07ec792fe8da6))
+
+
+
+
 ## v0.55.6
 **2022.06.03**
 
