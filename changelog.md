@@ -3,6 +3,24 @@ id: index
 title: Change Log
 ---
 
+## v0.55.4
+**2022.06.03**
+
+
+
+### 📝 Documentation
+
+* **@pvm/add-tag:** translate readme to english ([#2a62428](https://github.com/Tinkoff/pvm/commit/2a62428e46265b8996092b4f701f074d68473aaa))
+* store pkg tarballs in doc output ([#4de7e9d](https://github.com/Tinkoff/pvm/commit/4de7e9d4e5d0d64f9efc6611d4eaef93e922da36))
+
+
+### Other
+
+* remove `only` from test spec ([#0d12432](https://github.com/Tinkoff/pvm/commit/0d1243258be9222289aa9a7bbc8c24f873909b13))
+
+
+
+
 ## v0.55.3
 **2022.06.02**
 
