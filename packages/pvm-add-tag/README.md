@@ -1,5 +1,4 @@
 # @pvm/add-tag
 
-Предоставляет `node api` для получения нового тега для релиза и `cli api` для
-добавления релизного тега на коммит. Отличается от функционала cli из `@pvm/update` тем,
-что кроме добавления тега не делает больше ничего.
+Provides a `node api` for getting a new release tag and a `cli api` for
+adding a release tag to a commit. `@pvm/add-tag` only add tag and not generating any additional stuff like changelogs and other artifacts what `@pvm/update` do.
