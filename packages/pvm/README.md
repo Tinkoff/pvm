@@ -1,10 +1,10 @@
 # @pvm/pvm
 
-Содержит энтрипоинт для работы с cli модулей
+Contains pvm cli entrypoint
 
 ## CLI
 
-Для каждой комманды также можно вызвать справку (например `yarn pvm publish --help`)
+For each subcommand help is also available (for example `yarn pvm publish --help`)
 
 ```
 @cli-inline yarn pvm --help

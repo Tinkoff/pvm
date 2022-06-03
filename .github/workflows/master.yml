@@ -30,6 +30,9 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
     permissions:
       contents: write
+    concurrency:
+      group: docs
+      cancel-in-progress: true
     steps:
       - uses: actions/checkout@v2
         with:
