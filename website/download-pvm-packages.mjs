@@ -1,17 +1,21 @@
-const cp = require('child_process')
-const fs = require('fs')
-const path = require('path')
-const fetch = require('node-fetch')
+import fs from "fs";
+import path from "path";
+import fetch from "node-fetch";
+import { pkgset } from "@pvm/pkgset";
+import drainItems from "@pvm/core/lib/iter/drain-items.js";
+import {fileURLToPath} from 'url';
 
-const pvmPackages = JSON.parse(cp.execSync('npm search @pvm/ --json', {
-  encoding: 'utf-8',
-})).map(pkg => ({
+const __filename = fileURLToPath(import.meta.url);
+
+const pvmPackages = (await drainItems.default(pkgset('all', {
+  cwd: path.join(path.dirname(__filename), '..')
+}))).map(pkg => ({
   name: pkg.name,
   version: pkg.version,
-  tgz: `${pkg.name.split('/')[1]}-${pkg.version}.tgz`,
+  tgz: `${pkg.shortName}-${pkg.version}.tgz`,
 }))
 
-console.log('Global @pvm/* packages', JSON.stringify(pvmPackages, null, 2))
+console.log('@pvm/* packages', JSON.stringify(pvmPackages, null, 2))
 
 const artifactsPath = 'build/artifacts'
 if (!fs.existsSync(artifactsPath)) {
