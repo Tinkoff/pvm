@@ -23,3 +23,9 @@ jobs:
       - run: yarn build
       - run: node scripts/remark-readme.js
       - run: yarn pvm publish
+      - uses: ./.github/actions/build-docs
+      - uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./website/build
+          force_orphan: true
