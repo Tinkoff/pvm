@@ -111,6 +111,7 @@ export class MattermostClient extends AbstractMessengerClient {
           icon_url: message.author?.avatarUrl,
           icon_emoji: message.author?.avatarEmoji,
           text: message.content,
+          attachments: message.attachments,
         },
         method: 'POST',
       }))
