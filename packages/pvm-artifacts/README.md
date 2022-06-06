@@ -1,12 +1,12 @@
 # @pvm/artifacts
 
-Модуль предоставляет функционал для загрузки и выгрузки артефактов релиза. В частности чейнджлогов и списка релизов.
-Модуль полезен если запрещен пуш в мастер либо версионирование строится через теги git'а и не хочется дополнительных
-коммитов в мастер.
+The module provides functionality for loading and unloading release artifacts. In particular changelogs and list of releases.
+The module is useful if pushing to the master is disabled or versioning is built through git tags and you do not want additional
+commits to master.
 
-Поддерживаемые типы артефактов:
-* Чейнджлоги 
-* Релизные списки
+Supported Artifact Types:
+* Changelogs
+* Release lists
 
-Типы поддерживаемых хранилищ артефактов:
-* git-ветка в репозитории
+Supported artifact storage types:
+* git branch in the repository

@@ -70,6 +70,10 @@ const siteConfig = {
       },
       items: [
         {
+          to: 'docs/book/get-started/overview',
+          label: 'Book',
+        },
+        {
           to: 'docs/api/interfaces/pvm_core.Config',
           label: 'Configuration',
         },
@@ -80,22 +84,10 @@ const siteConfig = {
         {
           label: 'References',
           to: `docs/api/modules/pvm_pvm`,
-          position: 'left',
         },
         {
-          to: 'docs/book/get-started/overview',
-          label: 'Explanation',
-          type: 'dropdown',
-          items: [
-            {
-              to: 'docs/book/get-started/overview',
-              label: 'Book',
-            },
-            {
-              to: 'docs/arch/c4/context',
-              label: 'Architecture',
-            },
-          ],
+          to: 'docs/arch/c4/context',
+          label: 'Architecture',
         },
         {
           label: 'Github',
