@@ -15,6 +15,7 @@ jobs:
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       PVM_MATTERMOST_URL: ${{ secrets.PVM_MATTERMOST_URL }}
       PVM_MATTERMOST_TOKEN: ${{ secrets.PVM_MATTERMOST_TOKEN }}
+      PVM_MATTERMOST_INCOMING_WEBHOOK: ${{ secrets.PVM_MATTERMOST_INCOMING_WEBHOOK }}
     steps:
       - uses: actions/checkout@v2
         with:
