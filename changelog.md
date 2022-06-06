@@ -3,6 +3,18 @@ id: index
 title: Change Log
 ---
 
+## v0.55.8
+**2022.06.06**
+
+
+
+### 🐛 Bug Fixes
+
+* **@pvm/mattermost:** send attachments via webhook too ([#7825cdd](https://github.com/Tinkoff/pvm/commit/7825cdd924924c7a5b81083318986b428413c45f))
+
+
+
+
 ## v0.55.7
 **2022.06.03**
 
