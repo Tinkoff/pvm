@@ -47,7 +47,7 @@ pkg = '@pvm/mattermost'
 team = 'tinkoff'
 
 [notifications.clients_common_config]
-channel = 'pvm'
+channel = 'pvm-github'
 author = { name = 'pvm minion (github)', avatarEmoji = ':deciduous_tree:' }
 
 [plugins]
