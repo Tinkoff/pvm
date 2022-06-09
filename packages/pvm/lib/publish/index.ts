@@ -436,7 +436,7 @@ async function getSortedPublishedVersions(pkgName: string, registry?: string): P
     distTags = versionsStr ? JSON.parse(versionsStr) : []
   } catch (e) {
     // if package completely unpublished
-    if (e.toString().indexOf('E404') !== -1) {
+    if (e.toString().indexOf('ERR! code E404') !== -1) {
       return []
     }
     throw e

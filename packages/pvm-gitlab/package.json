@@ -8,6 +8,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@hutson/parse-repository-url": "^5.0.0",
+    "@iarna/toml": "^2.2.3",
     "@pvm/core": "0.0.0-stub",
     "@pvm/cowners": "0.0.0-stub",
     "@pvm/vcs": "0.0.0-stub",
@@ -15,12 +16,11 @@
     "dedent": "^0.7.0",
     "get-stdin": "^7.0.0",
     "git-url-parse": "^11.4.4",
+    "marked": "^4.0.16",
     "p-map": "^4.0.0",
     "parse-md": "^2.0.4",
-    "marked": "^4.0.16",
     "parse-path": "^4.0.1",
     "semver": "^7.3.0",
-    "string-to-color": "^2.0.1",
-    "@iarna/toml": "^2.2.3"
+    "string-to-color": "^2.0.1"
   }
 }

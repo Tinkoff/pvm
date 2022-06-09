@@ -9,21 +9,26 @@
   "dependencies": {
     "@pvm/core": "0.0.0-stub",
     "@pvm/cowners": "0.0.0-stub",
-    "@pvm/vcs-git": "0.0.0-stub",
     "@pvm/vcs-fs": "0.0.0-stub",
+    "@pvm/vcs-git": "0.0.0-stub",
     "hosted-git-info": "^3.0.2",
     "resolve-from": "^5.0.0",
-    "string-to-color": "^2.2.2"
+    "string-to-color": "^2.2.2",
+    "yargs": "^16.1.1"
+  },
+  "devDependencies": {
+    "@pvm/github": "0.0.0-stub",
+    "@pvm/gitlab": "0.0.0-stub"
   },
   "peerDependencies": {
-    "@pvm/gitlab": "0.0.0-stub",
-    "@pvm/github": "0.0.0-stub"
+    "@pvm/github": "0.0.0-stub",
+    "@pvm/gitlab": "0.0.0-stub"
   },
   "peerDependenciesMeta": {
-    "@pvm/gitlab": {
+    "@pvm/github": {
       "optional": true
     },
-    "@pvm/github": {
+    "@pvm/gitlab": {
       "optional": true
     }
   }

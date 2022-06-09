@@ -97,12 +97,7 @@ const siteConfig = {
       ],
     },
     footer: {
-      logo: { },
       copyright: `Copyright © ${new Date().getFullYear()} Tinkoff Bank`, // You can also put own HTML here.
-    },
-    gtag: {
-      trackingID: 'G-5NPX143GCY',
-      anonymizeIP: true,
     },
     image: 'img/pvm.svg',
   },

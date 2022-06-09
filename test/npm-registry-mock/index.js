@@ -25,7 +25,7 @@ async function runRegistryMockServer() {
 
     registryProc.stdout.on('data', (data) => {
       const logLine = data.toString()
-      process.stdout.write(logLine)
+      process.stdout.write(`verdaccio: ${logLine}`)
       // https://verdaccio.org/docs/e2e/#example-using-bash
       if (logLine.indexOf('http address') !== -1) {
         clearTimeout(killTimeout)
@@ -39,7 +39,6 @@ async function runRegistryMockServer() {
 
     registryProc.on('close', (code) => {
       clearTimeout(killTimeout)
-      console.log(`Verdaccio exit with code ${code}`)
     })
 
     killTimeout = setTimeout(() => {

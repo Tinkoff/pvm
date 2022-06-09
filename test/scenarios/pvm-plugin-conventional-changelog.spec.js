@@ -183,7 +183,7 @@ describe('pvm-plugin/conventional-changelog', () => {
       npmControls.clear()
     })
 
-    afterAll(() => {
+    afterAll(async () => {
       npmControls.stop()
     })
 

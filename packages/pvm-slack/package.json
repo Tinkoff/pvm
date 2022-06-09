@@ -11,8 +11,12 @@
     "@pvm/notifications": "^0.0.0-stub",
     "@pvm/types": "^0.0.0-stub",
     "get-stdin": "^7.0.0",
+    "lodash.omitby": "^4.6.0",
     "resolve-from": "^5.0.0",
     "slackify-markdown": "4.3.1",
-    "lodash.omitby": "^4.6.0"
+    "yargs": "^16.1.1"
+  },
+  "devDependencies": {
+    "nock": "^13.0.4"
   }
 }

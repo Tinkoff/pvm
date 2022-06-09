@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import assert from 'assert'
-import Yargs from 'yargs/yargs'
+import Yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
 import '@pvm/core/lib/node-boot'
 

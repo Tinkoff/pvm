@@ -22,7 +22,7 @@ jobs:
           fetch-depth: 150
       - uses: ./.github/actions/setup
       - run: yarn build
-      - run: node scripts/remark-readme.js
+      - run: yarn node scripts/remark-readme.js
       - run: yarn pvm publish
   docs:
     runs-on: ubuntu-latest

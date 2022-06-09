@@ -29,7 +29,9 @@
     "importsNotUsedAsValues": "error",
     "paths": {
       "@octokit/oauth-app": ["../type-overrides/octokit--oauth-app"],
-    }
+      "@octokit/request-error": ["../type-overrides/octokit--request-error"],
+      "@octokit/webhooks": ["../type-overrides/octokit--webhooks"],
+    },
   },
   "include": [
     "packages",

@@ -33,11 +33,7 @@ files_match = [
 strip_namespace = false
 
 [notifications]
-target = 'all'
-
-[[notifications.clients]]
-name = 'slack'
-pkg = '@pvm/slack'
+target = 'mattermost'
 
 [[notifications.clients]]
 name = 'mattermost'

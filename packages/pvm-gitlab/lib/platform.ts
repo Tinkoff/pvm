@@ -1,4 +1,5 @@
 import fs from 'fs'
+// @ts-ignore
 import { Lexer } from 'marked'
 import * as TOML from '@iarna/toml'
 import { cwdShell } from '@pvm/core/lib/shell'

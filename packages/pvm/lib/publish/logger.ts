@@ -1,7 +1,8 @@
+import type { Logger } from '@pvm/core/lib/logger'
 import { loggerFor } from '@pvm/core/lib/logger'
 import stream from 'stream'
 
-export const logger = loggerFor('pvm:publish')
+export const logger: Logger = loggerFor('pvm:publish')
 
 function bufferedStream(): stream.PassThrough {
   return new stream.PassThrough()

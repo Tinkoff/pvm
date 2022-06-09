@@ -2,6 +2,7 @@ import path from 'path'
 import { GitBranchStorage } from './backend/git-branch-storage'
 import { VcsStorage } from './backend/vcs-storage'
 import { ExternalStorage } from './backend/external-storage'
+import type { Logger } from '@pvm/core/lib/logger'
 import { loggerFor } from '@pvm/core/lib/logger'
 
 import type { Config } from '@pvm/core/lib/config'
@@ -30,7 +31,7 @@ export class Storage {
   storage: StorageImpl
   config: Config
   type: StorageDef['type']
-  logger = logger
+  logger: Logger = logger
 
   constructor(storage: StorageImpl, opts: StorageOpts) {
     this.storage = storage

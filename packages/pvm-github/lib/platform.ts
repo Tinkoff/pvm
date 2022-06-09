@@ -22,7 +22,11 @@ import { gracefullyTruncateText } from '@pvm/core/lib/utils/string'
 import { getCurrentBranchIgnoreEnv, getHostUrl } from '@pvm/core/lib/git/commands'
 import { cwdShell, wdShell } from '@pvm/core'
 
-export const AuthenticationStrategy = {
+export const AuthenticationStrategy: {
+  authApp: typeof createAppAuth,
+  authToken: string | undefined,
+  authAction: typeof createActionAuth,
+} = {
   'authApp': createAppAuth,
   // octokit default will be used
   'authToken': undefined,

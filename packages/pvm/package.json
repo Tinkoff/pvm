@@ -4,40 +4,46 @@
   "initialVersion": "0.54.0",
   "description": "Featured, powerful and compliant package version/release manager",
   "main": "lib/index.js",
-  "bin": {
-    "pvm": "bin/pvm.js"
-  },
+  "bin": "bin/pvm.js",
   "repository": "git@github.com:Tinkoff/pvm.git",
   "author": "Andrey Rublev <box@anru.me>",
   "license": "Apache-2.0",
   "dependencies": {
     "@iarna/toml": "^2.2.3",
-    "@pvm/artifacts": "0.0.0-stub",
     "@pvm/add-tag": "0.0.0-stub",
+    "@pvm/artifacts": "0.0.0-stub",
     "@pvm/changelog": "0.0.0-stub",
     "@pvm/core": "0.0.0-stub",
     "@pvm/cowners": "0.0.0-stub",
     "@pvm/files": "0.0.0-stub",
     "@pvm/gitlab": "0.0.0-stub",
+    "@pvm/notifications": "0.0.0-stub",
     "@pvm/pkgset": "0.0.0-stub",
     "@pvm/releases": "0.0.0-stub",
     "@pvm/repository": "0.0.0-stub",
     "@pvm/slack": "0.0.0-stub",
     "@pvm/template": "0.0.0-stub",
+    "@pvm/types": "0.0.0-stub",
     "@pvm/update": "0.0.0-stub",
     "@pvm/vcs": "0.0.0-stub",
     "@pvm/viz": "0.0.0-stub",
-    "@pvm/notifications": "0.0.0-stub",
-    "@pvm/types": "0.0.0-stub",
+    "bin-version-check": "^4.0.0",
     "chalk": "^4.0.0",
     "cli-table": "^0.3.6",
     "get-stdin": "^7.0.0",
+    "lodash": "^4.2.0",
     "micromatch": "^3.1.10",
     "p-map": "^4.0.0",
     "resolve-from": "^5.0.0",
     "semver": "^7.3.0",
-    "yargs": "^16.1.1",
-    "lodash": "^4.2.0",
-    "bin-version-check": "^4.0.0"
+    "yargs": "^16.1.1"
+  },
+  "peerDependenciesMeta": {
+    "@pvm/mattermost": {
+      "optional": true
+    },
+    "@pvm/slack": {
+      "optional": true
+    }
   }
 }

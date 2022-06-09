@@ -61,8 +61,8 @@ jobs:
       - run: yarn pvm lint
       - run: yarn lint
       - if: steps.packageChanges.outputs.changes == 'true'
-        run: yarn test -w `node -p 'Math.min(os.cpus().length, 2)'`
-      - run: node scripts/github-test-repos-cleanup.js
+        run: yarn test -w `yarn node -p 'Math.min(os.cpus().length, 2)'`
+      - run: yarn node scripts/github-test-repos-cleanup.js
         if: always()
 
   publish-dry-run:

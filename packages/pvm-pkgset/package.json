@@ -10,8 +10,9 @@
     "@pvm/core": "0.0.0-stub",
     "@pvm/repository": "0.0.0-stub",
     "chalk": "^4.0.0",
+    "fast-glob": "^3.1.1",
     "micromatch": "^3.1.10",
     "semver": "^7.3.0",
-    "fast-glob": "^3.1.1"
+    "yargs": "^16.1.1"
   }
 }

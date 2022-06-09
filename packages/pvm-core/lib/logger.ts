@@ -1,5 +1,5 @@
 import { Signales } from 'signales'
-import type { LoggerFunction, DefaultLogLevels } from 'signales'
+import type { LoggerFunction, DefaultLogLevels, SignaleType } from 'signales'
 import { env } from './env'
 
 export { LoggerFunction as LoggerFunc }
@@ -21,7 +21,9 @@ const secrets = secretKeys.reduce((acc, key) => {
   return acc
 }, [] as string[])
 
-export const logger = new Signales({
+export type Logger = SignaleType<'debug' | 'silly' | 'deprecate', string>
+
+export const logger: Logger = new Signales({
   // stream: process.stderr,
   scope: 'pvm',
   logLevels: {

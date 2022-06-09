@@ -11,10 +11,10 @@
     "@pvm/artifacts": "0.0.0-stub",
     "@pvm/changelog": "0.0.0-stub",
     "@pvm/core": "0.0.0-stub",
+    "@pvm/notifications": "0.0.0-stub",
     "@pvm/pkgset": "0.0.0-stub",
     "@pvm/releases": "0.0.0-stub",
     "@pvm/repository": "0.0.0-stub",
-    "@pvm/notifications": "0.0.0-stub",
     "@pvm/suffixes": "0.0.0-stub",
     "@pvm/template": "0.0.0-stub",
     "@pvm/vcs": "0.0.0-stub",
@@ -27,6 +27,7 @@
     "semver": "^7.3.0",
     "semver-regex": "^3.1.1",
     "shuffle-seed": "^1.1.6",
-    "uniq": "^1.0.1"
+    "uniq": "^1.0.1",
+    "yargs": "^16.1.1"
   }
 }

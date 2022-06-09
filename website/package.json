@@ -1,28 +1,45 @@
 {
+  "name": "website",
+  "version": "0.0.0-stub",
+  "private": true,
   "scripts": {
     "start": "node ./check-required-commands.js && docusaurus start",
     "build": "node ./check-required-commands.js && docusaurus build && node download-pvm-packages.mjs",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy"
   },
-  "devDependencies": {},
   "dependencies": {
-    "@docusaurus/core": "2.0.0-beta.9",
-    "@docusaurus/plugin-google-gtag": "2.0.0-beta.9",
-    "@docusaurus/preset-classic": "2.0.0-beta.9",
+    "@docusaurus/core": "2.0.0-beta.21",
+    "@docusaurus/plugin-google-gtag": "2.0.0-beta.21",
+    "@docusaurus/preset-classic": "2.0.0-beta.21",
+    "@mdx-js/react": "^1.6.22",
     "@mshipov/typedoc-plugin-monorepo": "^0.2.2",
+    "@pvm/artifacts": "workspace:*",
+    "@pvm/cli-inline-remark-plugin": "workspace:*",
+    "@pvm/core": "workspace:*",
+    "@pvm/pkgset": "workspace:*",
+    "autocomplete.js": "^0.38.1",
+    "chalk": "^4.1.2",
+    "classnames": "^2.3.1",
     "clsx": "^1.1.1",
+    "command-exists": "^1.2.9",
     "docusaurus-lunr-search": "^2.1.10",
+    "docusaurus-plugin-typedoc": "^0.16.3",
+    "fs-extra": "^9.0.1",
+    "hogan.js": "^3.0.2",
+    "lunr": "^2.3.9",
+    "lunr-languages": "^1.9.0",
+    "nlfurniss-typedoc-plugin-sourcefile-url": "^2.0.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "docusaurus-plugin-typedoc": "^0.16.3",
-    "typedoc": "^0.22.8",
-    "nlfurniss-typedoc-plugin-sourcefile-url": "^2.0.0",
-    "typedoc-plugin-markdown": "^3.11.3",
-    "svgo": "^2.8.0",
     "signales": "^2.0.5",
-    "chalk": "^4.1.2",
-    "command-exists": "^1.2.9"
+    "svgo": "^2.8.0",
+    "typedoc": "^0.22.8",
+    "typedoc-plugin-markdown": "^3.11.3"
   },
-  "requiredCommands": ["java", "curl"]
+  "requiredCommands": [
+    "java",
+    "curl"
+  ],
+  "packageManager": "yarn@3.2.1"
 }

@@ -4,7 +4,7 @@
   "author": "mshipov@yandex.ru",
   "description": "Allow to replace `@cli-inline ...` constructions with stdout output of command",
   "dependencies": {
-    "unist-util-visit": "^4.1.0",
-    "mdast-util-from-markdown": "^1.2.0"
+    "mdast-util-from-markdown": "^1.2.0",
+    "unist-util-visit": "^4.1.0"
   }
 }
