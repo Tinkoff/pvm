@@ -1,4 +1,6 @@
 import fs from 'fs'
+import { Lexer } from 'marked'
+import * as TOML from '@iarna/toml'
 import { cwdShell } from '@pvm/core/lib/shell'
 import { getContents } from '@pvm/core/lib/git/commands'
 
@@ -33,6 +35,8 @@ import updateMr from './api/mr/update'
 import { env } from '@pvm/core/lib/env'
 import { log } from '@pvm/core/lib/logger'
 import { getGitlabHostUrl } from './remote-url'
+
+const PVM_UPDATE_HINTS_KIND = 'pvm-update-hints'
 
 interface CommitAction {
   file_path: string,
@@ -308,6 +312,78 @@ export class GitlabPlatform extends PlatformInterfaceWithFileCommitApi<MergeRequ
 
   getCommitSha(): string {
     return gitlabEnv.commitSha
+  }
+
+  async getUpdateHintsByCommit(commit: string): Promise<Record<string, any> | null> {
+    const currentBranch = this.getCurrentBranch()
+
+    log(`Searching for update hints in merge request for commit ${commit}`)
+
+    // first try to find open mr for branch. Then commit will be not needed.
+    let processedMr
+    try {
+      processedMr = await findOpenSingleMr(currentBranch)
+    } catch (e) {
+      log('Opened mr not found. Moving on to search in merged merge requests')
+      log(e)
+    }
+    // if not, then search by commit in all merged merge requests
+    if (!processedMr) {
+      const { json: mrs }: { json: Array<MergeRequest> } = await glapi(`/projects/${gitlabEnv.projectId}/repository/commits/${commit}/merge_requests`)
+
+      processedMr = mrs.find(mr => mr.state === 'merged' && mr.target_branch === currentBranch)
+
+      if (!processedMr) {
+        log(`no mr for given commit found`)
+        return null
+      }
+    }
+
+    const description = processedMr.description
+
+    if (!description) {
+      log(`mr description is empty`)
+      return null
+    }
+
+    log(`Analyzing description of merge request ${processedMr.web_url}`)
+
+    return GitlabPlatform.getPvmUpdateHintsFromString(description)
+  }
+
+  static getPvmUpdateHintsFromString(text: string): Record<string, any> | null {
+    let parsedDescription
+    try {
+      const lexer = new Lexer()
+      parsedDescription = lexer.lex(text)
+    } catch (e) {
+      log(`Failed to parse MR description`)
+      log(e)
+      return null
+    }
+
+    const tomlCodeBlocks = parsedDescription.filter(block => block.type === 'code' && block.lang === 'toml')
+    if (!tomlCodeBlocks.length) {
+      log(`toml code not found in mr description`)
+      return null
+    }
+
+    for (const block of tomlCodeBlocks) {
+      try {
+        const parsed = TOML.parse(block.text) as any
+        if (parsed.kind === PVM_UPDATE_HINTS_KIND) {
+          delete parsed.kind
+          return parsed
+        }
+      } catch (e) {
+        log(`Failed to parse toml code block`)
+        log(block.text)
+        log(e)
+        break
+      }
+    }
+
+    return null
   }
 
   private logReleaseTag(tagName: string): void {

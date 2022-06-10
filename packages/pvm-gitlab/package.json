@@ -17,8 +17,10 @@
     "git-url-parse": "^11.4.4",
     "p-map": "^4.0.0",
     "parse-md": "^2.0.4",
+    "marked": "^4.0.16",
     "parse-path": "^4.0.1",
     "semver": "^7.3.0",
-    "string-to-color": "^2.0.1"
+    "string-to-color": "^2.0.1",
+    "@iarna/toml": "^2.2.3"
   }
 }

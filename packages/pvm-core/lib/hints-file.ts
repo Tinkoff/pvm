@@ -137,6 +137,21 @@ function readFileByRef(cwd: string, filePath: string, ref?: string): string | nu
   return null
 }
 
+export function validateUpdateHints(config: Config, hints: Record<string, any>): void {
+  const knownKeys = Object.create(null)
+
+  for (const validator of validators) {
+    knownKeys[validator.key] = 1
+    validator.run(config, hints)
+  }
+
+  for (const hintsKey of Object.keys(hints)) {
+    if (!(hintsKey in knownKeys)) {
+      throw err('', `Unknown entry ${hintsKey}`)
+    }
+  }
+}
+
 async function load(config: Config, hintsFile: string, ref?: string): Promise<HintsTuple> {
   let result = {}
   let itsActuallyRead = false
@@ -149,18 +164,7 @@ async function load(config: Config, hintsFile: string, ref?: string): Promise<Hi
     }
   }
 
-  const knownKeys = Object.create(null)
-
-  for (const validator of validators) {
-    knownKeys[validator.key] = 1
-    validator.run(config, result)
-  }
-
-  for (const hintsKey of Object.keys(result)) {
-    if (!(hintsKey in knownKeys)) {
-      throw err('', `Unknown entry ${hintsKey}`)
-    }
-  }
+  validateUpdateHints(config, result)
 
   return [result, itsActuallyRead]
 }

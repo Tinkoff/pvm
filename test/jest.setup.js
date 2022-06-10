@@ -17,6 +17,7 @@ Object.assign(process.env, {
   // SLACK_WEBHOOK: `http://localhost:${process.env.GITLAB_HTTP_PORT}/slack-hook/`,
   CI_PROJECT_NAMESPACE: 'pfp',
   CI_PROJECT_NAME: 'test-p',
+  CI_PROJECT_ID: 111,
   GL_TOKEN: '___gl___',
   PVM_TESTING_ENV: process.env.PVM_TESTING_ENV ?? 'true',
   NPM_TOKEN: '123',

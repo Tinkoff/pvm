@@ -7,7 +7,7 @@ import includeRootResolve from '@pvm/pkgset/lib/include-root-resolve'
 import { getHostApi } from '@pvm/core/lib/plugins'
 import { getUnifiedGroups } from './unified-groups'
 import { ImmutablePkgSet, PkgSet } from '@pvm/core/lib/pkg-set'
-import loadHintsFile from '@pvm/core/lib/hints-file'
+import loadHintsFile, { validateUpdateHints } from '@pvm/core/lib/hints-file'
 import { lastReleaseTag } from '@pvm/core/lib/git/last-release-tag'
 import { logger } from '@pvm/core/lib/logger'
 import { noPackagesInMugError } from '@pvm/core/lib/behaviors/no-packages-in-mug'
@@ -16,6 +16,8 @@ import type { Config } from '@pvm/core/lib/config'
 import type { Pkg, AppliedPkg } from '@pvm/core/lib/pkg'
 import type { UpdateHints } from '@pvm/core/types'
 import { wdShell } from '@pvm/core'
+import revParse from '@pvm/core/lib/git/rev-parse'
+import { initVcsPlatform } from '@pvm/vcs'
 
 interface RepositoryInitOpts {
   ref?: string | void,
@@ -149,9 +151,21 @@ export class Repository {
     const { hints_file } = this.config.update
     const [hints, hintsFileExists] = await loadHintsFile(this.config, hints_file, this.ref)
 
+    if (hintsFileExists) {
+      return {
+        hints,
+        readHintsFile: hintsFileExists ? hints_file : false,
+      }
+    }
+
+    const vcsPlatform = await initVcsPlatform({ cwd: this.cwd })
+    const updateHints = await vcsPlatform.getUpdateHintsByCommit(revParse('HEAD', this.cwd)) ?? {}
+
+    validateUpdateHints(this.config, updateHints)
+
     return {
-      hints,
-      readHintsFile: hintsFileExists ? hints_file : false,
+      hints: updateHints,
+      readHintsFile: false,
     }
   }
 
