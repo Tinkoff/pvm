@@ -177,6 +177,8 @@ function makeGitVcs(cwd: string): AbstractVcs<GitCommitContext> {
       return getCurrentBranchIgnoreEnv(cwd)
     },
     async commit(_, message: string, opts: CommitOptions = {}): Promise<CommitResult> {
+      prepareGitMemo()
+
       const { branch } = opts
 
       const currentBranch = gitVcs.getCurrentBranch()
@@ -190,15 +192,8 @@ function makeGitVcs(cwd: string): AbstractVcs<GitCommitContext> {
         commitArgs.push('--allow-empty')
       }
 
-      const wrapperCommand = path.resolve(__dirname, '../ci/git-commit.sh')
-      const cmdEnv = {
-        // eslint-disable-next-line pvm/no-process-env
-        ...process.env,
-        GIT_COMMIT_ARGS: commitArgs.join(' '),
-      }
-
       if (!isDryRun) {
-        await runShell(wrapperCommand, { input: message, env: cmdEnv })
+        await runShell(`git commit ${commitArgs.join(' ')}`, { input: message })
       }
 
       return {
