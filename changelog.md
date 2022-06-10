@@ -3,6 +3,24 @@ id: index
 title: Change Log
 ---
 
+## v0.55.10
+**2022.06.10**
+
+
+
+### 🐛 Bug Fixes
+
+* **@pvm/git-vcs:** correct commit logic for windows environment ([#1e1b224](https://github.com/Tinkoff/pvm/commit/1e1b224d2618a88491e60e7b8fd1c0049785e2ff))
+
+
+### Other
+
+* notifications are sended to pvm-github channel ([#df0ac2d](https://github.com/Tinkoff/pvm/commit/df0ac2d9b6f79b8530ed30e11b0f8025696b8442))
+* setup mattermost incoming webhook ([#3d9f5a9](https://github.com/Tinkoff/pvm/commit/3d9f5a9b4d68a4aee90435e480af367433000f7e))
+
+
+
+
 ## v0.55.9
 **2022.06.06**
 
