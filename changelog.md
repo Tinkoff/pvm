@@ -3,6 +3,18 @@ id: index
 title: Change Log
 ---
 
+## v0.55.11
+**2022.06.10**
+
+
+
+### 🐛 Bug Fixes
+
+* **@pvm/core:** add peerDependencies and optionalDependencies as default deps_keys ([#b5c4636](https://github.com/Tinkoff/pvm/commit/b5c4636541466f4c1d3337eaef29ba4439d68eb7))
+
+
+
+
 ## v0.55.10
 **2022.06.10**
 
