@@ -59,6 +59,8 @@ export const defaultConfig: Config = {
     deps_keys: [
       'dependencies',
       'devDependencies',
+      'peerDependencies',
+      'optionalDependencies',
     ],
   },
   release_list: {
