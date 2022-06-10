@@ -401,6 +401,10 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
     return env.GITHUB_SHA ?? cwdShell('git rev-parse HEAD')
   }
 
+  async getUpdateHintsByCommit(_commit: string): Promise<Record<string, any> | null> {
+    return null
+  }
+
   private logReleaseTag(tagName: string): void {
     const { CI_PROJECT_NAMESPACE, CI_PROJECT_NAME } = env
     log.info(`release tag link: ${getHostUrl(this.config.cwd)}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/tags/${tagName}`)

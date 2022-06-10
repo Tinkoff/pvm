@@ -39,6 +39,7 @@ module.exports = {
       'how-to/move-to-dedicated-versions',
       'how-to/reviewers',
       'how-to/local-releases',
+      'how-to/update-hints',
     ],
   },
   'API': [

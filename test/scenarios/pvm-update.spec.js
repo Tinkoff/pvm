@@ -1,11 +1,15 @@
 const dedent = require('dedent')
 const semver = require('semver')
 const { deepMerge } = require('sprout-data')
+
 const { UpdateReasonType } = require('@pvm/update/lib/update-state')
+
+const revParse = require('@pvm/core/lib/git/rev-parse').default
 const path = require('path')
 const { reposDir } = require('../repos-dir')
-const { default: runShell } = require('../../packages/pvm-core/lib/shell/run')
+const runShell = require('../../packages/pvm-core/lib/shell/run').default
 const { execScript } = require('../executors')
+const got = require('got')
 
 const doTagsPlease = {
   tagging: {
@@ -1979,6 +1983,39 @@ c@0.1.1
       expect(wantedReleaseTypes.has(pkgA)).toBeTruthy()
       expect(updateReasonMap.get(pkgA)).toBe(UpdateReasonType.new)
       expect(updateReasonMap.get(pkgB)).toBe(UpdateReasonType.new)
+    })
+  })
+
+  describe('update hints in merge request', () => {
+    afterEach(() => {
+      process.env.CI_PROJECT_ID = 111
+    })
+
+    it('update hints should be used', async () => {
+      const repo = await initRepo('simple-one')
+
+      await repo.writeFile('trigger.txt', 'trigger', 'fix: change')
+
+      const lastCommit = revParse('HEAD', repo.cwd)
+      await got(`${process.env.PVM_CONFIG_GITLAB__URL}/api/v4/merge-request-for-commit/${lastCommit}`, {
+        method: 'POST',
+        json: {
+          state: 'merged',
+          description: `
+\`\`\`toml
+kind = 'pvm-update-hints'
+[release-types]
+major = '*'
+\`\`\`
+        `,
+        },
+      })
+
+      process.env.CI_PROJECT_ID = 'WITHOUT_MR'
+      const { newVersions, repo: innerRepo } = await repo.getUpdateState()
+
+      const pkg = innerRepo.pkgset.get('simple-one')
+      expect(newVersions.get(pkg)).toBe('1.0.0')
     })
   })
 })

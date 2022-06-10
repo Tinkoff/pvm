@@ -340,6 +340,10 @@ export class VcsPlatform implements VcsOnly {
   async getCommitLink(commit: string): Promise<string | null> {
     return this.hostApi.run('platform.getCommitLink', commit)
   }
+
+  async getUpdateHintsByCommit(commit: string): Promise<Record<string, any> | null> {
+    return await this.hostApi.run('platform.getUpdateHintsByCommit', commit) ?? null
+  }
 }
 
 interface InitVcsOpts {

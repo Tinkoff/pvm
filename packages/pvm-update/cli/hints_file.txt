@@ -1,7 +1,7 @@
-Filename is taken from config.update.hints_file.
-This file will be deleted from repository in a release commit.
+# Filename is taken from config.update.hints_file.
+# This file will be deleted from repository in a release commit.
 
-Full example:
+# Full example:
 
 # define a release type for all packages
 release-type = "major"

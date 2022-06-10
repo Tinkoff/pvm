@@ -45,6 +45,8 @@ export abstract class PlatformInterface<MergeRequest> {
   abstract createProjectLabel(label: string, color: string): Promise<unknown>;
   abstract setMrLabels(labels: string[]): Promise<unknown>;
 
+  abstract getUpdateHintsByCommit(commit: string): Promise<Record<string, any> | null>;
+
   async syncText(kind: string, text: string): Promise<unknown> {
     const existingNote = await this.findMrNote(kind)
 
