@@ -3,6 +3,18 @@ id: index
 title: Change Log
 ---
 
+## v0.55.12
+**2022.06.11**
+
+
+
+### 🐛 Bug Fixes
+
+* add ability to set and process update hints via merge request description in gitlab ([#05daa5c](https://github.com/Tinkoff/pvm/commit/05daa5c690f55845ec445cddb33533c64c5f2b14))
+
+
+
+
 ## v0.55.11
 **2022.06.10**
 
