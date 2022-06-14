@@ -257,11 +257,12 @@ test2
 
     it('createProjectLabel/getProjectLabels', async () => {
       const { githubPlatform } = await prepareRepository()
-      await githubPlatform.createProjectLabel('test', 'eeeeee')
-      for await (const labels of githubPlatform.getProjectLabels()) {
-        expect(labels.length).toBe(1)
-        expect(labels[0].name).toBe('test')
+      await githubPlatform.createProjectLabel('pvm-test', 'eeeeee')
+      const labels: { name: string }[] = []
+      for await (const label of githubPlatform.getProjectLabels()) {
+        labels.push(label)
       }
+      expect(labels.find(({ name }) => name === 'pvm-test')).toBeTruthy()
     })
 
     it('setMrLabels', async () => {

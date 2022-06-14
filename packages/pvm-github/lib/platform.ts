@@ -357,10 +357,14 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
     return Promise.reject(new Error('Attachments for pull requests are not supported at this moment'))
   }
 
-  async * getProjectLabels(): AsyncIterable<Array<{ name: string }>> {
-    return this.githubClient.paginate.iterator('GET /repos/{owner}/{repo}/labels', {
+  async * getProjectLabels(): AsyncIterable<{ name: string }> {
+    const labelsIter = this.githubClient.paginate.iterator('GET /repos/{owner}/{repo}/labels', {
       ...this.repoPath,
     })
+
+    for await (const labels of labelsIter) {
+      yield * labels.data
+    }
   }
 
   async createProjectLabel(label: string, color: string): Promise<unknown> {

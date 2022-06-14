@@ -77,7 +77,7 @@ export class GitlabPlatform extends PlatformInterfaceWithFileCommitApi<MergeRequ
     })
   }
 
-  getProjectLabels(): AsyncIterable<Array<{ name: string }>> {
+  getProjectLabels(): AsyncIterable<{ name: string }> {
     return getLabels(gitlabEnv.projectId)
   }
 
