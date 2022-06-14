@@ -18,12 +18,12 @@ jobs:
           # Because of restriction that actions made with GITHUB_TOKEN are not trigger any actions
           ssh-key: ${{ secrets.DEPLOY_SSH_KEY }}
       - uses: ./.github/actions/setup
-      - run: yarn build
-      - run: yarn pvm update
+      - run: npm run build
+      - run: npm exec pvm update
 
   docs:
     runs-on: ubuntu-latest
-    container: mshipov/plantuml:0.0.1
+    container: mshipov/plantuml:1.0.4
     needs: update
     env:
       PVM_LL: silly

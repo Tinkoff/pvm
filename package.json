@@ -3,7 +3,7 @@
   "private": true,
   "description": "Featured, powerful and compliant package version/release manager",
   "engines": {
-    "node": ">=12.4.0"
+    "node": ">=16.0.0"
   },
   "workspaces": {
     "packages": [
@@ -19,9 +19,10 @@
     "check-ts-strict": "tsc -p tsconfig.strict.json -d --noEmit",
     "watch-ts-strict": "tsc -p tsconfig.strict.json -d --watch --noEmit",
     "lint": "eslint --ext .js,.ts packages test",
-    "generate-config-schema": "cross-env NODE_OPTIONS=\"--unhandled-rejections=strict\" yarn typescript-json-schema --out packages/pvm-core/config-schema.json packages/pvm-core/config-schema.ts Config && yarn typescript-json-schema --out packages/pvm-core/env-schema.json packages/pvm-core/env-schema.ts Env",
+    "generate-config-schema": "cross-env NODE_OPTIONS=\"--unhandled-rejections=strict\" npm exec typescript-json-schema -- --out packages/pvm-core/config-schema.json packages/pvm-core/config-schema.ts Config && npm exec typescript-json-schema -- --out packages/pvm-core/env-schema.json packages/pvm-core/env-schema.ts Env",
     "check-no-staged-changes": "git diff --name-only --exit-code",
-    "lint:config-schema": "bash -c 'scripts/check-config-sync.sh'"
+    "lint:config-schema": "bash -c 'scripts/check-config-sync.sh'",
+    "whoami": "node ./user.js"
   },
   "repository": "git@github.com:Tinkoff/pvm.git",
   "author": "Andrey Rublev <box@anru.me>",

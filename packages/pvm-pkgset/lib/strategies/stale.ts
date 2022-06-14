@@ -22,25 +22,23 @@ async function * pkgset(opts: PkgsetStaleOpts = {}): AsyncIterableIterator<Pkg> 
     const pkg = loadPkg(config, pkgPath)!
     const registry = (pkg.meta.publishConfig ? pkg.meta.publishConfig.registry : null) || opts.registry
     let response
-    let publishedVersion
+    let publishedVersion = null
 
     try {
       // @TODO сделать параллельные запросы в нпм (ускорить)
       logger.info(`retrieving published version for ${pkg.name} from ${registry || 'default'} registry..`)
-      response = wdShell(config.cwd, `npm view ${pkg.name} version --json ${registry ? `--registry ${registry}` : ''}`, { stdio: 'pipe' })
+      response = wdShell(config.cwd, `npm view ${pkg.name} version ${registry ? `--registry ${registry}` : ''}`, { stdio: 'pipe' })
     } catch (e) {
-      const { error } = JSON.parse(e.stdout.toString())
-
-      if (error && error.code !== 'E404') {
-        logger.error(`Failed while retreiving actual version for "${pkg.name}" from registry "${registry || 'default'}"`)
+      // According https://github.com/npm/cli/issues/3075 there is a flag --json behaviour change that defeats its purpose
+      // and making output unparsable as json
+      if (e.toString().indexOf('ERR! code E404') === -1) {
+        logger.error(`Failed while retrieving actual version for "${pkg.name}" from registry "${registry || 'default'}"`)
         throw e
       }
-
-      publishedVersion = null
     }
 
     if (response) {
-      publishedVersion = JSON.parse(response)
+      publishedVersion = response
     }
 
     const isStale = publishedVersion === null || semver.gt(pkg.version, publishedVersion)

@@ -14,12 +14,12 @@ jobs:
           fetch-depth: 100
           ref: ${{ github.event.pull_request.head.sha }}
       - uses: ./.github/actions/setup
-      - run: yarn build
-      - run: yarn pvm mark-pr
+      - run: npm run build
+      - run: npm exec pvm mark-pr
 
   docs-test:
     runs-on: ubuntu-latest
-    container: mshipov/plantuml:0.0.1
+    container: mshipov/plantuml:1.0.4
     env:
       PVM_LL: silly
       GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
@@ -54,14 +54,14 @@ jobs:
             changes:
               - 'packages/**'
               - 'test/**'
-      - run: yarn build
-      - run: yarn check-ts-strict
-      - run: yarn lint:config-schema
-      - run: yarn pvm vcs is-branch-actual
-      - run: yarn pvm lint
-      - run: yarn lint
+      - run: npm run build
+      - run: npm run check-ts-strict
+      - run: npm run lint:config-schema
+      - run: npm exec pvm vcs is-branch-actual
+      - run: npm exec pvm lint
+      - run: npm run lint
       - if: steps.packageChanges.outputs.changes == 'true'
-        run: yarn test -w `node -p 'Math.min(os.cpus().length, 2)'`
+        run: npm run test -- -w `node -p 'Math.min(os.cpus().length, 2)'`
       - run: node scripts/github-test-repos-cleanup.js
         if: always()
 
@@ -76,8 +76,8 @@ jobs:
           fetch-depth: 100
           ref: ${{ github.event.pull_request.head.sha }}
       - uses: ./.github/actions/setup
-      - run: yarn build
-      - run: yarn pvm publish -s changed-since-release -S ref=HEAD --dry-run
+      - run: npm run build
+      - run: npm exec pvm publish -- -s changed-since-release -S ref=HEAD --dry-run
 
   publish-stale-dry-run:
     runs-on: ubuntu-latest
@@ -90,8 +90,8 @@ jobs:
           fetch-depth: 100
           ref: ${{ github.event.pull_request.head.sha }}
       - uses: ./.github/actions/setup
-      - run: yarn build
-      - run: yarn pvm publish -s stale --dry-run
+      - run: npm run build
+      - run: npm exec pvm publish -- -s stale --dry-run
 
   update-dry-run:
     runs-on: ubuntu-latest
@@ -104,5 +104,5 @@ jobs:
           fetch-depth: 100
           ref: ${{ github.event.pull_request.head.sha }}
       - uses: ./.github/actions/setup
-      - run: yarn build
-      - run: yarn pvm update --dry-run
+      - run: npm run build
+      - run: npm exec pvm update -- --dry-run
