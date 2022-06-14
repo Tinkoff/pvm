@@ -41,7 +41,7 @@ export abstract class PlatformInterface<MergeRequest> {
   abstract createMrNote(body: string): Promise<unknown>;
   abstract updateMrNote(commentId: number | string, body: string): Promise<unknown>;
 
-  abstract getProjectLabels(): AsyncIterable<Array<{ name: string }>>;
+  abstract getProjectLabels(): AsyncIterable<{ name: string }>;
   abstract createProjectLabel(label: string, color: string): Promise<unknown>;
   abstract setMrLabels(labels: string[]): Promise<unknown>;
 
@@ -61,10 +61,8 @@ export abstract class PlatformInterface<MergeRequest> {
 
   async ensureMrLabels(labels: string[]): Promise<unknown> {
     const labelsByName = Object.create(null)
-    for await (const labels of this.getProjectLabels()) {
-      labels.forEach(label => {
-        labelsByName[label.name] = label
-      })
+    for await (const label of this.getProjectLabels()) {
+      labelsByName[label.name] = label
     }
 
     const newLabels: string[] = []
