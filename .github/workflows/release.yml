@@ -21,12 +21,12 @@ jobs:
         with:
           fetch-depth: 150
       - uses: ./.github/actions/setup
-      - run: yarn build
+      - run: npm run build
       - run: node scripts/remark-readme.js
-      - run: yarn pvm publish
+      - run: npm exec pvm publish
   docs:
     runs-on: ubuntu-latest
-    container: mshipov/plantuml:0.0.1
+    container: mshipov/plantuml:1.0.4
     needs: release
     env:
       PVM_LL: silly

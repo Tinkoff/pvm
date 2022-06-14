@@ -3,10 +3,11 @@ description: ''
 runs:
   using: "composite"
   steps:
-    - uses: ./.github/actions/setup
-    - run: yarn build
-      shell: bash
-    - run: yarn pvm changelog download
-      shell: bash
-    - run: yarn build-docs
+    - run: |
+        # because of this https://github.com/npm/cli/issues/3110
+        chown root -R .
+        npm ci
+        npm run build
+        npm exec pvm changelog download
+        npm run build-docs
       shell: bash

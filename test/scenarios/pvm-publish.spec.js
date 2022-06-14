@@ -276,6 +276,7 @@ describe('pvm/publish', () => {
       repo.updatePkg('.', {
         version: `0.1.0-${repo.env.CI_COMMIT_SHA}.0`,
       })
+      await repo.writeFile('.npmrc', `_auth = "fooBar"`)
       await runScript(repo, `npm publish --tag beta --registry ${npmControls.registryUrl}`)
       repo.updatePkg('.', {
         version: `0.1.0`,
