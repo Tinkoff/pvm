@@ -3,6 +3,18 @@ id: index
 title: Change Log
 ---
 
+## v0.55.13
+**2022.06.14**
+
+
+
+### 🐛 Bug Fixes
+
+* correct labels setup in gitlab mr's ([#7b454c4](https://github.com/Tinkoff/pvm/commit/7b454c40d5c8435ed36ec520fc1e802fe764b9fc))
+
+
+
+
 ## v0.55.12
 **2022.06.11**
 
