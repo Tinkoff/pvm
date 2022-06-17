@@ -3,6 +3,19 @@ id: index
 title: Change Log
 ---
 
+## v0.55.14
+**2022.06.17**
+
+
+
+### Other
+
+* Update update-hints.md ([#3289948](https://github.com/Tinkoff/pvm/commit/3289948d08ffa40595b1f2af7ce590da6320e42d))
+* switch to npm v8 ([#6afd9d6](https://github.com/Tinkoff/pvm/commit/6afd9d69904930aeb11737f343d032e6346d5065))
+
+
+
+
 ## v0.55.13
 **2022.06.14**
 
