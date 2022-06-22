@@ -5,6 +5,7 @@
   "engines": {
     "node": ">=16.0.0"
   },
+  "packageManager": "npm@8.3.1",
   "workspaces": {
     "packages": [
       "packages/*",

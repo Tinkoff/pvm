@@ -26,7 +26,8 @@
     "semver": "^7.3.0",
     "signales": "^2.0.5",
     "through2": "^4.0.2",
-    "git-url-parse": "^11.4.4"
+    "git-url-parse": "^11.4.4",
+    "json5": "^2.2.1"
   },
   "devDependencies": {
     "@pvm/releases": "0.0.0-stub",

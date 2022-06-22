@@ -8,6 +8,7 @@ import Ajv from 'ajv'
 import * as TOML from '@iarna/toml'
 import { cosmiconfigSync, defaultLoaders } from 'cosmiconfig'
 import yaml from 'js-yaml'
+import json5 from 'json5'
 import { applyPatch } from 'rfc6902'
 
 import { logger } from '../logger'
@@ -125,6 +126,10 @@ const yamlLoader = (_, contents: string): any => {
   return yaml.safeLoad(contents)
 }
 
+const json5Loader = (_, contents: string): any => {
+  return json5.parse(contents)
+}
+
 function takeOrigin(maybeUrl: string): string {
   try {
     return new URL(maybeUrl).origin
@@ -161,6 +166,7 @@ const loaders = {
   '.yml': yamlLoader,
   '.yaml': yamlLoader,
   '.toml': tomlLoader,
+  '.json5': json5Loader,
 }
 
 function pickLoaderAndLoad(contents: string, contentsPath: string): Record<string, any> {
@@ -295,12 +301,14 @@ function loadRawConfig(cwd: string, ref: string | undefined = void 0): ConfigRes
       `.${moduleName}.toml`,
       `.${moduleName}.yaml`,
       `.${moduleName}.yml`,
+      `.${moduleName}.json5`,
       `.${moduleName}.js`,
       `${moduleName}.config.js`,
       `.${moduleName}rc`,
     ],
     loaders: {
       '.toml': tomlLoader,
+      '.json5': json5Loader,
     },
   }).search(cwd)
   if (!cosmicResult || cosmicResult.isEmpty) {
