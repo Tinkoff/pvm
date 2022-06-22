@@ -3,6 +3,23 @@ id: index
 title: Change Log
 ---
 
+## v0.55.15
+**2022.06.22**
+
+
+
+### 🐛 Bug Fixes
+
+* **@pvm/core:** allow config in json5 format ([#2a1c538](https://github.com/Tinkoff/pvm/commit/2a1c5382751c6e39c3d2970c68bf6be5b2643c90))
+
+
+### Other
+
+* filter private pkgs from published list ([#6a887a8](https://github.com/Tinkoff/pvm/commit/6a887a84620cef5242c845bd6880e6fcee7c285e))
+
+
+
+
 ## v0.55.14
 **2022.06.17**
 
