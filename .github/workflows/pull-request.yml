@@ -5,6 +5,11 @@ on: pull_request
 env:
   PVM_LL: silly
 
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
 jobs:
   mark-pr:
     runs-on: ubuntu-latest
@@ -17,7 +22,7 @@ jobs:
       - run: npm run build
       - run: npm exec pvm mark-pr
         env:
-          GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   docs-test:
     runs-on: ubuntu-latest
@@ -30,7 +35,7 @@ jobs:
           fetch-depth: 1
       - uses: ./.github/actions/build-docs
         env:
-          GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/upload-artifact@v3
         with:
           name: docs
@@ -56,7 +61,7 @@ jobs:
       - run: npm run lint:config-schema
       - run: npm exec pvm vcs is-branch-actual
         env:
-          GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm exec pvm lint
       - run: npm run lint
       - if: steps.packageChanges.outputs.changes == 'true'
@@ -79,7 +84,7 @@ jobs:
       - run: npm run build
       - run: npm exec pvm publish -- -s changed-since-release -S ref=HEAD --dry-run
         env:
-          GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   publish-stale-dry-run:
     runs-on: ubuntu-latest
@@ -92,7 +97,7 @@ jobs:
       - run: npm run build
       - run: npm exec pvm publish -- -s stale --dry-run
         env:
-          GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   update-dry-run:
     runs-on: ubuntu-latest
@@ -105,4 +110,4 @@ jobs:
       - run: npm run build
       - run: npm exec pvm update -- --dry-run
         env:
-          GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
