@@ -8,6 +8,10 @@ on:
 env:
   PVM_LL: silly
 
+permissions:
+  contents: read
+  pages: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -20,7 +24,7 @@ jobs:
       - run: node scripts/remark-readme.js
       - run: npm exec pvm publish
         env:
-          GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PVM_SLACK_TOKEN: ${{ secrets.PVM_SLACK_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           PVM_MATTERMOST_URL: ${{ secrets.PVM_MATTERMOST_URL }}
@@ -41,7 +45,7 @@ jobs:
           fetch-depth: 150
       - uses: ./.github/actions/build-docs
         env:
-          GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

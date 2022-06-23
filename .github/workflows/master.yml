@@ -8,6 +8,10 @@ on:
 env:
   PVM_LL: silly
 
+permissions:
+  contents: write
+  pages: write
+
 jobs:
   update:
     runs-on: ubuntu-latest
@@ -21,7 +25,7 @@ jobs:
       - run: npm run build
       - run: npm exec pvm update
         env:
-          GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   docs:
     runs-on: ubuntu-latest
@@ -38,7 +42,7 @@ jobs:
           fetch-depth: 150
       - uses: ./.github/actions/build-docs
         env:
-          GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
