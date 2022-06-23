@@ -4,12 +4,13 @@ on:
   schedule:
     - cron: '10 * * * *'
 
+env:
+  PVM_LL: silly
+
 jobs:
   github-test-cleanup:
     runs-on: ubuntu-latest
     env:
-      PVM_LL: silly
-      GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
       PVM_GITHUB_TEST_REPO_TOKEN: ${{ secrets.PVM_GITHUB_TEST_REPO_TOKEN }}
     steps:
       - uses: actions/checkout@v2

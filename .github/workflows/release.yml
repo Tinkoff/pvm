@@ -5,17 +5,12 @@ on:
     tags:
       - v[0-9]+.[0-9]+.[0-9]+
 
+env:
+  PVM_LL: silly
+
 jobs:
   release:
     runs-on: ubuntu-latest
-    env:
-      PVM_LL: silly
-      GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
-      PVM_SLACK_TOKEN: ${{ secrets.PVM_SLACK_TOKEN }}
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      PVM_MATTERMOST_URL: ${{ secrets.PVM_MATTERMOST_URL }}
-      PVM_MATTERMOST_TOKEN: ${{ secrets.PVM_MATTERMOST_TOKEN }}
-      PVM_MATTERMOST_INCOMING_WEBHOOK: ${{ secrets.PVM_MATTERMOST_INCOMING_WEBHOOK }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -24,13 +19,17 @@ jobs:
       - run: npm run build
       - run: node scripts/remark-readme.js
       - run: npm exec pvm publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
+          PVM_SLACK_TOKEN: ${{ secrets.PVM_SLACK_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          PVM_MATTERMOST_URL: ${{ secrets.PVM_MATTERMOST_URL }}
+          PVM_MATTERMOST_TOKEN: ${{ secrets.PVM_MATTERMOST_TOKEN }}
+          PVM_MATTERMOST_INCOMING_WEBHOOK: ${{ secrets.PVM_MATTERMOST_INCOMING_WEBHOOK }}
   docs:
     runs-on: ubuntu-latest
     container: mshipov/plantuml:1.0.4
     needs: release
-    env:
-      PVM_LL: silly
-      GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
     permissions:
       contents: write
     concurrency:
@@ -41,6 +40,8 @@ jobs:
         with:
           fetch-depth: 150
       - uses: ./.github/actions/build-docs
+        env:
+          GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
       - uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
