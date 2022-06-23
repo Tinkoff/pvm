@@ -3,6 +3,24 @@ id: index
 title: Change Log
 ---
 
+## v0.55.16
+**2022.06.23**
+
+
+
+### 🐛 Bug Fixes
+
+* **@pvm/types:** add empty readme ([#05b68af](https://github.com/Tinkoff/pvm/commit/05b68afc15f6eb0ee340aef57cf2ce95546dd3d9))
+
+
+### Other
+
+* pass env variables only to commands where they need ([#23744ec](https://github.com/Tinkoff/pvm/commit/23744ec3c752c0ceac15b2227abf5553d259396e))
+* replace TINKOFF_PAT_TOKEN with GITHUB_TOKEN ([#04fcaac](https://github.com/Tinkoff/pvm/commit/04fcaac39419866bdc122afe31dec82f32ce60d2))
+
+
+
+
 ## v0.55.15
 **2022.06.22**
 
