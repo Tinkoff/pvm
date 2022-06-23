@@ -2,12 +2,12 @@ name: 'pull request'
 
 on: pull_request
 
+env:
+  PVM_LL: silly
+
 jobs:
   mark-pr:
     runs-on: ubuntu-latest
-    env:
-      PVM_LL: silly
-      GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -16,13 +16,12 @@ jobs:
       - uses: ./.github/actions/setup
       - run: npm run build
       - run: npm exec pvm mark-pr
+        env:
+          GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
 
   docs-test:
     runs-on: ubuntu-latest
     container: mshipov/plantuml:1.0.4
-    env:
-      PVM_LL: silly
-      GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
     permissions:
       contents: write
     steps:
@@ -30,6 +29,8 @@ jobs:
         with:
           fetch-depth: 1
       - uses: ./.github/actions/build-docs
+        env:
+          GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
       - uses: actions/upload-artifact@v3
         with:
           name: docs
@@ -37,10 +38,6 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    env:
-      PVM_LL: silly
-      GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
-      PVM_GITHUB_TEST_REPO_TOKEN: ${{ secrets.PVM_GITHUB_TEST_REPO_TOKEN }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -58,18 +55,21 @@ jobs:
       - run: npm run check-ts-strict
       - run: npm run lint:config-schema
       - run: npm exec pvm vcs is-branch-actual
+        env:
+          GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
       - run: npm exec pvm lint
       - run: npm run lint
       - if: steps.packageChanges.outputs.changes == 'true'
         run: npm run test -- -w `node -p 'Math.min(os.cpus().length, 2)'`
+        env:
+          PVM_GITHUB_TEST_REPO_TOKEN: ${{ secrets.PVM_GITHUB_TEST_REPO_TOKEN }}
       - run: node scripts/github-test-repos-cleanup.js
         if: always()
+        env:
+          PVM_GITHUB_TEST_REPO_TOKEN: ${{ secrets.PVM_GITHUB_TEST_REPO_TOKEN }}
 
   publish-dry-run:
     runs-on: ubuntu-latest
-    env:
-      PVM_LL: silly
-      GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -78,12 +78,11 @@ jobs:
       - uses: ./.github/actions/setup
       - run: npm run build
       - run: npm exec pvm publish -- -s changed-since-release -S ref=HEAD --dry-run
+        env:
+          GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
 
   publish-stale-dry-run:
     runs-on: ubuntu-latest
-    env:
-      PVM_LL: silly
-      GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -92,12 +91,11 @@ jobs:
       - uses: ./.github/actions/setup
       - run: npm run build
       - run: npm exec pvm publish -- -s stale --dry-run
+        env:
+          GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
 
   update-dry-run:
     runs-on: ubuntu-latest
-    env:
-      PVM_LL: silly
-      GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -106,3 +104,5 @@ jobs:
       - uses: ./.github/actions/setup
       - run: npm run build
       - run: npm exec pvm update -- --dry-run
+        env:
+          GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}

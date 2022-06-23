@@ -11,3 +11,5 @@ runs:
         npm exec pvm changelog download
         npm run build-docs
       shell: bash
+      env:
+        GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
