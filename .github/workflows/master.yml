@@ -8,10 +8,6 @@ on:
 env:
   PVM_LL: silly
 
-permissions:
-  contents: write
-  pages: write
-
 jobs:
   update:
     runs-on: ubuntu-latest
@@ -25,14 +21,15 @@ jobs:
       - run: npm run build
       - run: npm exec pvm update
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TINKOFF_BOT_PAT }}
 
   docs:
     runs-on: ubuntu-latest
     container: mshipov/plantuml:1.0.4
     needs: update
     permissions:
-      contents: write
+      contents: read
+      pages: write
     concurrency:
       group: docs
       cancel-in-progress: true
