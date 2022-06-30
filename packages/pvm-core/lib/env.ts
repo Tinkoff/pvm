@@ -1,9 +1,9 @@
 import Ajv from 'ajv'
 import chalk from 'chalk'
-import EnvJsonSchema from '../env-schema.json'
+import EnvJsonSchema from '@pvm/types/lib/env-schema.json'
 
 import type { ValidateFunction } from 'ajv'
-import type { Env } from '../env-schema'
+import type { Env } from '@pvm/types'
 import { envDefaults } from '../env-defaults'
 
 let envsCache: Env

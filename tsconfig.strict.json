@@ -8,6 +8,6 @@
   },
   "include": [
     "packages/pvm-core/lib/env.ts",
-    "packages/pvm-core/env-schema.ts"
+    "packages/pvm-types/lib/env-schema.ts"
   ]
 }

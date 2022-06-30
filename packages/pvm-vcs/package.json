@@ -11,20 +11,8 @@
     "@pvm/cowners": "0.0.0-stub",
     "@pvm/vcs-git": "0.0.0-stub",
     "@pvm/vcs-fs": "0.0.0-stub",
-    "hosted-git-info": "^3.0.2",
+    "@pvm/tokens-common": "0.0.0-stub",
     "resolve-from": "^5.0.0",
     "string-to-color": "^2.2.2"
-  },
-  "peerDependencies": {
-    "@pvm/gitlab": "0.0.0-stub",
-    "@pvm/github": "0.0.0-stub"
-  },
-  "peerDependenciesMeta": {
-    "@pvm/gitlab": {
-      "optional": true
-    },
-    "@pvm/github": {
-      "optional": true
-    }
   }
 }

@@ -52,3 +52,6 @@ author = { name = 'pvm minion (github)', avatarEmoji = ':deciduous_tree:' }
 
 [plugins]
 local_plugins = ['packages/pvm-plugin-conventional-changelog']
+
+[[plugins_v2]]
+plugin = '@pvm/plugin-github'

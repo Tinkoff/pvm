@@ -1,16 +1,13 @@
 {
-  "name": "@pvm/github",
+  "name": "@pvm/plugin-github",
   "version": "0.0.0-stub",
-  "description": "Github additions for pvm",
-  "main": "lib/index.js",
-  "repository": "git@github.com:Tinkoff/pvm.git",
-  "author": "Mikhail Shipov <mshipov@yandex.ru>",
-  "license": "Apache-2.0",
+  "exports": "./index.js",
   "dependencies": {
     "@hutson/parse-repository-url": "^5.0.0",
     "@pvm/core": "0.0.0-stub",
-    "@pvm/cowners": "0.0.0-stub",
+    "@pvm/tokens-common": "0.0.0-stub",
     "@pvm/vcs": "0.0.0-stub",
+    "@pvm/types": "0.0.0-stub",
     "@octokit/openapi-types": "^11.2.0",
     "@octokit/auth-app": "^3.6.1",
     "@octokit/auth-token": "^2.5.0",
@@ -26,8 +23,5 @@
     "string-to-color": "^2.0.1",
     "octokit": "^1.7.0",
     "hosted-git-info": "^3.0.2"
-  },
-  "devDependencies": {
-    "dotenv": "^10.0.0"
   }
 }

@@ -1,11 +1,11 @@
 import { logger } from '@pvm/core/lib/logger'
 import { Repository } from '@pvm/repository'
 import { lint } from '@pvm/repository/lib/linter'
-import { upconf } from '@pvm/repository/lib/upconf/upconf'
+/* import { upconf } from '@pvm/repository/lib/upconf/upconf' */
 import { getConfig } from '@pvm/core/lib/config'
 
 import type { Config } from '@pvm/core/lib/config/types'
-import type { Vcs } from '@pvm/vcs'
+/* import type { Vcs } from '@pvm/vcs' */
 
 async function autolint(config: Config) {
   logger.info('update.autolint is enabled, linting and fix if necessary packages before update..')
@@ -22,8 +22,8 @@ async function autolint(config: Config) {
   }
 }
 
-async function prepare(config: Config, vcs: Vcs) {
-  await upconf(vcs)
+async function prepare(config: Config/*, vcs: Vcs */) {
+  // await upconf(vcs)
   // after upconf we should refetch config
   config = await getConfig(config.cwd)
   if (config.update.autolint) {

@@ -1,26 +1,27 @@
 import parseMd from 'parse-md'
+import { Octokit } from 'octokit'
+import { createAppAuth } from '@octokit/auth-app'
+import { createActionAuth } from '@octokit/auth-action'
+
 import type {
   GetReleaseResult,
   VcsRelease,
   CreateReleasePayload, PlatformReleaseTag,
   AlterReleaseResult, MetaComment,
-} from '@pvm/vcs/types/index'
+  Config,
+} from '@pvm/types'
 import { PlatformInterface } from '@pvm/vcs/lib/platform-interface'
 import type { IssueComment, PullRequest } from './types'
 
-import { PlatformResult } from '@pvm/core/lib/shared'
+import { PlatformResult } from '@pvm/types'
 
-import type { Config } from '@pvm/core/lib/config'
-import { createAppAuth } from '@octokit/auth-app'
-import { createActionAuth } from '@octokit/auth-action'
-import { Octokit } from 'octokit'
 import hostedGitInfo from 'hosted-git-info'
 import { env } from '@pvm/core/lib/env'
 import { releaseTagFilter } from '@pvm/core/lib/tag-meta'
+import { getCurrentBranchIgnoreEnv, getHostUrl } from '@pvm/core/lib/git/commands'
 import { log } from './logger'
 import { gracefullyTruncateText } from '@pvm/core/lib/utils/string'
-import { getCurrentBranchIgnoreEnv, getHostUrl } from '@pvm/core/lib/git/commands'
-import { cwdShell, wdShell } from '@pvm/core'
+import { wdShell } from '@pvm/core'
 
 export const AuthenticationStrategy = {
   'authApp': createAppAuth,
@@ -51,7 +52,7 @@ function getFailedRequestLogTitle(error): string {
 export class GithubPlatform extends PlatformInterface<PullRequest> {
   public currentMr: PullRequest | null = null;
   private githubClient: Octokit
-  private repoPath: { repo: string, owner: string }
+  private githubRepoPath: { repo: string, owner: string }
   private config: Config;
 
   static getAuthStrategy(config: Config): typeof createAppAuth | typeof createActionAuth | undefined {
@@ -106,17 +107,17 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
     return resultRepo
   }
 
-  constructor(config: Config, { accessToken, repoPath }: { accessToken?: string, repoPath?: { owner: string, repo: string } } = {}) {
+  constructor({ config }: { config: Config }) {
     super()
     this.config = config
     this.githubClient = new Octokit({
       authStrategy: GithubPlatform.getAuthStrategy(config),
-      auth: accessToken ?? env.GITHUB_TOKEN,
+      auth: env.GITHUB_TOKEN,
       log,
       baseUrl: config.github.api_url,
     })
 
-    this.repoPath = repoPath ?? GithubPlatform.getRepoUrlParts(config.cwd)
+    this.githubRepoPath = GithubPlatform.getRepoUrlParts(this.config.cwd)
 
     this.setupClientHooks()
   }
@@ -136,7 +137,7 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
   async getRelease(tagName: string): Promise<GetReleaseResult> {
     try {
       const { data: { body, tag_name, name } } = await this.githubClient.rest.repos.getReleaseByTag({
-        ...this.repoPath,
+        ...this.githubRepoPath,
         tag: tagName,
       })
 
@@ -150,12 +151,11 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
       }
       throw e
     }
-    return [PlatformResult.NOT_FOUND, null]
   }
 
   async * releasesIterator(): AsyncGenerator<VcsRelease, void, any> {
     const releasesIterator = this.githubClient.paginate.iterator('GET /repos/{owner}/{repo}/releases', {
-      ...this.repoPath,
+      ...this.githubRepoPath,
       per_page: PAGING_PAGES_SLICE,
       page: 1,
     })
@@ -177,7 +177,7 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
   async * releaseTagsIterator(): AsyncGenerator<PlatformReleaseTag, void, any> {
     const isReleaseTag = releaseTagFilter(this.config)
     const tagsIterator = this.githubClient.paginate.iterator('GET /repos/{owner}/{repo}/tags', {
-      ...this.repoPath,
+      ...this.githubRepoPath,
       per_page: PAGING_PAGES_SLICE,
       page: 1,
     })
@@ -207,7 +207,7 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
     }
 
     const { data: run } = await this.githubClient.rest.actions.getWorkflowRun({
-      ...this.repoPath,
+      ...this.githubRepoPath,
       run_id: Number(env.GITHUB_RUN_ID),
     })
 
@@ -221,7 +221,7 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
 
   async addTag(ref: string, tag_name: string): Promise<unknown> {
     return await this.githubClient.rest.git.createRef({
-      ...this.repoPath,
+      ...this.githubRepoPath,
       ref: `refs/tags/${tag_name}`,
       sha: ref,
     })
@@ -229,7 +229,7 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
 
   async addTagAndRelease(ref: string, tag_name: string, data: CreateReleasePayload): Promise<AlterReleaseResult> {
     const { data: release } = await this.githubClient.rest.repos.createRelease({
-      ...this.repoPath,
+      ...this.githubRepoPath,
       name: data.name,
       body: data.description,
       tag_name,
@@ -246,12 +246,12 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
   async createRelease(tag_name: string, data: CreateReleasePayload): Promise<AlterReleaseResult> {
     // createRelease creating the tag if not find one, so perform separate check and fail before if tag not existing
     await this.githubClient.rest.git.getRef({
-      ...this.repoPath,
+      ...this.githubRepoPath,
       ref: `tags/${tag_name}`,
     })
 
     const { data: release } = await this.githubClient.rest.repos.createRelease({
-      ...this.repoPath,
+      ...this.githubRepoPath,
       name: data.name,
       body: data.description,
       tag_name,
@@ -266,11 +266,11 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
 
   async editRelease(tag: string, data: CreateReleasePayload): Promise<AlterReleaseResult> {
     const { data: { id: release_id } } = await this.githubClient.rest.repos.getReleaseByTag({
-      ...this.repoPath,
+      ...this.githubRepoPath,
       tag,
     })
     const { data: release } = await this.githubClient.rest.repos.updateRelease({
-      ...this.repoPath,
+      ...this.githubRepoPath,
       name: data.name,
       body: data.description,
       release_id,
@@ -300,7 +300,7 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
   async findMrNote(kind: string): Promise<MetaComment<IssueComment & { body: string }> | void> {
     const iid = this.requireMr().number
     const notesIterator = this.githubClient.paginate.iterator('GET /repos/{owner}/{repo}/issues/{issue_number}/comments', {
-      ...this.repoPath,
+      ...this.githubRepoPath,
       issue_number: iid,
       per_page: PAGING_PAGES_SLICE,
       page: 1,
@@ -335,7 +335,7 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
 
   async createMrNote(noteBody: string): Promise<IssueComment> {
     const { data: issueComment } = await this.githubClient.rest.issues.createComment({
-      ...this.repoPath,
+      ...this.githubRepoPath,
       issue_number: this.requireMr().number,
       body: noteBody,
     })
@@ -345,7 +345,7 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
 
   async updateMrNote(commentId: number, noteBody: string): Promise<IssueComment> {
     const { data: issueComment } = await this.githubClient.rest.issues.updateComment({
-      ...this.repoPath,
+      ...this.githubRepoPath,
       comment_id: commentId,
       body: noteBody,
     })
@@ -359,7 +359,7 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
 
   async * getProjectLabels(): AsyncIterable<{ name: string }> {
     const labelsIter = this.githubClient.paginate.iterator('GET /repos/{owner}/{repo}/labels', {
-      ...this.repoPath,
+      ...this.githubRepoPath,
     })
 
     for await (const labels of labelsIter) {
@@ -369,7 +369,7 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
 
   async createProjectLabel(label: string, color: string): Promise<unknown> {
     return (await this.githubClient.rest.issues.createLabel({
-      ...this.repoPath,
+      ...this.githubRepoPath,
       name: label,
       color,
     })).data
@@ -377,7 +377,7 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
 
   async setMrLabels(labels: string[]): Promise<unknown> {
     return await this.githubClient.rest.issues.addLabels({
-      ...this.repoPath,
+      ...this.githubRepoPath,
       issue_number: this.requireMr().number,
       labels,
     })
@@ -393,7 +393,7 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
 
   async fetchLatestSha(refName: string): Promise<string> {
     const { data: commits } = await this.githubClient.rest.repos.listCommits({
-      ...this.repoPath,
+      ...this.githubRepoPath,
       sha: refName,
       per_page: 1,
     })
@@ -402,7 +402,7 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
   }
 
   getCommitSha(): string {
-    return env.GITHUB_SHA ?? cwdShell('git rev-parse HEAD')
+    return env.GITHUB_SHA ?? wdShell(this.config.cwd, 'git rev-parse HEAD')
   }
 
   async getUpdateHintsByCommit(_commit: string): Promise<Record<string, any> | null> {

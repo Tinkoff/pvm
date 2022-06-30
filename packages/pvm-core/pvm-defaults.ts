@@ -1,6 +1,6 @@
-import type { Config } from './config-schema'
+import type { ConfigSchema } from '@pvm/types'
 
-export const defaultConfig: Config = {
+export const defaultConfig: ConfigSchema = {
   versioning: {
     unified: false,
     unified_versions_for: [],
@@ -132,6 +132,9 @@ export const defaultConfig: Config = {
     load_first: [],
     options: {},
   },
+  plugins_v2: [
+    { plugin: require.resolve('@pvm/plugin-common-plugins') },
+  ],
   templating: {
     use_short_names: false,
     filters: {

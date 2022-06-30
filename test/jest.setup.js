@@ -22,5 +22,5 @@ Object.assign(process.env, {
   PVM_TESTING_ENV: process.env.PVM_TESTING_ENV ?? 'true',
   NPM_TOKEN: '123',
   PVM_LL: process.env.PVM_LL || 'debug',
-  PVM_PLATFORM_TYPE: process.env.PVM_PLATFORM_TYPE ?? 'gitlab',
+  PVM_CONFIG_PLUGINS_V2: JSON.stringify([{ plugin: require.resolve('@pvm/plugin-gitlab') }]),
 })

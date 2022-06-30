@@ -10,11 +10,21 @@ describe('pvm-packages', () => {
     ])
   })
 
-  it.concurrent.skip('packages command should not fail in case no platform detected', async () => {
-    const repo = await initRepo('monorepo-new')
+  it.concurrent('packages command should not fail in case no platform detected', async () => {
+    const repo = await initRepo('monorepo-new', `{
+      plugins_v2: [{
+        plugin: () => ({
+          providers: [
+            require('${require.resolve('@pvm/di').replace(/\\/g, '/')}').provide({
+              provide: require('${require.resolve('@pvm/tokens-common').replace(/\\/g, '/')}').PLATFORM_TOKEN,
+              useValue: null,
+            }),
+          ],
+        }),
+      }],
+    }`, { configFormat: 'js' })
     await runScript(repo, 'pvm packages --list update', {
       env: {
-        PVM_PLATFORM_TYPE: 'noop',
         PVM_TESTING_ENV: '',
       },
     })

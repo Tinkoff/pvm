@@ -1,4 +1,5 @@
-import type { MessengerClientConfig } from '@pvm/types'
+import type { MessengerClientConfig } from './index'
+import type { PluginConfig } from './di'
 
 type GlobPattern = string
 type PkgFlexGlobs = GlobPattern[] | '*'
@@ -92,26 +93,7 @@ export interface MessengerClientLoadConfig {
 }
 
 /**
- * Configuration file schema.
- *
- * Config file name should be `.pvm` and extension should be one of the following: `.json`, `.toml`, `.yaml` or `.js` if configuration
- * should be dynamically calculated.
- *
- * .toml example
- * ```toml
- * [versioning]
- * unified = true
- * source = 'tag'
- * ```
- *
- * .js example
- * ```js
- * module.exports = {
- *   // config goes here
- * }
- * ```
- *
- * ## [Defaults](config/config-defaults.md)
+ * Configuration schema.
  */
 export interface Config {
   versioning: {
@@ -438,6 +420,7 @@ export interface Config {
     load_first: string[],
     options: Record<string, Record<string, string>>,
   },
+  plugins_v2: PluginConfig[],
   templating: {
     /**
      *  Use shot package names ("short" means without namespace part)

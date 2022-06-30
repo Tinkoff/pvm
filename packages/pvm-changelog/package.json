@@ -8,7 +8,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@pvm/artifacts": "0.0.0-stub",
-    "@pvm/core": "0.0.0-stub",
+    "@pvm/core": ">=27.9 || 0.0.0-stub",
     "@pvm/pkgset": "0.0.0-stub",
     "@pvm/releases": "0.0.0-stub",
     "@pvm/template": "0.0.0-stub",

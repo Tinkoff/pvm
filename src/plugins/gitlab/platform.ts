@@ -4,20 +4,20 @@ import * as TOML from '@iarna/toml'
 import { cwdShell } from '@pvm/core/lib/shell'
 import { getContents } from '@pvm/core/lib/git/commands'
 
-import { releasesIterator, updateRelease, createRelease, upsertRelease, addTagAndRelease } from './api/releases'
-import { releaseTags } from './api/tags/tags'
-import getTag from './api/tags/get'
-import createTag from './api/tags/create'
+import { releasesIterator, updateRelease, createRelease, upsertRelease, addTagAndRelease } from '@pvm/gitlab/lib/api/releases'
+import { releaseTags } from '@pvm/gitlab/lib/api/tags/tags'
+import getTag from '@pvm/gitlab/lib/api/tags/get'
+import createTag from '@pvm/gitlab/lib/api/tags/create'
 import { PlatformResult } from '@pvm/core/lib/shared'
 
-import type { SyncAttachmentOpts } from './hal/mark-pr'
-import { syncAttachment, findNote } from './hal/mark-pr'
-import { findOpenSingleMr } from './hal/merge-request'
+import type { SyncAttachmentOpts } from '@pvm/gitlab/lib/hal/mark-pr'
+import { syncAttachment, findNote } from '@pvm/gitlab/lib/hal/mark-pr'
+import { findOpenSingleMr } from '@pvm/gitlab/lib/hal/merge-request'
 
-import gitlabEnv from './env'
-import glapi from './api'
+import gitlabEnv from '@pvm/gitlab/lib/env'
+import glapi from '@pvm/gitlab/lib/api'
 
-import type { MergeRequest } from './api/mr/types'
+import type { MergeRequest } from '@pvm/gitlab/lib/api/mr/types'
 import type {
   AddTagOptions,
   CommitResult,
@@ -25,16 +25,16 @@ import type {
   CommitOptions, MetaComment,
 } from '@pvm/vcs/types'
 
-import type { AlterReleaseResult } from './api/releases/types'
+import type { AlterReleaseResult } from '@pvm/gitlab/lib/api/releases/types'
 import type { Config } from '@pvm/core/lib/config'
 import { getConfig } from '@pvm/core/lib/config'
 import { PlatformInterfaceWithFileCommitApi } from '@pvm/vcs/lib/platform-interface'
-import createLabel from './api/labels/create'
-import getLabels from './api/labels/labels'
-import updateMr from './api/mr/update'
+import createLabel from '@pvm/gitlab/lib/api/labels/create'
+import getLabels from '@pvm/gitlab/lib/api/labels/labels'
+import updateMr from '@pvm/gitlab/lib/api/mr/update'
 import { env } from '@pvm/core/lib/env'
 import { log } from '@pvm/core/lib/logger'
-import { getGitlabHostUrl } from './remote-url'
+import { getGitlabHostUrl } from '@pvm/gitlab/lib/remote-url'
 
 const PVM_UPDATE_HINTS_KIND = 'pvm-update-hints'
 
@@ -64,7 +64,7 @@ export class GitlabPlatform extends PlatformInterfaceWithFileCommitApi<MergeRequ
   public currentMr: MergeRequest | null = null;
   private config: Config;
 
-  constructor(config: Config) {
+  constructor({ config }: { config: Config }) {
     super()
     this.config = config
   }

@@ -34,13 +34,14 @@
   "include": [
     "packages",
     "typedoc",
+    "src",
     "test"
   ],
   "exclude": [
     "website",
     "tools",
     "docs",
-    "declarations"
+    "declarations",
 //    "**/test/**/*.ts",
 //    "**/*.spec.ts"
   ]

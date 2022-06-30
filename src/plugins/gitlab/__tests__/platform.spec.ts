@@ -1,4 +1,4 @@
-import { GitlabPlatform } from '../lib/platform'
+import { GitlabPlatform } from '../platform'
 
 describe('@pvm/gitlab', () => {
   describe('GitlabPlatform.getPvmUpdateHintsFromString', () => {

@@ -30,7 +30,7 @@ module.exports = {
     ],
   },
   'Configuration': [
-    'api/interfaces/pvm_core.Config',
+    'config/configuration',
     'api/interfaces/pvm_core.Env',
   ],
   'Справочник': {

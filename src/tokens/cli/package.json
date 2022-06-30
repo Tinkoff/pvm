@@ -1,0 +1,10 @@
+{
+  "name": "@pvm/tokens-cli",
+  "version": "0.0.0-stub",
+  "exports": "./index.js",
+  "dependencies": {
+    "@pvm/di": "0.0.0-stub",
+    "@pvm/types": "0.0.0-stub",
+    "yargs": "^15.4.1"
+  }
+}

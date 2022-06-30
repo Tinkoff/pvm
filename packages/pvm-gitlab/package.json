@@ -9,7 +9,6 @@
   "dependencies": {
     "@hutson/parse-repository-url": "^5.0.0",
     "@pvm/core": "0.0.0-stub",
-    "@pvm/cowners": "0.0.0-stub",
     "@pvm/vcs": "0.0.0-stub",
     "debug": "^4.1.1",
     "dedent": "^0.7.0",

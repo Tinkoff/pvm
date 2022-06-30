@@ -1,5 +1,3 @@
-import type { Pkg } from '../lib/pkg'
-
 export type SemverReleaseType = 'prerelease' | 'prepatch' | 'patch' | 'preminor' | 'minor' | 'premajor' | 'major'
 export type PvmReleaseType = 'none' | SemverReleaseType
 
@@ -33,8 +31,6 @@ export interface PkgMeta {
 export interface PkgAppliedMeta extends PkgMeta {
   version: string,
 }
-
-export type PkgDict = Record<string, Pkg>
 
 export interface UpdateHints {
   'release-type'?: PvmReleaseType,
