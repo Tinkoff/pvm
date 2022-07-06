@@ -61,6 +61,7 @@ export default function request<T = any>(urlString: string, opts: HttpReqOptions
     path: url.pathname + url.search,
     rejectUnauthorized: false,
     headers: {
+      'User-Agent': `pvm/${require('../package.json').version}`,
       ...headers,
     },
     method,
