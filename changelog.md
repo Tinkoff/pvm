@@ -3,6 +3,23 @@ id: index
 title: Change Log
 ---
 
+## v0.55.17
+**2022.07.07**
+
+
+
+### 🐛 Bug Fixes
+
+* **@pvm/core:** add user-agent to request headers ([#394ddc3](https://github.com/Tinkoff/pvm/commit/394ddc395ecc5dcd7d23c20660f040c39aadff0d))
+
+
+### Other
+
+* correct token for pvm update call ([#659927e](https://github.com/Tinkoff/pvm/commit/659927e66693326d6ac4414fa80db53d82ed45dc))
+
+
+
+
 ## v0.55.16
 **2022.06.23**
 
