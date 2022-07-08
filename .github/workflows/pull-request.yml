@@ -14,6 +14,7 @@ jobs:
   mark-pr:
     runs-on: ubuntu-latest
     steps:
+      - run: echo $PVM_MATTERMOST_INCOMING_WEBHOOK
       - uses: actions/checkout@v2
         with:
           fetch-depth: 100
