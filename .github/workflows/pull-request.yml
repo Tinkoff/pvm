@@ -15,6 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: echo $PVM_MATTERMOST_INCOMING_WEBHOOK
+        env: 
+          PVM_MATTERMOST_INCOMING_WEBHOOK: ${{ secrets.PVM_MATTERMOST_INCOMING_WEBHOOK }}
       - uses: actions/checkout@v2
         with:
           fetch-depth: 100
