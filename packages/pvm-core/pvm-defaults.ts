@@ -125,6 +125,7 @@ export const defaultConfig: Config = {
     disabled_for: [],
     enabled_only_for: [],
     process_npm_token: true,
+    include_monorepo_root: false,
   },
   plugins: {
     local_plugins: [],

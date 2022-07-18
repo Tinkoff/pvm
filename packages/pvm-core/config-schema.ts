@@ -229,6 +229,10 @@ export interface Config {
      * Use NPM_TOKEN environment variable for result auth npm config calculation
      */
     process_npm_token?: boolean,
+    /**
+     * Allow to publish monorepo root. By default this is impossible
+     */
+    include_monorepo_root: boolean,
   },
   core: {
     /**
