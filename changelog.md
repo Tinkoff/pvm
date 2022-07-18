@@ -3,6 +3,18 @@ id: index
 title: Change Log
 ---
 
+## v0.55.18
+**2022.07.18**
+
+
+
+### 🐛 Bug Fixes
+
+* **@pvm/pvm:** allow publish monorepo root ([#0ee0a83](https://github.com/Tinkoff/pvm/commit/0ee0a83e4874ba3cdbac55b607b6964ab692dca1))
+
+
+
+
 ## v0.55.17
 **2022.07.07**
 
