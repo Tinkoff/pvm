@@ -539,5 +539,35 @@ describe('pvm/publish', () => {
       expect(pkgInfo.versions).toContain(`0.1.0-beta.1`)
       expect(pkgInfo.versions).toContain(`0.1.0-beta.2`)
     })
+
+    it('should be possible to publish root of monorepo', async () => {
+      const repo = await initRepo('monorepo-new', {
+        publish: {
+          include_monorepo_root: true,
+        },
+      })
+
+      await repo.updatePkg('.', {
+        private: false,
+        version: '0.0.1',
+      })
+      await repo.touch('package.json', 'up root package.json')
+      await repo.touch('src/a/nf', 'change a')
+      await repo.runScript('pvm update')
+
+      await repo.updatePkg('.', {
+        private: false,
+        description: '',
+        version: '0.0.1',
+      })
+      await repo.touch('package.json', 'up root package.json 2')
+      await repo.runScript('pvm update')
+
+      await testPublish(repo, '')
+
+      const pkgInfo = JSON.parse((await execScript(repo, `npm view --registry ${npmControls.registryUrl} monorepo-new --json`)).stdout)
+
+      expect(pkgInfo.version).toEqual('0.1.0')
+    })
   })
 })

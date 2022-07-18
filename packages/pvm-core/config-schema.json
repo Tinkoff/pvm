@@ -542,6 +542,10 @@
                     },
                     "type": "array"
                 },
+                "include_monorepo_root": {
+                    "description": "Allow to publish monorepo root. By default this is impossible",
+                    "type": "boolean"
+                },
                 "path_mapping": {
                     "$ref": "#/definitions/Record<string,string>",
                     "description": "By default publish path for each package and package path itself is same thing.\\nBut you can replace the beginning of each package path to another string via providing this argument.\\nExample: 'src/components' => 'lib/components'\""

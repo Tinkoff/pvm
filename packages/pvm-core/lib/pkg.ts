@@ -341,7 +341,7 @@ export class Pkg {
 
   isAllowedForPublishing(): boolean {
     // we never want publish root package in monorepository or private packages
-    return !this.meta.private && !(this.isMonorepo && this.isRoot)
+    return !this.meta.private && !(this.isMonorepo && this.isRoot && !this.pvmConfig.publish.include_monorepo_root)
   }
 
   toJSON() {
