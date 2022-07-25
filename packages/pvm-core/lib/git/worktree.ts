@@ -18,3 +18,17 @@ export function getMainWorktreePath(dir: string): string {
 
   return mainWorktreePath
 }
+
+/**
+ * Для загрузки конфигов и плагинов нужно уметь искать исходное рабочее дерево т.к.
+ * в текущем может не быть нужных конфигурационных файлов и node_modules
+ */
+export function getWorktreeRoot(cwd: string): string {
+  logger.silly(`Looking for git root in ${cwd}`)
+
+  const gitRoot = shell('git rev-parse --show-toplevel', {
+    cwd: cwd,
+  })
+
+  return gitRoot
+}
