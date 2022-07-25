@@ -3,6 +3,23 @@ id: index
 title: Change Log
 ---
 
+## v0.55.19
+**2022.07.25**
+
+
+
+### 🐛 Bug Fixes
+
+* **@pvm/core:** resolve config against cwd and not git root dir ([#ec4620a](https://github.com/Tinkoff/pvm/commit/ec4620a6bac70b65d827f90ac7f0ac29780286df))
+
+
+### 📝 Documentation
+
+* fix links to sources from typedoc ([#16b69ac](https://github.com/Tinkoff/pvm/commit/16b69ac8cd0dedd583f14a610286c427534cf80e))
+
+
+
+
 ## v0.55.18
 **2022.07.18**
 
