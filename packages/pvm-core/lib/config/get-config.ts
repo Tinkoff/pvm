@@ -23,7 +23,7 @@ import { taggedCacheManager, CacheTag, mema } from '../memoize'
 
 import type { Config } from './types'
 import type { RecursivePartial } from '../../types/base'
-import { getMainWorktreePath } from '../git/worktree'
+import { getWorktreeRoot, getMainWorktreePath } from '../git/worktree'
 import { env } from '../env'
 
 export interface GetConfigOpts {
@@ -383,10 +383,15 @@ function defaultsFromProvider(cwd: string): RecursivePartial<Config> | undefined
 }
 
 const cachedMainWorktreePath = mema((dir: string) => getMainWorktreePath(dir))
+const cachedWorktreeRoot = mema((dir: string) => getWorktreeRoot(dir))
 
 function getConfigImpl(cwd: string, opts: GetConfigOpts = {}): Promise<Config> | Config {
   cwd = cachedRealPath(cwd)
-  const configLookupDir = cachedMainWorktreePath(cwd)
+  const worktreeRoot = cachedWorktreeRoot(cwd)
+  const relativeCwdPath = path.relative(worktreeRoot, cwd)
+  // if cwd if <git root>/package, than consider to search in /package directory in main worktree (not just in root
+  // because it might be not the same place as cwd)
+  const configLookupDir = path.resolve(cachedMainWorktreePath(cwd), relativeCwdPath)
   const { ref, noUpconf = false, raw = false } = opts
   let config = configCache.get(cwd, opts)
   if (!config) {
