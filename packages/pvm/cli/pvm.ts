@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import assert from 'assert'
+import { resolve } from 'path'
 import Yargs from 'yargs/yargs'
 import { hideBin } from 'yargs/helpers'
 import '@pvm/core/lib/node-boot'
@@ -18,6 +19,8 @@ import * as pvmTemplate from '@pvm/template/cli/pvm-template'
 import * as pvmUpdate from '@pvm/update/cli/pvm-update'
 import * as pvmVcs from '@pvm/vcs/cli/pvm-vcs'
 import * as pvmViz from '@pvm/viz/cli/pvm-viz'
+
+import { overrideConfigLookupDir } from '@pvm/core/lib/config'
 
 function initCommands(yargs: Argv): Argv {
   return yargs
@@ -78,6 +81,20 @@ const yargs = initCommands(Yargs(hideBin(process.argv)))
       process.exitCode = 0
     }
   })
+  .option('configLookupDir', {
+    alias: 'c',
+    type: 'string',
+    string: true,
+    global: true,
+    default: null as string | null,
+    description: 'Use provided directory to search config instead of git root worktree.',
+  })
+  .middleware((args) => {
+    if (args.configLookupDir) {
+      const resolvedPath = resolve(process.cwd(), args.configLookupDir)
+      overrideConfigLookupDir(resolvedPath)
+    }
+  }, true)
   .help()
 
 patchYargsOptions(yargs).parse()

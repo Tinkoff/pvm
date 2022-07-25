@@ -384,9 +384,15 @@ function defaultsFromProvider(cwd: string): RecursivePartial<Config> | undefined
 
 const cachedMainWorktreePath = mema((dir: string) => getMainWorktreePath(dir))
 
+let configLookupDirExplicit: string | null = null;
+
+function overrideConfigLookupDir(configLookupDir: string) {
+  configLookupDirExplicit = configLookupDir;
+}
+
 function getConfigImpl(cwd: string, opts: GetConfigOpts = {}): Promise<Config> | Config {
   cwd = cachedRealPath(cwd)
-  const configLookupDir = cachedMainWorktreePath(cwd)
+  const configLookupDir = configLookupDirExplicit ?? cachedMainWorktreePath(cwd)
   const { ref, noUpconf = false, raw = false } = opts
   let config = configCache.get(cwd, opts)
   if (!config) {
@@ -461,4 +467,5 @@ export {
   clearConfigCacheFor,
   loadRawConfig,
   getConfigWithoutIncludes,
+  overrideConfigLookupDir,
 }

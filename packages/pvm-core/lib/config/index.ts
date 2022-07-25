@@ -1,4 +1,4 @@
-import getConfig, { clearConfigCacheFor, loadRawConfig, getConfigWithoutIncludes } from './get-config'
+import getConfig, { clearConfigCacheFor, loadRawConfig, getConfigWithoutIncludes, overrideConfigLookupDir } from './get-config'
 import type { Config } from './types'
 import defaultConfig from './defaults'
 
@@ -9,4 +9,5 @@ export {
   clearConfigCacheFor,
   loadRawConfig,
   getConfigWithoutIncludes,
+  overrideConfigLookupDir,
 }
