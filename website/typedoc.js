@@ -14,7 +14,7 @@ module.exports = {
   },
   excludeExternals: true,
   inlineReferences: true,
-  'sourcefile-url-prefix': `${process.env.CI_PROJECT_URL}/-/tree/${process.env.CI_COMMIT_REF_NAME}/`,
+  'sourcefile-url-prefix': `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/tree/master/`,
   plugin: [
     '@mshipov/typedoc-plugin-monorepo',
     'nlfurniss-typedoc-plugin-sourcefile-url',
