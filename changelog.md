@@ -3,6 +3,23 @@ id: index
 title: Change Log
 ---
 
+## v0.55.20
+**2022.08.18**
+
+
+
+### 🐛 Bug Fixes
+
+* add support for non-"git root" cwd ([#623672d](https://github.com/Tinkoff/pvm/commit/623672df35c167a66a3e7ab07216e6ae5eef1e92))
+
+
+### Other
+
+* test fix ([#7448d43](https://github.com/Tinkoff/pvm/commit/7448d439da366772916a5da33ee6e47c830b876c))
+
+
+
+
 ## v0.55.19
 **2022.07.25**
 
