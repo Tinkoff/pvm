@@ -36,23 +36,25 @@ export const getWorktreeRoot = mema(function getPureWorktreeRoot(cwd: string): s
 })
 
 export function cwdToGitRelativity(cwd: string, p: string, getWorktreeRootCustom = getWorktreeRoot): string {
-  const worktreeRoot = getWorktreeRootCustom(cwd)
+  const normalCwd = cwd.replace(/\\/g, '/')
+  const worktreeRoot = getWorktreeRootCustom(normalCwd)
 
-  if (worktreeRoot === cwd.replace(/\\/g, '/')) {
+  if (worktreeRoot === normalCwd) {
     return p
   }
 
-  const res = path.relative(worktreeRoot, path.join(cwd, p)).replace(/\\/g, '/')
+  const res = path.relative(worktreeRoot, path.join(normalCwd, p)).replace(/\\/g, '/')
 
   return res === '' && p === '.' ? '.' : res
 }
 
 export function gitToCwdRelativity(cwd: string, p: string, getWorktreeRootCustom = getWorktreeRoot): string {
+  const normalCwd = cwd.replace(/\\/g, '/')
   const worktreeRoot = getWorktreeRootCustom(cwd)
 
-  if (worktreeRoot === cwd.replace(/\\/g, '/')) {
+  if (worktreeRoot === normalCwd) {
     return p
   }
 
-  return path.relative(cwd, path.join(worktreeRoot, p))
+  return path.relative(normalCwd, path.join(worktreeRoot, p))
 }
