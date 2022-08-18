@@ -32,4 +32,36 @@ test = 'test'`)
 
     expect(stdout).toMatch('[test]')
   })
+
+  it('update-hints.toml should load from cwd, not git root', async () => {
+    const repoPath = writeRepo({
+      name: 'config-load',
+      spec: 'configCwd@1.0.0',
+    })
+    const repo = await initRepo(repoPath, {}, {
+      cwd: path.join(repoPath, 'configCwd'),
+    })
+
+    await repo.writeFile('update-hints.toml', `release-type = 'major'`, 'hints')
+
+    const updateState = await repo.getUpdateState()
+
+    expect(updateState.updateContext.hints).toMatchObject({
+      'release-type': 'major',
+    })
+  })
+
+  it('updated packages are returned when cwd differs from root', async () => {
+    const repo = await initRepo('nested-project', {}, {
+      cwd: 'project-root',
+    })
+
+    await repo.writeFile('workspace-pkg/index.js', `// change`, 'update trigger')
+
+    const updateState = await repo.getUpdateState()
+
+    const upPkg = updateState.updateReasonMap.keys().next().value
+    expect(upPkg.name).toBe('workspace-pkg')
+    expect(updateState.updateReasonMap.get(upPkg)).toBe('by_commits')
+  })
 })

@@ -21,6 +21,7 @@ import type { ReleaseContext } from '@pvm/update/types'
 import type { Config } from '@pvm/core/lib/config'
 import type { Renderer, IncrementalRenderer } from '../types'
 import type { ReleaseData } from '@pvm/releases/types'
+import { cwdToGitRelativity } from '@pvm/core/lib/git/worktree'
 
 const logger = loggerFor('pvm:changelog')
 
@@ -174,7 +175,7 @@ function isPkgNew(config: Config, pkg: Pkg): boolean {
   }
 
   try {
-    wdShell(config.cwd, `git show ${compareFrom}:${pkg.path}/package.json`)
+    wdShell(config.cwd, `git show ${compareFrom}:${cwdToGitRelativity(config.cwd, pkg.path)}/package.json`)
   } catch (e) {
     return true
   }

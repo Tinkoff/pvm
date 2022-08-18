@@ -17,6 +17,7 @@ import revParse from './git/rev-parse'
 
 import type { Config } from './config'
 import type { PkgAppliedMeta, PkgDeps, PkgMeta } from '../types'
+import { cwdToGitRelativity } from './git/worktree'
 
 const logger = loggerFor('pvm:pkg')
 // eslint-disable-next-line no-use-before-define
@@ -435,7 +436,7 @@ export function loadPkg(config: Config, pkgPath: string, opts: LoadPkgOptions = 
   let manifestRaw
   if (ref) {
     try {
-      manifestRaw = wdShell(cwd, `git show ${ref}:${pkgPath}/package.json`)
+      manifestRaw = wdShell(cwd, `git show ${ref}:${cwdToGitRelativity(config.cwd, pkgPath)}/package.json`)
     } catch (e) {
       // пакета в данном рефе нет
       return null

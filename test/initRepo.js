@@ -40,6 +40,8 @@ function processPackageRoot(repoDir) {
 
 const initRepo = async (name, config, repoOpts = {}) => {
   let fullRepoDir = name
+  let projectRoot = repoOpts.cwd ?? fullRepoDir
+
   if (!path.isAbsolute(name)) {
     const baseName = name
 
@@ -63,18 +65,19 @@ const initRepo = async (name, config, repoOpts = {}) => {
     fullRepoDir = path.resolve(__dirname, '..', repoDir)
 
     const templateDir = `test/repos/${baseName}`
+    projectRoot = repoOpts.cwd ? path.join(fullRepoDir, repoOpts.cwd) : fullRepoDir
 
     if (fs.existsSync(templateDir)) {
       await fse.copy(templateDir, fullRepoDir)
 
-      processPackageRoot(fullRepoDir)
+      processPackageRoot(projectRoot)
     }
   } else {
     name = path.basename(name)
   }
 
   if (config) {
-    await writeConfig({ dir: fullRepoDir }, config, repoOpts.configFormat)
+    await writeConfig({ dir: projectRoot }, config, repoOpts.configFormat)
   }
 
   const gitShell = (cmd, opts = {}) => __unsafe_shell(cmd, { ...opts, cwd: fullRepoDir }).trim()
@@ -88,26 +91,26 @@ const initRepo = async (name, config, repoOpts = {}) => {
   gitShell('"mkdir" -p .git/gl')
 
   const repoData = dataFor(fullRepoDir)
-  let repoConfig = await getConfig(fullRepoDir)
+  let repoConfig = await getConfig(projectRoot)
 
   const result = {
-    dir: fullRepoDir,
-    cwd: fullRepoDir,
+    dir: projectRoot,
+    cwd: projectRoot,
     data: repoData,
     get config() {
       return repoConfig
     },
     async updateConfig(config) {
-      await writeConfig({ dir: fullRepoDir }, config, repoOpts.configFormat)
-      clearConfigCacheFor(fullRepoDir)
-      repoConfig = await getConfig(fullRepoDir)
+      await writeConfig({ dir: this.cwd }, config, repoOpts.configFormat)
+      clearConfigCacheFor(this.cwd)
+      repoConfig = await getConfig(this.cwd)
     },
     async syncConfig() {
-      clearConfigCacheFor(fullRepoDir)
-      repoConfig = await getConfig(fullRepoDir)
+      clearConfigCacheFor(this.cwd)
+      repoConfig = await getConfig(this.cwd)
     },
     async getHostApi() {
-      return await getHostApi(fullRepoDir)
+      return await getHostApi(this.cwd)
     },
     approvers(pickAttr = '') {
       const users = mapUsers(repoData.get('mr_approvals.approvers_ids'), false).sort((a, b) => {
@@ -138,12 +141,12 @@ const initRepo = async (name, config, repoOpts = {}) => {
     },
     getUpdateState() {
       return getUpdateState({
-        cwd: fullRepoDir,
+        cwd: this.cwd,
       })
     },
     readPkg(pkgPath) {
       return JSON.parse(
-        fs.readFileSync(path.join(fullRepoDir, pkgPath, 'package.json'), 'utf-8')
+        fs.readFileSync(path.join(this.cwd, pkgPath, 'package.json'), 'utf-8')
       )
     },
     updatePkg(pkgPath, patch) {
@@ -151,7 +154,7 @@ const initRepo = async (name, config, repoOpts = {}) => {
       const patched = { ...original, ...patch }
 
       fs.writeFileSync(
-        path.join(fullRepoDir, pkgPath, 'package.json'),
+        path.join(this.cwd, pkgPath, 'package.json'),
         JSON.stringify(patched, null, '  '),
         'utf-8'
       )
@@ -176,7 +179,7 @@ const initRepo = async (name, config, repoOpts = {}) => {
     },
     mkdir(dir) {
       try {
-        fs.mkdirSync(path.resolve(fullRepoDir, dir), {
+        fs.mkdirSync(path.resolve(this.cwd, dir), {
           recursive: true,
         })
       } catch (e) {
@@ -236,7 +239,7 @@ const initRepo = async (name, config, repoOpts = {}) => {
     async tag(tagName, notes = void 0) {
       await this.runScript(`git tag ${tagName}`)
       if (notes) {
-        await setTagNotes(fullRepoDir, tagName, notes)
+        await setTagNotes(this.cwd, tagName, notes)
       }
       taggedCacheManager.clear(this.cwd, [CacheTag.gitFetchTags])
     },
@@ -244,11 +247,11 @@ const initRepo = async (name, config, repoOpts = {}) => {
       await this.runScript(`git tag --file=- ${tagName} ${ref}`, { input: annotation })
     },
     async loadPkg(pkgPath, ref = void 0) {
-      return loadPkg(this.config, pkgPath, { cwd: fullRepoDir, ref: ref })
+      return loadPkg(this.config, pkgPath, { cwd: this.cwd, ref: ref })
     },
     async linkNodeModules() {
       const source = path.resolve('node_modules')
-      const target = path.join(fullRepoDir, 'node_modules')
+      const target = path.join(this.cwd, 'node_modules')
       if (os.platform() === 'win32') {
         await runScript(this, `mklink /D "${target}" "${source}"`)
       } else {
@@ -273,19 +276,19 @@ const initRepo = async (name, config, repoOpts = {}) => {
     },
     lastReleaseNotes() {
       const releaseTag = this.lastReleaseTag()
-      return tagNotes(fullRepoDir, releaseTag)
+      return tagNotes(this.cwd, releaseTag)
     },
     tagNotes(tagName) {
-      return tagNotes(fullRepoDir, tagName)
+      return tagNotes(this.cwd, tagName)
     },
     getTagAnnotation(tagName) {
-      return getTagAnnotation(fullRepoDir, tagName)
+      return getTagAnnotation(this.cwd, tagName)
     },
     readFile(relPath, encoding = 'utf8') {
-      return fs.readFileSync(path.resolve(fullRepoDir, relPath)).toString(encoding)
+      return fs.readFileSync(path.resolve(this.cwd, relPath)).toString(encoding)
     },
     existsPath(relPath) {
-      return fs.existsSync(path.resolve(fullRepoDir, relPath))
+      return fs.existsSync(path.resolve(this.cwd, relPath))
     },
     env: {
       CI_PROJECT_ID: name,
@@ -310,7 +313,7 @@ const initRepo = async (name, config, repoOpts = {}) => {
   }
 
   if (!gitShell(`ls`) && !repoOpts.empty) {
-    fs.writeFileSync(path.join(fullRepoDir, 'package.json'), JSON.stringify({
+    fs.writeFileSync(path.join(projectRoot, 'package.json'), JSON.stringify({
       name: name,
       version: '1.0.0',
     }))

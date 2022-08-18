@@ -23,7 +23,7 @@ import { taggedCacheManager, CacheTag, mema } from '../memoize'
 
 import type { Config } from './types'
 import type { RecursivePartial } from '../../types/base'
-import { getWorktreeRoot, getMainWorktreePath } from '../git/worktree'
+import { getWorktreeRoot, getMainWorktreePath, cwdToGitRelativity } from '../git/worktree'
 import { env } from '../env'
 
 export interface GetConfigOpts {
@@ -330,7 +330,7 @@ function loadRawConfig(cwd: string, ref: string | undefined = void 0): ConfigRes
   if (relativePath.startsWith('..')) {
     throw new Error(`Found config ${cosmicResult.filepath} out of working tree. There is no way to resolve config by reference`)
   }
-  const contents = wdShell(cwd, `git show ${ref}:${relativePath}`)
+  const contents = wdShell(cwd, `git show ${ref}:${cwdToGitRelativity(cwd, relativePath)}`)
 
   return {
     filepath: relativePath,

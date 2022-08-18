@@ -3,6 +3,7 @@ import path from 'path'
 import glob from 'fast-glob'
 import micromatch from 'micromatch'
 import { wdShell } from './shell'
+import { cwdToGitRelativity } from './git/worktree'
 
 function getPkgDirPatterns(pkg): string[] {
   const { workspaces = [] } = pkg
@@ -60,7 +61,7 @@ function workspacePatternsFromFs(cwd = process.cwd()): WorkspacesPatternsResult 
 function workspacePatternsFromRef(ref: string, cwd = process.cwd()): WorkspacesPatternsResult {
   let pkg
   try {
-    const manifestStr = wdShell(cwd, `git show ${ref}:package.json`)
+    const manifestStr = wdShell(cwd, `git show ${ref}:${cwdToGitRelativity(cwd, 'package.json')}`)
     pkg = JSON.parse(manifestStr)
   } catch (e) {
     // pass

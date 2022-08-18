@@ -8,6 +8,7 @@ import revParse from './git/rev-parse'
 
 import type { Config } from './config'
 import type { Pkg } from './pkg'
+import { cwdToGitRelativity } from './git/worktree'
 
 const logger = loggerFor('pvm:pkg-file-versions')
 
@@ -30,7 +31,7 @@ function loadDedicatedVersionsMap(config: Config, ref: string | undefined): Reco
   // и это легитимно, т.к. старый конфиг может быть не совместим с кодом нового pvm
   if (ref) {
     try {
-      const versionsContent = wdShell(config.cwd, `git show ${ref}:${source_file}`)
+      const versionsContent = wdShell(config.cwd, `git show ${ref}:${cwdToGitRelativity(config.cwd, source_file)}`)
       if (versionsContent) {
         const result = JSON.parse(versionsContent)
         versioningCache.set(cacheKey, result)
