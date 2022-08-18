@@ -1,5 +1,6 @@
 import { wdShell } from '../shell'
 import type { DiffStats, NamedDiff } from '../../types/git'
+import { gitToCwdRelativity } from './worktree'
 
 export interface NamedDiffShellOpts {
   cwd: string,
@@ -16,12 +17,12 @@ function namedDiff(revArgs: string, shellOpts: NamedDiffShellOpts): NamedDiff {
 
     const [action, filepath, newPath] = line.split(/\s+/)
 
-    const resultPath = newPath || filepath
+    const resultPath = gitToCwdRelativity(shellOpts.cwd, newPath || filepath)
     const stats: DiffStats = {
       action: action.charAt(0) as DiffStats['action'],
     }
     if (newPath) {
-      stats.oldPath = filepath
+      stats.oldPath = gitToCwdRelativity(shellOpts.cwd, filepath)
     }
 
     if (stats.action === 'R' || stats.action === 'C') {

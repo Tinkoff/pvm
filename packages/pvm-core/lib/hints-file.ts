@@ -6,6 +6,7 @@ import { wdShell } from './shell'
 
 import type { UpdateHints } from '../types'
 import type { Config } from './config'
+import { cwdToGitRelativity } from './git/worktree'
 
 function err(path, message): Error {
   return new Error(`[hints-file]: ${path ? `(${path})` : ''} ${message}`)
@@ -124,7 +125,7 @@ type HintsTuple = [UpdateHints, boolean]
 function readFileByRef(cwd: string, filePath: string, ref?: string): string | null {
   if (ref) {
     try {
-      return wdShell(cwd, `git show ${ref}:${filePath}`)
+      return wdShell(cwd, `git show ${ref}:${cwdToGitRelativity(cwd, filePath)}`)
     } catch (e) {
       return null
     }

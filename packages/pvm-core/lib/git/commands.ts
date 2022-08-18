@@ -12,6 +12,7 @@ import type { Config } from '../config'
 import { mergeBase } from './merge-base'
 import { env } from '../env'
 import { nthIndex } from '../text/index'
+import { gitToCwdRelativity } from './worktree'
 
 export {
   revParse,
@@ -37,7 +38,7 @@ export function getStagedFiles(cwd: string): string[] {
     if (stagedFiles.length && stagedFiles[stagedFiles.length - 1] === '') {
       stagedFiles.pop()
     }
-    return stagedFiles
+    return stagedFiles.map(f => gitToCwdRelativity(cwd, f))
   }
   return []
 }
