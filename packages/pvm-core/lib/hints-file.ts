@@ -66,13 +66,20 @@ const validateUpdateDependants = makeValidator('update-dependants-for', (config,
   } = config.update
 
   if (!hints['update-dependants-for']) {
-    if (update_dependants) {
+    if (update_dependants === true) {
       hints['update-dependants-for'] = [
         {
           'match': '*',
           'release-type': dependants_release_type,
         },
       ]
+    } else if (Array.isArray(update_dependants)) {
+      hints['update-dependants-for'] = update_dependants.map(({ match, release_type }) => {
+        return {
+          match,
+          'release-type': release_type ?? dependants_release_type,
+        }
+      })
     }
     return true
   }
