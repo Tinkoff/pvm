@@ -50,7 +50,7 @@ describe('pvm-notification', () => {
         },
       })
       expect(slackRequests.length).toEqual(2)
-      expect(slackRequests[0].body).toMatchObject({
+      expect(slackRequests.map(r => r.body)).toEqual(expect.arrayContaining([expect.objectContaining({
         channel: 'c1',
         blocks: [{
           'type': 'section',
@@ -59,8 +59,7 @@ describe('pvm-notification', () => {
             'text': 'hello',
           },
         }],
-      })
-      expect(slackRequests[1].body).toMatchObject({
+      }), expect.objectContaining({
         channel: 'c2',
         blocks: [{
           'type': 'section',
@@ -69,7 +68,7 @@ describe('pvm-notification', () => {
             'text': 'hello',
           },
         }],
-      })
+      })]))
     })
 
     it('should send all messages and throw error if some failed', async () => {
