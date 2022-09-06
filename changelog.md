@@ -3,6 +3,18 @@ id: index
 title: Change Log
 ---
 
+## v0.55.21
+**2022.09.06**
+
+
+
+### 🐛 Bug Fixes
+
+* **@pvm/core:** add granular configuration for updated dependants set ([#438f019](https://github.com/Tinkoff/pvm/commit/438f019ce7b8fc825942df31f9faa9cf699df302))
+
+
+
+
 ## v0.55.20
 **2022.08.18**
 
