@@ -659,6 +659,35 @@ describe('pvm/update', () => {
     await runScript(repo, 'yarn')
   })
 
+  it('update_dependants as array should work only for matched packages', async () => {
+    const repoPath = writeRepo({
+      name: 'update-dependants-array',
+      spec: 'pkg/a@1.0.0,pkg/b@2.0.0,pkg/c@3.0.0,pkg/d@4.0.0',
+      deps: {
+        b: ['a'],
+        c: ['d'],
+      },
+    })
+    const repo = await initRepo(repoPath, {
+      update: {
+        update_dependants: [{
+          match: 'a',
+          release_type: 'major',
+        }],
+      },
+    })
+
+    await repo.touch('pkg/a/change.txt', 'release trigger')
+    await repo.touch('pkg/d/change.txt', 'release trigger')
+
+    const pkgC = await repo.loadPkg('pkg/c', 'HEAD')
+    const pkgB = await repo.loadPkg('pkg/b', 'HEAD')
+    const updateState = await repo.getUpdateState()
+
+    expect(updateState.updateReasonMap.get(pkgB)).toBe('dependant')
+    expect(updateState.updateReasonMap.get(pkgC)).toBeFalsy()
+  })
+
   it.concurrent('обновление пакетов на которые есть не semver ссылки', async () => {
     const repo = await initRepo('mono-prerel-deps')
     await repo.touch('src/{a,b,c}/nf', 'update c, b and a')
