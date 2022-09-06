@@ -26,6 +26,11 @@ import type { RecursivePartial } from '../../types/base'
 import { getWorktreeRoot, getMainWorktreePath, cwdToGitRelativity } from '../git/worktree'
 import { env } from '../env'
 
+// with high probability this line will be invoked in any api call
+// kind a hacky solution
+// todo: remove in PVM-264
+import '../node-boot'
+
 export interface GetConfigOpts {
   ref?: string,
   noUpconf?: boolean,

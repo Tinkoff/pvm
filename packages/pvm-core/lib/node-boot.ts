@@ -6,6 +6,8 @@ import { gitFetch } from './git/commands'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { version } = require('../package.json')
 
+let booted = false
+
 const fail = (e) => {
   logger.fatal(e)
   process.exitCode = 1
@@ -13,14 +15,19 @@ const fail = (e) => {
 
 nodeBoot()
 
-function beforeExitCallback(): void {
-  if (typeof process.exitCode === 'undefined') {
+function beforeExitCallback(exitCode): void {
+  if (typeof exitCode === 'undefined') {
     logger.fatal('Deadlock detected!')
     process.exitCode = 1
   }
 }
 
 function nodeBoot(): void {
+  if (booted) {
+    return
+  }
+  booted = true
+
   process.on('beforeExit', beforeExitCallback)
   process.on('uncaughtException', fail)
   process.on('unhandledRejection', fail)
