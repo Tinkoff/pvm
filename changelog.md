@@ -3,6 +3,18 @@ id: index
 title: Change Log
 ---
 
+## v0.55.22
+**2022.09.07**
+
+
+
+### 🐛 Bug Fixes
+
+* **@pvm/core:** call node-boot on getConfig call ([#dca0526](https://github.com/Tinkoff/pvm/commit/dca05264dd35c005fd699babc9bb28bd86c20275))
+
+
+
+
 ## v0.55.21
 **2022.09.06**
 
