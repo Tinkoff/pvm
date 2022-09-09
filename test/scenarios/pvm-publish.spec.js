@@ -2,6 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const { runRegistryMockServer } = require('../npm-registry-mock')
 const { runMessengerMocker } = require('../slack-mock')
+const { setupPublishNpmRCAndEnvVariables } = require('@pvm/pvm/lib/publish/prepare')
 
 function readStats(repo, statsName = 'publish-stats.json') {
   const rawStr = fs.readFileSync(path.join(repo.dir, statsName)).toString('utf8')
@@ -50,6 +51,8 @@ describe('pvm/publish', () => {
   })
 
   afterEach(() => {
+    process.env['npm_config_user_agent'] = undefined
+    delete process.env['npm_config_user_agent']
     npmControls.clear()
   })
 
@@ -240,6 +243,21 @@ describe('pvm/publish', () => {
     expect(successNames).toContain('a')
     expect(successNames).toContain('b')
     expect(successNames).not.toContain('c')
+  })
+
+  it('should provide strict-ssl value from .npmrc to publish command if yarn v1 used', async () => {
+    const repo = await initRepo('simple-one')
+    await repo.writeFile('.npmrc', `strict-ssl = abc`, `disable strict-ssl`)
+    process.env['npm_config_user_agent'] = 'yarn/1.22.19 npm/? node/v16.16.0 win32 x64'
+    const { publishEnv } = await setupPublishNpmRCAndEnvVariables(repo.cwd)
+    expect(publishEnv['npm_config_strict_ssl']).toBe('abc')
+  })
+
+  it('should not provide strict-ssl value from .npmrc to publish command if yarn v1 not used', async () => {
+    const repo = await initRepo('simple-one')
+    await repo.writeFile('.npmrc', `strict-ssl = abc`, `disable strict-ssl`)
+    const { publishEnv } = await setupPublishNpmRCAndEnvVariables(repo.cwd)
+    expect(publishEnv['npm_config_strict_ssl']).not.toBe('abc')
   })
 
   describe('canary', () => {

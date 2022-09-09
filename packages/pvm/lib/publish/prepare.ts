@@ -11,6 +11,7 @@ import shell from '@pvm/core/lib/shell'
 import { logger as defaultLogger } from '@pvm/core/lib/logger'
 import type { LoggerFunc } from '@pvm/core/lib/logger'
 import { env } from '@pvm/core/lib/env'
+import ini from 'ini'
 
 interface LoggerLike {
   log: LoggerFunc,
@@ -39,7 +40,7 @@ export function readNpmRc(cwd: string): string {
 }
 
 export interface PublishPrepareResult {
-  publishEnv: Record<string, string> | undefined,
+  publishEnv: Record<string, string | undefined>,
   npmrc: string[],
 }
 
@@ -60,10 +61,13 @@ export async function setupPublishNpmRCAndEnvVariables(cwd: string, opts: Prepar
     logger.warn('You are using outdated npm version, consider update npm and node')
   }
 
-  let publishEnv
+  const publishEnv = {
+    ...process.env,
+  }
   const npmrcContents: string[] = []
 
   const { NPM_TOKEN } = env
+  const npmRc = readNpmRc(cwd)
   if (config.publish.process_npm_token && NPM_TOKEN) {
     // for backward compatibility
     if (isProbablyBasicAuthToken(NPM_TOKEN)) {
@@ -72,11 +76,7 @@ export async function setupPublishNpmRCAndEnvVariables(cwd: string, opts: Prepar
       )
       logger.warn('Re-exporting NPM_TOKEN as npm_config__auth env variable for "npm publish" process.')
 
-      publishEnv = {
-        // eslint-disable-next-line pvm/no-process-env
-        ...process.env,
-        npm_config__auth: NPM_TOKEN,
-      }
+      publishEnv.npm_config__auth = NPM_TOKEN
 
       // запись в env будет работать, но только в версии 6.4.0 и выше, см. https://github.com/npm/cli/releases/tag/v6.4.0 и https://github.com/npm/npm/issues/15565
       // поэтому запишем еще в .npmrc
@@ -92,7 +92,6 @@ export async function setupPublishNpmRCAndEnvVariables(cwd: string, opts: Prepar
       // see https://docs.npmjs.com/using-private-packages-in-a-ci-cd-workflow
       const authTokenLine = `${registryWithoutProtocol}:_authToken=${NPM_TOKEN}`
       const authTokenLineGeneral = `${registryWithoutProtocol}:_authToken=\${NPM_TOKEN}`
-      const npmRc = readNpmRc(cwd)
       if (npmRc.indexOf(authTokenLine) === -1 && npmRc.indexOf(authTokenLineGeneral) === -1) {
         logger.info(`Configure authorization via authToken for ${registryWithoutProtocol} registry in .npmrc`)
         npmrcContents.push(authTokenLine)
@@ -104,6 +103,19 @@ export async function setupPublishNpmRCAndEnvVariables(cwd: string, opts: Prepar
     const email = config.publish.email || 'pvm@pvm.service'
     logger.log(`appending email ${email} to .npmrc due to your npm version requires email for publishing`)
     npmrcContents.push(`email=${email}`)
+  }
+
+  // eslint-disable-next-line pvm/no-process-env
+  const classicYarn = process.env.npm_config_user_agent ? process.env.npm_config_user_agent.indexOf('yarn/1') !== -1 : false
+  // yarn 1 overrides npmrc settings with its own set of npm config envs so `yarn publish-command` wont work if it depends on those
+  // strict-ssl is one of those important settings, so copy it to envs and override yarn default one
+  if (classicYarn && npmRc) {
+    if (npmRc.indexOf('strict-ssl') !== -1) {
+      const parsedNpmRc = ini.parse(npmRc)
+      if (parsedNpmRc['strict-ssl'] !== undefined) {
+        publishEnv.npm_config_strict_ssl = parsedNpmRc['strict-ssl']
+      }
+    }
   }
 
   if (!dontWriteNpmRc && npmrcContents.length) {
