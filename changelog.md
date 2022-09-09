@@ -3,6 +3,18 @@ id: index
 title: Change Log
 ---
 
+## v0.55.23
+**2022.09.09**
+
+
+
+### 🐛 Bug Fixes
+
+* **@pvm/pvm:** fix publish with yarn v1 scripts on node 16 with npm 8+ ([#559e52b](https://github.com/Tinkoff/pvm/commit/559e52ba6ad08f3ee02810134524d6e3fd468944))
+
+
+
+
 ## v0.55.22
 **2022.09.07**
 
