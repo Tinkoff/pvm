@@ -342,7 +342,11 @@ export class VcsPlatform implements VcsOnly {
   }
 
   async getUpdateHintsByCommit(commit: string): Promise<Record<string, any> | null> {
-    return await this.hostApi.run('platform.getUpdateHintsByCommit', commit) ?? null
+    if (!this._localMode) {
+      return await this.hostApi.run('platform.getUpdateHintsByCommit', commit) ?? null
+    }
+
+    return null
   }
 }
 
