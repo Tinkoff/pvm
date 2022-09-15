@@ -3,6 +3,18 @@ id: index
 title: Change Log
 ---
 
+## v0.55.24
+**2022.09.15**
+
+
+
+### 🐛 Bug Fixes
+
+* **@pvm/vcs:** fix local mode need of platform api ([#7cc1ced](https://github.com/Tinkoff/pvm/commit/7cc1ced53f3913bb43457cbb4b969e16af2bdec9))
+
+
+
+
 ## v0.55.23
 **2022.09.09**
 
