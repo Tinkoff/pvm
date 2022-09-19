@@ -103,7 +103,7 @@ function isReleaseExists(config: Config, targetRef: string): boolean {
 function printReleasePackages(updateState: UpdateState): void {
   log(chalk`{yellowBright PACKAGES FOR RELEASE}`)
   pprintPackages(updateState.updateReasonMap.keys(), {
-    'new version': pkg => chalk`{greenBright ${updateState.newVersions.get(pkg)!}}`,
+    'new version': pkg => chalk`{greenBright ${updateState.getNewVersionOrCurrent(pkg)}}`,
     reason: (pkg) => {
       return chalk`{greenBright ${updateState.updateReasonMap.get(pkg)}}`
     },
