@@ -281,6 +281,11 @@ async function addDependantsReleaseNotes(updateState: UpdateState, appliedPackag
   for (const [pkg /* , dependantOfPkgs */] of updateState.dependantOfMap) {
     const appliedPkg = appliedPackages.get(pkg.name)!
 
+    // this happens when hints.update-dependants-for or config.update.update_dependants are set release-type to 'none'
+    if (!appliedPkg) {
+      continue
+    }
+
     const releaseNotes = templateEnv.render('pkg-update-deps', {
       pkg: appliedPkg,
       newDepKeys: Array.from(appliedPkg.newDeps.keys()),
