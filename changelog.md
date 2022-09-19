@@ -3,6 +3,18 @@ id: index
 title: Change Log
 ---
 
+## v0.55.25
+**2022.09.19**
+
+
+
+### 🐛 Bug Fixes
+
+* **@pvm/update:** fix 'none' release-type for dependants ([#9c421b3](https://github.com/Tinkoff/pvm/commit/9c421b3b2143bcafa96f9700b36159aaedb98ba4))
+
+
+
+
 ## v0.55.24
 **2022.09.15**
 
