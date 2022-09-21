@@ -3,7 +3,7 @@ import type { Pkg } from './pkg'
 
 export function matchPackage(pkg: Pkg, pattern: string): boolean {
   if (pattern.startsWith('/')) {
-    return micromatch.isMatch(pkg.path, pattern.substr(1))
+    return micromatch.isMatch(pkg.sourcePath, pattern.substr(1))
   }
 
   return micromatch.isMatch(pkg.name, pattern, {
