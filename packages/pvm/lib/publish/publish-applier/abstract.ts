@@ -33,7 +33,7 @@ export abstract class AbstractPublishApplier {
 
   async applyForPublish(pkg: Pkg): Promise<AppliedPkg> {
     const { config } = this.repo
-    const publishPkg = loadPkg(config, pkg.publishPath, { cwd: this.repo.cwd, ref: undefined /* собранный пакет не закоммичен. Нужно читать из fs */ })
+    const publishPkg = loadPkg(config, pkg.publishPath, { sourcePath: pkg.sourcePath, cwd: this.repo.cwd, ref: undefined /* собранный пакет не закоммичен. Нужно читать из fs */ })
     if (!publishPkg) {
       throw new Error(`Unable to load package ${pkg.name} from publish path ${pkg.publishPath}`)
     }

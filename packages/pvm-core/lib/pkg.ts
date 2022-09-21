@@ -46,6 +46,7 @@ function detectIndent(str: string): number {
 export interface LoadPkgOptions {
   cwd?: string,
   ref?: string,
+  sourcePath?: string,
 }
 
 const allOwnDepsKeys = [
@@ -64,12 +65,14 @@ export interface PkgCreateOpts {
   cwd?: string,
   ref?: string,
   config?: Config,
+  sourcePath?: string,
 }
 
 export class Pkg {
   indent: number
   meta: PkgMeta
   path: string
+  sourcePath: string
   readonly name: string
   readonly shortName: string
   _cwd: string
@@ -81,6 +84,7 @@ export class Pkg {
     this.indent = indent
     this._cwd = cwd
     this.path = pkgPath
+    this.sourcePath = opts.sourcePath ?? pkgPath
     this._config = config
     this._ref = ref
 
@@ -427,7 +431,7 @@ function getCacheKey(config: Config, pkgPath: string, ref: string | undefined): 
 // Если ref задан читаем из гита по этому ref,даже если он HEAD.
 // если нет то из file system
 export function loadPkg(config: Config, pkgPath: string, opts: LoadPkgOptions = {}): Pkg | null {
-  const { cwd = config.cwd, ref } = opts
+  const { cwd = config.cwd, ref, sourcePath } = opts
   const absPath = path.resolve(cachedRealPath(cwd), pkgPath)
   const cacheKey = getCacheKey(config, pkgPath, ref)
   if (pkgCache.has(cacheKey)) {
@@ -455,6 +459,7 @@ export function loadPkg(config: Config, pkgPath: string, opts: LoadPkgOptions = 
     indent,
     config,
     ref,
+    sourcePath,
   })
 
   pkgCache.set(cacheKey, pkg)

@@ -3,6 +3,7 @@ const path = require('path')
 const { runRegistryMockServer } = require('../npm-registry-mock')
 const { runMessengerMocker } = require('../slack-mock')
 const { setupPublishNpmRCAndEnvVariables } = require('@pvm/pvm/lib/publish/prepare')
+const fsExtra = require('fs-extra')
 
 function readStats(repo, statsName = 'publish-stats.json') {
   const rawStr = fs.readFileSync(path.join(repo.dir, statsName)).toString('utf8')
@@ -258,6 +259,34 @@ describe('pvm/publish', () => {
     await repo.writeFile('.npmrc', `strict-ssl = abc`, `disable strict-ssl`)
     const { publishEnv } = await setupPublishNpmRCAndEnvVariables(repo.cwd)
     expect(publishEnv['npm_config_strict_ssl']).not.toBe('abc')
+  })
+
+  it('should take unified version from tag in case of unified wildcard and publish path set', async () => {
+    const repoPath = writeRepo({ name: 'unified-publish-path', spec: 'src/a@1.0.0,src/b@1.0.0,src/c@1.0.0' })
+    const repo = await initRepo(repoPath, {
+      versioning: {
+        unified: ['/src/a', '/src/b'],
+        source: 'tag',
+      },
+      publish: {
+        path_mapping: {
+          'src': 'lib',
+        },
+      },
+    })
+
+    await repo.annotatedTag('v2.0.0', `release\n\n---\nc@0.44.1`)
+
+    fsExtra.copySync(`${repoPath}/src/a`, `${repoPath}/lib/a`)
+    fsExtra.copySync(`${repoPath}/src/b`, `${repoPath}/lib/b`)
+    fsExtra.copySync(`${repoPath}/src/c`, `${repoPath}/lib/c`)
+
+    await repo.runScript(`pvm publish --dry-run -o publish-stats.json -s all`)
+    const pkgs = readStats(repo).success
+
+    expect(pkgs.find(p => p.pkg === 'a').publishedVersion).toBe('2.0.0')
+    expect(pkgs.find(p => p.pkg === 'b').publishedVersion).toBe('2.0.0')
+    expect(pkgs.find(p => p.pkg === 'c').publishedVersion).toBe('0.44.1')
   })
 
   describe('canary', () => {
