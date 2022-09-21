@@ -3,6 +3,18 @@ id: index
 title: Change Log
 ---
 
+## v0.55.26
+**2022.09.21**
+
+
+
+### 🐛 Bug Fixes
+
+* correct publish version calculation for unified versioning and publish.path_mapping ([#a0fc5b4](https://github.com/Tinkoff/pvm/commit/a0fc5b4ce8b81f3a366a27467ff5cce920720a66))
+
+
+
+
 ## v0.55.25
 **2022.09.19**
 
