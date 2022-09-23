@@ -1,6 +1,5 @@
-import micromatch from 'micromatch'
 import semver from 'semver'
-import { matchGroup } from '@pvm/core/lib/pkg-match'
+import { matchAny, matchGroup } from '@pvm/core/lib/pkg-match'
 import sortByRelease from '@pvm/core/lib/packages/sort-by-release'
 import { loggerFor } from '@pvm/core/lib/logger'
 import { releaseTypes as releaseTypesMath } from '@pvm/core/lib/semver-extra'
@@ -13,10 +12,6 @@ import type { UpdateState } from './update-state'
 import { decreaseReleaseTypeForPackagesWithZeroMajorVersion } from './pkg-release-type'
 
 const logger = loggerFor('pvm:dependants-updater')
-
-const matchOpts = {
-  matchBase: true,
-}
 
 export async function processAffectedByDependants(repo: Repository, updateState: UpdateState, targetPackages: Iterable<Pkg>): Promise<Pkg[]> {
   const dependantsTree = repo.dependantsTree
@@ -81,7 +76,7 @@ export async function processAffectedByDependants(repo: Repository, updateState:
 
       const patterns: ReadonlyArray<string> = typeof matchExpr === 'string' ? [matchExpr] : matchExpr
 
-      if (micromatch.any(pkg.name, patterns, matchOpts)) {
+      if (matchAny(pkg, patterns)) {
         const hostReleaseType: SemverReleaseType | null = updateState.getLikelyReleaseTypeFor(pkg)
         if (releaseType === 'as-dep') {
           // если версия не менялась releaseType будет null

@@ -282,17 +282,17 @@ export interface Config {
      */
     include_uncommited: boolean,
     /**
-     * Update dependant packages of changed. If provided list of globs then only for those who match these globs will dependants be updated
+     * Update dependant packages of changed. If provided list of objects with `match` property where `match` is [universal selector](/book/glossary.md) then only for those who match these selectors will dependants be updated
      */
     update_dependants: boolean | Array<{
       /**
-       * Glob pattern for matching package. Match checked against package name only.
+       * Packages [universal selector]([universal selector](/book/glossary.md)
        */
       match: GlobPattern,
       /**
        * Dependant release type. If not set then update.dependants_release_type is used. 'as-dep' means use same version as in changed dependency.
        */
-      release_type: SemverReleaseType | 'as-dep',
+      release_type: SemverReleaseType | 'as-dep' | 'none',
     }>,
     /**
      * Git ref for changed calculations when no previous release exists. Or false if pvm should calculate it by itself.

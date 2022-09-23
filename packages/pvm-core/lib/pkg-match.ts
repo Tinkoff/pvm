@@ -12,7 +12,7 @@ export function matchPackage(pkg: Pkg, pattern: string): boolean {
   })
 }
 
-export function matchAny(pkg: Pkg, patterns: string[]): boolean {
+export function matchAny(pkg: Pkg, patterns: string[] | readonly string[]): boolean {
   for (const pattern of patterns) {
     if (matchPackage(pkg, pattern)) {
       return true
