@@ -3,6 +3,18 @@ id: index
 title: Change Log
 ---
 
+## v0.55.27
+**2022.09.23**
+
+
+
+### 🐛 Bug Fixes
+
+* **@pvm/update:** update_dependants now matches by pkg path ([#1d142f7](https://github.com/Tinkoff/pvm/commit/1d142f7d957c8a8cc1bf98f2e45fbbbecf7be9e7))
+
+
+
+
 ## v0.55.26
 **2022.09.21**
 
