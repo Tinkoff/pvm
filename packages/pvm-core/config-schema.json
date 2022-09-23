@@ -860,7 +860,7 @@
                             "items": {
                                 "properties": {
                                     "match": {
-                                        "description": "Glob pattern for matching package. Match checked against package name only.",
+                                        "description": "Packages [universal selector]([universal selector](/book/glossary.md)",
                                         "type": "string"
                                     },
                                     "release_type": {
@@ -869,6 +869,7 @@
                                             "as-dep",
                                             "major",
                                             "minor",
+                                            "none",
                                             "patch"
                                         ],
                                         "type": "string"
@@ -882,7 +883,7 @@
                             "type": "boolean"
                         }
                     ],
-                    "description": "Update dependant packages of changed. If provided list of globs then only for those who match these globs will dependants be updated"
+                    "description": "Update dependant packages of changed. If provided list of objects with `match` property where `match` is [universal selector](/book/glossary.md) then only for those who match these selectors will dependants be updated"
                 },
                 "workspace_release_files": {
                     "description": "Use special release files, that are force semver release type of package. If disabled, than these files are ignored.",
