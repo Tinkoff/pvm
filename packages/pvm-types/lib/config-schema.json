@@ -207,6 +207,41 @@
             },
             "type": "object"
         },
+        "PluginConfig": {
+            "properties": {
+                "options": {
+                    "$ref": "#/definitions/PluginOptions"
+                },
+                "plugin": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/PluginDeclaration"
+                        },
+                        {
+                            "type": [
+                                "string",
+                                "object"
+                            ]
+                        }
+                    ]
+                }
+            },
+            "type": "object"
+        },
+        "PluginDeclaration": {
+            "properties": {
+                "configExt": {
+                    "$ref": "#/definitions/RecursivePartial<Config>"
+                },
+                "factory": {
+                    "type": "object"
+                }
+            },
+            "type": "object"
+        },
+        "PluginOptions": {
+            "type": "object"
+        },
         "Record<string,Partial<MessengerClientConfig>>": {
             "type": "object"
         },
@@ -214,6 +249,881 @@
             "type": "object"
         },
         "Record<string,string>": {
+            "type": "object"
+        },
+        "RecursivePartial<Config>": {
+            "properties": {
+                "changelog": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/Changelog"
+                        },
+                        {
+                            "properties": {
+                                "for_packages": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/definitions/Omit<Changelog,\"path\"|\"storage\">"
+                                        },
+                                        {
+                                            "properties": {
+                                                "output_dir": {
+                                                    "description": "Output dir for individual package changelog files",
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ],
+                                    "description": "Changelog settings for packages individually"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    ],
+                    "description": "Changelog generator settings"
+                },
+                "configLookupDir": {
+                    "type": "string"
+                },
+                "core": {
+                    "$ref": "#/definitions/RecursivePartial<{deps_keys:string[];}>"
+                },
+                "cwd": {
+                    "type": "string"
+                },
+                "dangerously_opts": {
+                    "$ref": "#/definitions/RecursivePartial<{always_changed_workspaces?:string[];}>",
+                    "description": "Options that need more attention in terms of the consequences of their activation."
+                },
+                "executionContext": {
+                    "$ref": "#/definitions/RecursivePartial<{dryRun:boolean;local:boolean;}>"
+                },
+                "git": {
+                    "$ref": "#/definitions/RecursivePartial<{push:{try_load_ssh_keys:boolean;default_branch:string;};}>"
+                },
+                "github": {
+                    "$ref": "#/definitions/RecursivePartial<{auth_strategy?:\"authApp\"|\"authToken\"|\"authAction\";api_url?:string;}>"
+                },
+                "gitlab": {
+                    "$ref": "#/definitions/RecursivePartial<{default_url:string;api_prefix:string;authorization_type:\"bearer\"|\"private-token\";api_url?:string;url?:string;}>"
+                },
+                "include": {
+                    "description": "External configuration paths",
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "jira": {
+                    "$ref": "#/definitions/RecursivePartial<{url?:string;}>"
+                },
+                "mark_pr": {
+                    "$ref": "#/definitions/RecursivePartial<{analyze_update:boolean;packages_table:boolean;attach_changelog:boolean;packages_as_labels:boolean;packages_graph:boolean;renderer:ChangelogRenderer;}>"
+                },
+                "notifications": {
+                    "$ref": "#/definitions/RecursivePartial<{target:string|string[];clients:MessengerClientLoadConfig[];clients_common_config:Partial<MessengerClientConfig>;client_configs:Record<string,Partial<MessengerClientConfig>>;}>",
+                    "description": "How to deal with messages."
+                },
+                "packages": {
+                    "$ref": "#/definitions/RecursivePartial<{indent?:number;}>"
+                },
+                "pkgset": {
+                    "$ref": "#/definitions/RecursivePartial<{ignore_files:string[];affected_files:{if_changed:string[];then_affected:PkgFlexGlobs;}[];}>"
+                },
+                "plugins": {
+                    "$ref": "#/definitions/RecursivePartial<{local_plugins:string[];load_first:string[];options:Record<string,Record<string,string>>;}>"
+                },
+                "plugins_v2": {
+                    "items": {
+                        "$ref": "#/definitions/PluginConfig"
+                    },
+                    "type": "array"
+                },
+                "publish": {
+                    "$ref": "#/definitions/RecursivePartial<{registry?:string;disabled_for:string[];enabled_only_for:string[];path_subdir?:string;path_mapping?:Record<string,string>;email?:string;cli_args?:string;process_npm_token?:boolean;include_monorepo_root:boolean;}>"
+                },
+                "release": {
+                    "$ref": "#/definitions/RecursivePartial<{ensure_branch_up_to_date:boolean;tag_only:boolean;}>"
+                },
+                "release_list": {
+                    "$ref": "#/definitions/RecursivePartial<{enabled:boolean;path:string;limit:ArtifactLimitDef;storage:StorageDef;}>"
+                },
+                "slack_auth": {
+                    "$ref": "#/definitions/RecursivePartial<Record<string,string>>",
+                    "description": "Here you can specify a token for the slag authentication, but this method is not recommended - it is better to use the SLACK_TOKEN environment variable.\ntoken = 'xoxp-....'"
+                },
+                "slack_notification": {
+                    "$ref": "#/definitions/RecursivePartial<Record<string,string>>",
+                    "description": "See https://api.slack.com/methods/chat.postMessage#arguments"
+                },
+                "tagging": {
+                    "$ref": "#/definitions/RecursivePartial<{release_tag_package:string;annotation_lookup_depth:number;suffixes:string|string[];generic_tag:{prefix:string;date_format:string;suffixes?:string|string[];};for_packages:{enabled:boolean;as_release:boolean;strip_namespace:boolean;};}>"
+                },
+                "templates": {
+                    "$ref": "#/definitions/RecursivePartial<{'pkg-update-deps':string;'release-commit':string;failed_vcs_push:string;}>",
+                    "description": "Templates\nSee https://mozilla.github.io/nunjucks/templating.html for template engine docs\nSee packages/pvm-template/lib/env.ts for extra filters and variables"
+                },
+                "templating": {
+                    "$ref": "#/definitions/RecursivePartial<{use_short_names:boolean;setup_script?:string;filters:{cutList:{maxLen:number;};};vars:{[key:string]:string|number;releaseLink?:string;};}>"
+                },
+                "update": {
+                    "$ref": "#/definitions/RecursivePartial<{default_release_type:\"patch\"|\"minor\"|\"major\";include_root:boolean|\"auto\";include_uncommited:boolean;update_dependants:boolean|{match:string;release_type:\"none\"|SemverReleaseType|\"as-dep\";}[];no_release_ref:string|false;dependants_release_type:SemverReleaseType|\"as-dep\";hints_file:string;workspace_release_files:boolean;autolint:boolean;respect_zero_major_version:boolean;commit_via_platform:boolean;push_remote:string;retry_via_platform_if_failed_via_vcs:boolean;release_type_overrides:{type:\"none\"|SemverReleaseType;files_match:string[];}[];graph:{title:string;strip_namespace:boolean;};}>"
+                },
+                "vcs": {
+                    "$ref": "#/definitions/RecursivePartial<{builtin_type:\"auto\"|\"git\"|\"fs\";}>",
+                    "description": "Version control system settings"
+                },
+                "versioning": {
+                    "$ref": "#/definitions/RecursivePartial<{unified:boolean|string[];unified_versions_for:PkgFlexGlobs[];source:\"file\"|\"package\"|\"tag\";source_file:string;independent_packages:string[];}>"
+                }
+            },
+            "type": "object"
+        },
+        "RecursivePartial<Partial<MessengerClientConfig>>": {
+            "properties": {
+                "author": {
+                    "$ref": "#/definitions/RecursivePartial<{name?:string;avatarEmoji?:string;avatarUrl?:string;}>",
+                    "description": "Displayed post author customization (not supported in all messengers)"
+                },
+                "channel": {
+                    "description": "Channel id or name (in case of slack) where to send message",
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "RecursivePartial<Record<string,Partial<MessengerClientConfig>>>": {
+            "type": "object"
+        },
+        "RecursivePartial<Record<string,Record<string,string>>>": {
+            "type": "object"
+        },
+        "RecursivePartial<Record<string,string>>": {
+            "type": "object"
+        },
+        "RecursivePartial<{'pkg-update-deps':string;'release-commit':string;failed_vcs_push:string;}>": {
+            "properties": {
+                "failed_vcs_push": {
+                    "description": "If vcs push failed then render error message for slack with this template",
+                    "type": "string"
+                },
+                "pkg-update-deps": {
+                    "description": "Release notes template",
+                    "type": "string"
+                },
+                "release-commit": {
+                    "description": "Release commit template",
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "RecursivePartial<{[key:string]:string|number;releaseLink?:string;}>": {
+            "properties": {
+                "releaseLink": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "RecursivePartial<{always_changed_workspaces?:string[];}>": {
+            "properties": {
+                "always_changed_workspaces": {
+                    "description": "A glob mask array that defines the packets that the system will interpret as always modified.\nThe mask will be applied to the path of the packages (workspaces).\nThis setting will affect the following places:\n- getPackages method in '@pvm/pvm' (except 'released' and 'updated' types)\n- getUpdateState method in '@pvm/update', which affects pvm-update or pvm-release commands",
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                }
+            },
+            "type": "object"
+        },
+        "RecursivePartial<{analyze_update:boolean;packages_table:boolean;attach_changelog:boolean;packages_as_labels:boolean;packages_graph:boolean;renderer:ChangelogRenderer;}>": {
+            "properties": {
+                "analyze_update": {
+                    "description": "Enable various checks of repo packages. In particular check sync of versions between packages. Mark-pr will print warnings\nin case of problems detected.",
+                    "type": "boolean"
+                },
+                "attach_changelog": {
+                    "description": "Attach changelog to pull request",
+                    "type": "boolean"
+                },
+                "packages_as_labels": {
+                    "description": "Add package names as labes to pull request",
+                    "type": "boolean"
+                },
+                "packages_graph": {
+                    "description": "Attach package deps graph to pull request",
+                    "type": "boolean"
+                },
+                "packages_table": {
+                    "description": "Output table of packages with following info: package name, package version, release type, update reason",
+                    "type": "boolean"
+                },
+                "renderer": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/ChangelogRendererBuiltin"
+                        },
+                        {
+                            "$ref": "#/definitions/ChangelogRendererCommonJs"
+                        },
+                        {
+                            "$ref": "#/definitions/ChangelogRendererByPlugin"
+                        }
+                    ],
+                    "description": "Changelog render settings"
+                }
+            },
+            "type": "object"
+        },
+        "RecursivePartial<{auth_strategy?:\"authApp\"|\"authToken\"|\"authAction\";api_url?:string;}>": {
+            "properties": {
+                "api_url": {
+                    "description": "Optional url of github server",
+                    "type": "string"
+                },
+                "auth_strategy": {
+                    "default": "env.CI ? 'authAction' : 'authToken'",
+                    "description": "Supported github authorization strategies. See https://github.com/octokit/authentication-strategies.js/ for\nmore info.",
+                    "enum": [
+                        "authAction",
+                        "authApp",
+                        "authToken"
+                    ],
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "RecursivePartial<{builtin_type:\"auto\"|\"git\"|\"fs\";}>": {
+            "properties": {
+                "builtin_type": {
+                    "description": "Version system type",
+                    "enum": [
+                        "auto",
+                        "fs",
+                        "git"
+                    ],
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "RecursivePartial<{cutList:{maxLen:number;};}>": {
+            "properties": {
+                "cutList": {
+                    "$ref": "#/definitions/RecursivePartial<{maxLen:number;}>"
+                }
+            },
+            "type": "object"
+        },
+        "RecursivePartial<{default_release_type:\"patch\"|\"minor\"|\"major\";include_root:boolean|\"auto\";include_uncommited:boolean;update_dependants:boolean|{match:string;release_type:\"none\"|SemverReleaseType|\"as-dep\";}[];no_release_ref:string|false;dependants_release_type:SemverReleaseType|\"as-dep\";hints_file:string;workspace_release_files:boolean;autolint:boolean;respect_zero_major_version:boolean;commit_via_platform:boolean;push_remote:string;retry_via_platform_if_failed_via_vcs:boolean;release_type_overrides:{type:\"none\"|SemverReleaseType;files_match:string[];}[];graph:{title:string;strip_namespace:boolean;};}>": {
+            "properties": {
+                "autolint": {
+                    "description": "Lint and fix packages package.json files before update and commit them",
+                    "type": "boolean"
+                },
+                "commit_via_platform": {
+                    "description": "Perform commits via vcs platform api (gitlab, github etc.)",
+                    "type": "boolean"
+                },
+                "default_release_type": {
+                    "description": "Type of version change according to semver",
+                    "enum": [
+                        "major",
+                        "minor",
+                        "patch"
+                    ],
+                    "type": "string"
+                },
+                "dependants_release_type": {
+                    "description": "How to increment version of dependant packages. 'as-dep' means use same version as in changed dependency.",
+                    "enum": [
+                        "as-dep",
+                        "major",
+                        "minor",
+                        "patch"
+                    ],
+                    "type": "string"
+                },
+                "graph": {
+                    "$ref": "#/definitions/RecursivePartial<{title:string;strip_namespace:boolean;}>",
+                    "description": "Updated packages graph settings"
+                },
+                "hints_file": {
+                    "description": "File which can configure release process per merge-request",
+                    "type": "string"
+                },
+                "include_root": {
+                    "description": "Include root pkg depending on file changes",
+                    "enum": [
+                        "auto",
+                        false,
+                        true
+                    ]
+                },
+                "include_uncommited": {
+                    "description": "Include uncommited files into changed packages calculation",
+                    "type": "boolean"
+                },
+                "no_release_ref": {
+                    "anyOf": [
+                        {
+                            "enum": [
+                                false
+                            ],
+                            "type": "boolean"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "Git ref for changed calculations when no previous release exists. Or false if pvm should calculate it by itself."
+                },
+                "push_remote": {
+                    "description": "Git remote path that is used in git push. Calculated automatically if not specified.",
+                    "type": "string"
+                },
+                "release_type_overrides": {
+                    "description": "Override calculated release type",
+                    "items": {
+                        "properties": {
+                            "files_match": {
+                                "items": {
+                                    "type": "string"
+                                },
+                                "type": "array"
+                            },
+                            "type": {
+                                "enum": [
+                                    "major",
+                                    "minor",
+                                    "none",
+                                    "patch"
+                                ],
+                                "type": "string"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "type": "array"
+                },
+                "respect_zero_major_version": {
+                    "description": "Downgrade semver release type by one level if major part in package version is zero. Major to minor, and minor to patch.",
+                    "type": "boolean"
+                },
+                "retry_via_platform_if_failed_via_vcs": {
+                    "description": "Retry operation via platform if vcs operation failed",
+                    "type": "boolean"
+                },
+                "update_dependants": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "properties": {
+                                    "match": {
+                                        "description": "Packages [universal selector]([universal selector](/book/glossary.md)",
+                                        "type": "string"
+                                    },
+                                    "release_type": {
+                                        "description": "Dependant release type. If not set then update.dependants_release_type is used. 'as-dep' means use same version as in changed dependency.",
+                                        "enum": [
+                                            "as-dep",
+                                            "major",
+                                            "minor",
+                                            "none",
+                                            "patch"
+                                        ],
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "boolean"
+                        }
+                    ],
+                    "description": "Update dependant packages of changed. If provided list of objects with `match` property where `match` is [universal selector](/book/glossary.md) then only for those who match these selectors will dependants be updated"
+                },
+                "workspace_release_files": {
+                    "description": "Use special release files, that are force semver release type of package. If disabled, than these files are ignored.",
+                    "type": "boolean"
+                }
+            },
+            "type": "object"
+        },
+        "RecursivePartial<{default_url:string;api_prefix:string;authorization_type:\"bearer\"|\"private-token\";api_url?:string;url?:string;}>": {
+            "properties": {
+                "api_prefix": {
+                    "description": "Gitlab api path",
+                    "type": "string"
+                },
+                "api_url": {
+                    "description": "Separete url used as gitlab api endpoint",
+                    "type": "string"
+                },
+                "authorization_type": {
+                    "description": "Gitlab authorization type",
+                    "enum": [
+                        "bearer",
+                        "private-token"
+                    ],
+                    "type": "string"
+                },
+                "default_url": {
+                    "description": "Gitlab url. Used to api requests, and repo entities links if url or api_url are not set.",
+                    "type": "string"
+                },
+                "url": {
+                    "description": "Forced url endpoint. If not specified then additional calculation will be performed.",
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "RecursivePartial<{deps_keys:string[];}>": {
+            "properties": {
+                "deps_keys": {
+                    "description": "Dependency lists that should be updated and used when package version updates",
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                }
+            },
+            "type": "object"
+        },
+        "RecursivePartial<{dryRun:boolean;local:boolean;}>": {
+            "properties": {
+                "dryRun": {
+                    "type": "boolean"
+                },
+                "local": {
+                    "type": "boolean"
+                }
+            },
+            "type": "object"
+        },
+        "RecursivePartial<{enabled:boolean;as_release:boolean;strip_namespace:boolean;}>": {
+            "properties": {
+                "as_release": {
+                    "description": "Add as release in source code platform. Otherwise only as git tag.",
+                    "type": "boolean"
+                },
+                "enabled": {
+                    "description": "If enabled add tag for each package in {pkg.name}-v{semver} format",
+                    "type": "boolean"
+                },
+                "strip_namespace": {
+                    "description": "Strip namespaces from package name",
+                    "type": "boolean"
+                }
+            },
+            "type": "object"
+        },
+        "RecursivePartial<{enabled:boolean;path:string;limit:ArtifactLimitDef;storage:StorageDef;}>": {
+            "properties": {
+                "enabled": {
+                    "description": "Enable storing releases meta-info in specified storage (right now only git repository is supported)",
+                    "type": "boolean"
+                },
+                "limit": {
+                    "$ref": "#/definitions/ArtifactLimitDef",
+                    "description": "How to limit entries count in release list"
+                },
+                "path": {
+                    "description": "Path to release list artifact file",
+                    "type": "string"
+                },
+                "storage": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/RepoStorageDef"
+                        },
+                        {
+                            "$ref": "#/definitions/BranchStorageDef"
+                        },
+                        {
+                            "$ref": "#/definitions/ExternalStorageDef"
+                        }
+                    ],
+                    "description": "Storage settings"
+                }
+            },
+            "type": "object"
+        },
+        "RecursivePartial<{ensure_branch_up_to_date:boolean;tag_only:boolean;}>": {
+            "properties": {
+                "ensure_branch_up_to_date": {
+                    "description": "Before pushing changes, check for upstream branch is still actual",
+                    "type": "boolean"
+                },
+                "tag_only": {
+                    "description": "Do not commit any worktree changes via vcs",
+                    "type": "boolean"
+                }
+            },
+            "type": "object"
+        },
+        "RecursivePartial<{ignore_files:string[];affected_files:{if_changed:string[];then_affected:PkgFlexGlobs;}[];}>": {
+            "properties": {
+                "affected_files": {
+                    "items": {
+                        "properties": {
+                            "if_changed": {
+                                "description": "Glob files patterns list of what is changed",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "type": "array"
+                            },
+                            "then_affected": {
+                                "anyOf": [
+                                    {
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "type": "array"
+                                    },
+                                    {
+                                        "enum": [
+                                            "*"
+                                        ],
+                                        "type": "string"
+                                    }
+                                ],
+                                "description": "Glob files patterns list of which files should be counted as changed when files in `if_changed` section touched.\nCan be list of glob patterns or a string `*` which means, that all packages would be returned"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "type": "array"
+                },
+                "ignore_files": {
+                    "description": "Exclude files from changed files list. Affects calculation of package sets",
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                }
+            },
+            "type": "object"
+        },
+        "RecursivePartial<{indent?:number;}>": {
+            "properties": {
+                "indent": {
+                    "description": "Ident for package.json write",
+                    "type": "integer"
+                }
+            },
+            "type": "object"
+        },
+        "RecursivePartial<{local_plugins:string[];load_first:string[];options:Record<string,Record<string,string>>;}>": {
+            "properties": {
+                "load_first": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "local_plugins": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "options": {
+                    "$ref": "#/definitions/RecursivePartial<Record<string,Record<string,string>>>"
+                }
+            },
+            "type": "object"
+        },
+        "RecursivePartial<{maxLen:number;}>": {
+            "properties": {
+                "maxLen": {
+                    "description": "Max list length, passed to cutList template filter",
+                    "type": "number"
+                }
+            },
+            "type": "object"
+        },
+        "RecursivePartial<{name?:string;avatarEmoji?:string;avatarUrl?:string;}>": {
+            "properties": {
+                "avatarEmoji": {
+                    "type": "string"
+                },
+                "avatarUrl": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "RecursivePartial<{prefix:string;date_format:string;suffixes?:string|string[];}>": {
+            "properties": {
+                "date_format": {
+                    "description": "Date follows after prefix, delimited by '-' symbol",
+                    "type": "string"
+                },
+                "prefix": {
+                    "description": "Release tag prefix",
+                    "type": "string"
+                },
+                "suffixes": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                }
+            },
+            "type": "object"
+        },
+        "RecursivePartial<{push:{try_load_ssh_keys:boolean;default_branch:string;};}>": {
+            "properties": {
+                "push": {
+                    "$ref": "#/definitions/RecursivePartial<{try_load_ssh_keys:boolean;default_branch:string;}>"
+                }
+            },
+            "type": "object"
+        },
+        "RecursivePartial<{registry?:string;disabled_for:string[];enabled_only_for:string[];path_subdir?:string;path_mapping?:Record<string,string>;email?:string;cli_args?:string;process_npm_token?:boolean;include_monorepo_root:boolean;}>": {
+            "properties": {
+                "cli_args": {
+                    "description": "Additional cli args string. Passed \"as is\" to `npm publish` command",
+                    "type": "string"
+                },
+                "disabled_for": {
+                    "description": "Do not perform publish for packages that matches specified package path patterns",
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "email": {
+                    "description": "Used only if your npm version less than v6.7.0 and you don't have email in npm conf files,\\nas npm of these versions fails to publish without email in settings\"",
+                    "format": "email",
+                    "type": "string"
+                },
+                "enabled_only_for": {
+                    "description": "Patterns list for publication paths. If not empty then only those packages, that match patterns, are going to publish",
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "include_monorepo_root": {
+                    "description": "Allow to publish monorepo root. By default this is impossible",
+                    "type": "boolean"
+                },
+                "path_mapping": {
+                    "$ref": "#/definitions/RecursivePartial<Record<string,string>>",
+                    "description": "By default publish path for each package and package path itself is same thing.\\nBut you can replace the beginning of each package path to another string via providing this argument.\\nExample: 'src/components' => 'lib/components'\""
+                },
+                "path_subdir": {
+                    "description": "Subdirectory to publish. This value is appended to each publish path after \"path_mapping\" options have been applied",
+                    "type": "string"
+                },
+                "process_npm_token": {
+                    "description": "Use NPM_TOKEN environment variable for result auth npm config calculation",
+                    "type": "boolean"
+                },
+                "registry": {
+                    "description": "Registry for publishing if not specified in publishConfig.registry field of package.json",
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "RecursivePartial<{release_tag_package:string;annotation_lookup_depth:number;suffixes:string|string[];generic_tag:{prefix:string;date_format:string;suffixes?:string|string[];};for_packages:{enabled:boolean;as_release:boolean;strip_namespace:boolean;};}>": {
+            "properties": {
+                "annotation_lookup_depth": {
+                    "description": "How deep to look for the version in the release tags annotations, if no version for the package can be found",
+                    "type": "integer"
+                },
+                "for_packages": {
+                    "$ref": "#/definitions/RecursivePartial<{enabled:boolean;as_release:boolean;strip_namespace:boolean;}>"
+                },
+                "generic_tag": {
+                    "$ref": "#/definitions/RecursivePartial<{prefix:string;date_format:string;suffixes?:string|string[];}>",
+                    "description": "To be used only if all conditions are met:\n1. Value `versioning.unified` = false.\n2. Value `tagging.release_tag_package` is not set.\n3. Repository can have packages of different versions according to pvm settings."
+                },
+                "release_tag_package": {
+                    "description": "If you don't use the `versioning.unified = true` setting, this option will cause the version of given package to be used as release tags prefixed with `v`.\nThe package must exist, otherwise a runtime exception will be thrown.\nIf `versioning.unified = true` is used, the setting will be ignored in favor of the version of the main package group\n(see the description of the versioning.unified setting).",
+                    "type": "string"
+                },
+                "suffixes": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "Suffixes for release tags, could be name of package which exports list of strings\nor it could be explicit list of strings"
+                }
+            },
+            "type": "object"
+        },
+        "RecursivePartial<{target:string|string[];clients:MessengerClientLoadConfig[];clients_common_config:Partial<MessengerClientConfig>;client_configs:Record<string,Partial<MessengerClientConfig>>;}>": {
+            "properties": {
+                "client_configs": {
+                    "$ref": "#/definitions/RecursivePartial<Record<string,Partial<MessengerClientConfig>>>",
+                    "description": "Default message values, each for specific messenger client. Its priority is higher than clients_common_config."
+                },
+                "clients": {
+                    "description": "Messenger client load configs",
+                    "items": {
+                        "$ref": "#/definitions/MessengerClientLoadConfig"
+                    },
+                    "type": "array"
+                },
+                "clients_common_config": {
+                    "$ref": "#/definitions/RecursivePartial<Partial<MessengerClientConfig>>",
+                    "description": "Common config which applied to all messenger clients. For example channel name is same in several messengers and you\ndont want to duplicate it"
+                },
+                "target": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "Which clients use to send messages:<br />\n`all` - all provided and ready to use clients.<br />\n`first_available` - find first ready client (order determined by order of clients in messaging.clients config) and use it.<br />\n`MessengerName` or list of names - try to send message through specified clients.<br />\n<br />\nIn all cases `ready` client means all necessary env variables or configuration values are provided. If message\nnot sent to messenger you expect to - look at log output"
+                }
+            },
+            "type": "object"
+        },
+        "RecursivePartial<{title:string;strip_namespace:boolean;}>": {
+            "properties": {
+                "strip_namespace": {
+                    "type": "boolean"
+                },
+                "title": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "RecursivePartial<{try_load_ssh_keys:boolean;default_branch:string;}>": {
+            "properties": {
+                "default_branch": {
+                    "description": "Default push branch if you try to\n\ntodo: ask reason for this setting",
+                    "type": "string"
+                },
+                "try_load_ssh_keys": {
+                    "description": "Try to load system ssh keys",
+                    "type": "boolean"
+                }
+            },
+            "type": "object"
+        },
+        "RecursivePartial<{unified:boolean|string[];unified_versions_for:PkgFlexGlobs[];source:\"file\"|\"package\"|\"tag\";source_file:string;independent_packages:string[];}>": {
+            "properties": {
+                "independent_packages": {
+                    "description": "Packages who always use independent versioning regardless of `unified_versions_for` or `unified` settings.",
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "source": {
+                    "description": "Where do the versions come from. Also affects the way the versions are saved. See versioning section in documentation for more info.",
+                    "enum": [
+                        "file",
+                        "package",
+                        "tag"
+                    ],
+                    "type": "string"
+                },
+                "source_file": {
+                    "description": "Where from and where to save versions if source equals `file`.",
+                    "type": "string"
+                },
+                "unified": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "boolean"
+                        }
+                    ],
+                    "description": "`unified = true` or `unified = [<pkg-selector list>] will create the \"main\" group of packages, by default including all packages,\nwithin which all packages will have the same version.\nIf there are options `unified_versions_for` and/or `independent_packages` then these will create additional groups,\npackages from which will be excluded from the main group.\nThis will also cause the release tags to be equal to the version of the main group of packages with the `v` prefix."
+                },
+                "unified_versions_for": {
+                    "description": "List of groups, each group is a list of globs or just one glob string for workspace paths, where each of group have own unified versioning.\nIf you want unified versioning for whole repository, choose ['*'] value or better set `unified` setting to true.",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "type": "string"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "enum": [
+                                    "*"
+                                ],
+                                "type": "string"
+                            }
+                        ]
+                    },
+                    "type": "array"
+                }
+            },
+            "type": "object"
+        },
+        "RecursivePartial<{url?:string;}>": {
+            "properties": {
+                "url": {
+                    "description": "jira url. If set, then jira-task ids will be transformed into links.",
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "RecursivePartial<{use_short_names:boolean;setup_script?:string;filters:{cutList:{maxLen:number;};};vars:{[key:string]:string|number;releaseLink?:string;};}>": {
+            "properties": {
+                "filters": {
+                    "$ref": "#/definitions/RecursivePartial<{cutList:{maxLen:number;};}>"
+                },
+                "setup_script": {
+                    "description": "Path to script that can add templates extra variables, filters etc. (See https://mozilla.github.io/nunjucks/templating.html and nunjucks.Environment for more)",
+                    "type": "string"
+                },
+                "use_short_names": {
+                    "description": "Use shot package names (\"short\" means without namespace part)",
+                    "type": "boolean"
+                },
+                "vars": {
+                    "$ref": "#/definitions/RecursivePartial<{[key:string]:string|number;releaseLink?:string;}>"
+                }
+            },
             "type": "object"
         },
         "RepoStorageDef": {
@@ -231,7 +1141,7 @@
             "type": "object"
         }
     },
-    "description": "Configuration file schema.\n\nConfig file name should be `.pvm` and extension should be one of the following: `.json`, `.toml`, `.yaml` or `.js` if configuration\nshould be dynamically calculated.\n\n.toml example\n```toml\n[versioning]\nunified = true\nsource = 'tag'\n```\n\n.js example\n```js\nmodule.exports = {\n  // config goes here\n}\n```\n\n## [Defaults](config/config-defaults.md)",
+    "description": "Configuration schema.",
     "properties": {
         "changelog": {
             "allOf": [
@@ -516,6 +1426,12 @@
                 }
             },
             "type": "object"
+        },
+        "plugins_v2": {
+            "items": {
+                "$ref": "#/definitions/PluginConfig"
+            },
+            "type": "array"
         },
         "publish": {
             "properties": {

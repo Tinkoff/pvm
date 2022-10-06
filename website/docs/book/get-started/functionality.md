@@ -13,7 +13,7 @@ title: Supported functionality
 9. Extensibility through plugins
 10. Preliminary output of the result of future changes to evaluate the correctness through the support of the `--dry-run` flag by most commands
 11. Ability to locally execute commands without writing to external services through the commands `pvm local <command>` (list of commands - `yarn pvm local --help`)
-12. Integration with code storage platforms ([gitlab](api/modules/pvm_gitlab.md), [github](api/modules/pvm_github.md))
+12. Integration with code storage platforms ([gitlab](api/modules/pvm_plugin_gitlab.md), [github](api/modules/pvm_plugin_github.md))
 
 ### Monorepository
 1. Updating modified packages [taking into account dependencies](api/interfaces/pvm_core.Config.md#update) between them
