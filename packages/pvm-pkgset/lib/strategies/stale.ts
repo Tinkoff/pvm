@@ -31,7 +31,7 @@ async function * pkgset(opts: PkgsetStaleOpts = {}): AsyncIterableIterator<Pkg> 
     } catch (e) {
       // According https://github.com/npm/cli/issues/3075 there is a flag --json behaviour change that defeats its purpose
       // and making output unparsable as json
-      if (e.toString().indexOf('ERR! code E404') === -1) {
+      if (e.toString().indexOf(' E404') === -1) {
         logger.error(`Failed while retrieving actual version for "${pkg.name}" from registry "${registry || 'default'}"`)
         throw e
       }
