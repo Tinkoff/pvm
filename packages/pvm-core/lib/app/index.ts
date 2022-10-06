@@ -4,6 +4,10 @@ import { Container, DI_TOKEN, provide } from '@pvm/di'
 import { CONFIG_TOKEN, CWD_TOKEN } from '@pvm/tokens-common'
 import { loadRawConfig, postprocessConfig, readEnv } from '../config/get-config'
 import { defaultConfig } from '../../pvm-defaults'
+import { loggerFor } from '../logger'
+import chalk from 'chalk'
+
+const log = loggerFor('pvm:app')
 
 export function isPlainObject(x: unknown): x is Record<string, unknown> {
   return !!x && !Array.isArray(x) && typeof x === 'object'
@@ -106,6 +110,7 @@ export class Pvm {
       for (const provider of pluginProviders) {
         this.container.register(provider)
       }
+      log.info(chalk`plugin {blue ${resolvedPath}} loaded`)
 
       if (configExt) {
         this.configExtensions.push(configExt)

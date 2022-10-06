@@ -131,22 +131,28 @@ function makePluginsContext(cwd: string): PluginsContext {
         const [ns, method] = feature.split('.')
         const cls = this.getOr(ns, undefined)
         if (!cls) {
-          throw new Error(`there is no ${feature} feature`)
+          return
         }
 
         impl = cls[method]
         if (!impl) {
-          throw new Error(`there is no method "${method}" in class "${cls.name}"`)
+          return
         }
         impl = impl.bind(cls)
       }
       return impl
     },
     run(feature, ...args) {
-      return this.resolve(feature)(...args)
+      const impl = this.resolve(feature)
+
+      if (impl) {
+        return impl(...args)
+      }
+
+      throw new Error(`Feature ${feature} not found`)
     },
     runOr(feature, defaultValue, ...args) {
-      const impl = this.getOr(feature, void 0)
+      const impl = this.resolve(feature)
       if (impl === void 0) {
         return defaultValue
       }
