@@ -218,7 +218,7 @@ describe('pvm-plugin/conventional-changelog', () => {
       expect(output).toMatch(/Bug Fixes\*\*\\n {2}• \(graphite\): stop graphite breaking when width < 0.1 \(\[.+?]\(.+?\)/)
       expect(output).toContain(`BREAKING CHANGES**\\n  • (oil): support major commits via excl\\n  • (pencil): The graphiteWidth option has been removed. The default graphite width of 10mm is always used for performance reason.`)
       expect(output).toMatch(/Other\*\*\\n {2}• set graphite width max to 0.2 \(\[.+?]\(.+?\)/)
-    }, 45000)
+    }, 100000)
 
     it('should not fail send message on custom publish strategy', async () => {
       const repo = await initRepo('mono-conventional-c', {
@@ -249,6 +249,6 @@ describe('pvm-plugin/conventional-changelog', () => {
       })
 
       expect(output).not.toMatch(/Couldn't locate/)
-    }, 45000)
+    }, 100000)
   })
 })
