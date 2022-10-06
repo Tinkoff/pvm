@@ -1,5 +1,5 @@
-import type { ReleasedProps } from '@pvm/core/types/publish'
-import type { Message } from '@pvm/types'
+import type { ReleasedProps, Message } from '@pvm/types'
+
 import { releaseMessage } from '../message-builder'
 
 process.on('message', async (releaseProps: ReleasedProps) => {

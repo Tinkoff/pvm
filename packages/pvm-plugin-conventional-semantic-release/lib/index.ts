@@ -1,5 +1,5 @@
 import type { Commit } from 'conventional-commits-parser'
-import type { PvmReleaseType } from '@pvm/core/types'
+import type { PvmReleaseType } from '@pvm/types'
 import { analyzeCommits } from './analyze-commits'
 import type { PluginsApi } from '@pvm/core/lib/plugins/index'
 import type { Options } from './types'

@@ -1,5 +1,5 @@
 import type { Commit } from './git'
-import type { Config } from './config-schema'
+import type { Config } from './config'
 
 export interface PkgSuccessStats {
   pkg: string,

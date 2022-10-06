@@ -4,7 +4,7 @@ import compareReleaseTypes from '@semantic-release/commit-analyzer/lib/compare-r
 import RELEASE_TYPES from '@semantic-release/commit-analyzer/lib/default-release-types'
 import analyzeCommit from '@semantic-release/commit-analyzer/lib/analyze-commit'
 import { logger } from './logger'
-import type { PvmReleaseType } from '@pvm/core/types'
+import type { PvmReleaseType } from '@pvm/types'
 import type { Options } from './types'
 
 // taken from https://github.com/semantic-release/commit-analyzer/blob/master/index.js

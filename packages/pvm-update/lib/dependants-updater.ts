@@ -6,7 +6,7 @@ import { releaseTypes as releaseTypesMath } from '@pvm/core/lib/semver-extra'
 import { UpdateReasonType } from './update-state'
 
 import type { Pkg } from '@pvm/core/lib/pkg'
-import type { PvmReleaseType, SemverReleaseType } from '@pvm/core/types'
+import type { PvmReleaseType, SemverReleaseType } from '@pvm/types'
 import type { Repository } from '@pvm/repository/lib/repository'
 import type { UpdateState } from './update-state'
 import { decreaseReleaseTypeForPackagesWithZeroMajorVersion } from './pkg-release-type'

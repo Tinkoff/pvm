@@ -46,7 +46,7 @@ import { PkgSet } from '@pvm/core/lib/pkg-set'
 import { BasicPublishApplier } from './publish-applier/basic'
 import { CanaryPublishApplier } from './publish-applier/canary'
 
-import type { PkgFailStats, PkgSuccessStats, PkgSkippedStats, PublishedStats } from '../../types'
+import type { PkgFailStats, PkgSuccessStats, PkgSkippedStats, PublishedStats } from '@pvm/types'
 import type { Pkg } from '@pvm/core/lib/pkg'
 import { getPassedRegistry, getPkgRegistry } from './registry'
 import type { AbstractPublishApplier } from './publish-applier/abstract'

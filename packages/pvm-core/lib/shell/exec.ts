@@ -1,5 +1,5 @@
 import { spawn } from 'child_process'
-import type { ExecShellOptions } from '../../types/shell'
+import type { ExecShellOptions } from '@pvm/types'
 
 interface ShellError extends Error {
   code: number | null,

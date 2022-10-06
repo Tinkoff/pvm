@@ -10,7 +10,7 @@ import type { ChangedContext } from './changed-context'
 import type { UpdateContext } from './update-context'
 import type { Repository } from '@pvm/repository/lib'
 import type { Pkg, AppliedPkg } from '@pvm/core/lib/pkg'
-import type { PvmReleaseType, SemverReleaseType } from '@pvm/core/types'
+import type { PvmReleaseType, SemverReleaseType } from '@pvm/types'
 
 import { loggerFor } from '@pvm/core/lib/logger'
 

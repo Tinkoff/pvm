@@ -11,14 +11,14 @@ import { releaseMark } from '../consts'
 import { mema } from '../memoize'
 import { resolvePvmProvider } from './provider'
 
-import type { Commit } from '../../types/git-log'
+import type { Commit, PvmReleaseType, SemverReleaseType } from '@pvm/types'
 import type { Pkg } from '../pkg'
 import type { ChangedContext } from '@pvm/update/lib/changed-context'
 import type { VcsPlatform } from '@pvm/vcs/lib'
 import type { ReleaseContext } from '@pvm/update/types'
 import type { ReleaseData, ReleaseDataExt } from '@pvm/releases/types'
 import type { VcsRelease } from '@pvm/vcs/types'
-import type { PvmReleaseType, SemverReleaseType } from '../../types'
+
 import type { UpdateState } from '@pvm/update/lib/update-state'
 
 type PipelineFn<R = any> = (...args: any[]) => Promise<R>

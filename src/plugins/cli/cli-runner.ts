@@ -26,6 +26,10 @@ export function runCli(commands: Array<typeof CLI_EXTENSION_TOKEN>, argv: string
         .wrap(120)
         .showHelp('info')
     })
+    .middleware((argv) => {
+      global.argv = argv
+      return argv
+    })
     .demandCommand()
     .strict()
     .wrap(100)

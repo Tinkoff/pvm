@@ -4,6 +4,7 @@
   "main": "lib/index.js",
   "dependencies": {
     "@pvm/core": "0.0.0-stub",
+    "@pvm/types": "0.0.0-stub",
     "@semantic-release/commit-analyzer": "^8.0.1",
     "conventional-commits-parser": "^3.2.1"
   }

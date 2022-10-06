@@ -6,7 +6,7 @@ import { pkgCommits } from '@pvm/core/lib/git/pkg-commits'
 
 import type { Config } from '@pvm/core/lib/config'
 import type { IncludeRootOption } from '@pvm/pkgset/types'
-import type { Commit } from '@pvm/core/types/git-log'
+import type { Commit } from '@pvm/types'
 import type { ChangedFiles } from '@pvm/pkgset/lib/changed-files'
 
 /**

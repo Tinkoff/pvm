@@ -1,5 +1,5 @@
 import semver from 'semver'
-import type { PvmReleaseType } from '../types'
+import type { PvmReleaseType } from '@pvm/types'
 
 export const releaseTypesInAscendingOrder: PvmReleaseType[] =
   ['none', 'prerelease', 'prepatch', 'patch', 'preminor', 'minor', 'premajor', 'major']

@@ -6,7 +6,7 @@ import { matchGroup } from '@pvm/core/lib/pkg-match'
 import { releaseTypesInAscendingOrder, releaseTypes } from '@pvm/core/lib/semver-extra'
 import { UpdateReasonType } from './update-state'
 
-import type { PvmReleaseType } from '@pvm/core/types'
+import type { PvmReleaseType } from '@pvm/types'
 import type { Pkg } from '@pvm/core/lib/pkg'
 import type { ForceReleaseState } from '../types'
 import type { UpdateState } from './update-state'

@@ -1,5 +1,5 @@
-import type { ReleasedProps } from '@pvm/core/types/publish'
-import type { Message } from '@pvm/types'
+import type { ReleasedProps, Message } from '@pvm/types'
+
 import { getConfig } from '@pvm/core/lib/config/index'
 import path from 'path'
 import fs from 'fs'
