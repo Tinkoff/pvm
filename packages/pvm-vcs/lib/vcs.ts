@@ -39,7 +39,7 @@ async function loadBuiltinVcs(cwd: string, customVcsType?: string): Promise<void
 }
 
 async function loadBuiltinPlatform(cwd: string): Promise<void> {
-  const platform = getApp().container.get(PLATFORM_TOKEN)
+  const platform = getApp(cwd).container.get(PLATFORM_TOKEN)
 
   if (!platform) {
     return
@@ -291,7 +291,7 @@ export class VcsPlatform implements VcsOnly {
 
   async getUpdateHintsByCommit(commit: string): Promise<Record<string, any> | null> {
     if (!this._localMode) {
-      return await this.hostApi.run('platform.getUpdateHintsByCommit', commit) ?? null
+      return this.hostApi.runOr('platform.getUpdateHintsByCommit', null, commit)
     }
 
     return null

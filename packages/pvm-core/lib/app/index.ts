@@ -3,7 +3,6 @@ import type { PluginConfig, PluginFactory, Config, RecursivePartial, PluginDecla
 import { Container, DI_TOKEN, provide } from '@pvm/di'
 import { CONFIG_TOKEN, CWD_TOKEN } from '@pvm/tokens-common'
 import { loadRawConfig, postprocessConfig, readEnv } from '../config/get-config'
-import { defaultConfig } from '../../pvm-defaults'
 import { loggerFor } from '../logger'
 import chalk from 'chalk'
 
@@ -54,8 +53,6 @@ export class Pvm {
       this.registerPlugins(initialConfig.plugins_v2, cwd)
     }
     this.registerPlugins(plugins, cwd)
-
-    this.configExtensions.push(defaultConfig)
 
     this.container.register(provide({
       useValue: this.fulfillConfig(),

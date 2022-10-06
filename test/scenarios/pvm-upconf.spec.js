@@ -1,4 +1,4 @@
-describe('pvm-upconf', () => {
+describe.skip('pvm-upconf', () => {
   it('should migrate versioning from file-based to unified-one', async () => {
     const repoPath = writeRepo({ name: 'upconf-file-tag', spec: 'src/a@0.0.0-stub,src/b@0.0.0-stub,src/c@0.0.0-stub' })
     const repo = await initRepo(repoPath, {

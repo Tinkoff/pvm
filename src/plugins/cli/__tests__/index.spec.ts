@@ -5,7 +5,7 @@ import { provide } from '@pvm/di'
 
 describe('@pvm/cli', () => {
   it('should run provided command', () => {
-    const outputStore = ''
+    let outputStore = ''
     const pvm = new Pvm({
       plugins: [{
         plugin: PvmCliPlugin,
@@ -17,7 +17,7 @@ describe('@pvm/cli', () => {
               command: 'cli-test',
               description: 'test command',
               handler: () => {
-                const outputStore = 'command works!\n'
+                outputStore = 'command works!\n'
                 process.stdout.write(outputStore)
               },
             },
