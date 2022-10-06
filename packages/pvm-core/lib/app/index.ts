@@ -82,8 +82,8 @@ export class Pvm {
 
   protected mergeConfigExtensions(): Config {
     return this.configExtensions.reduce((acc, extension) => {
-      acc = Pvm.mergeConfigs(acc, extension)
       acc.plugins_v2 = (acc.plugins_v2 ?? []).concat(extension.plugins_v2 ?? [])
+      acc = Pvm.mergeConfigs(acc, extension)
       return acc
     }, {} as Config) as Config
   }
@@ -121,7 +121,8 @@ export class Pvm {
   protected resolvePlugin(pluginConfig: PluginConfig, resolveRoot: string): { factory?: PluginFactory, configExt?: RecursivePartial<Config>, resolvedPath: string } {
     if (typeof pluginConfig.plugin === 'string') {
       const pluginPath = require.resolve(pluginConfig.plugin, { paths: [resolveRoot] })
-      return { ...(require(pluginPath).default as PluginDeclaration), resolvedPath: pluginPath }
+      const pluginModule = require(pluginPath)
+      return { ...((pluginModule.__esModule ? pluginModule.default : pluginModule) as PluginDeclaration), resolvedPath: pluginPath }
     }
 
     const opts = isPlainObject(pluginConfig.plugin) ? pluginConfig.plugin : { factory: pluginConfig.plugin }

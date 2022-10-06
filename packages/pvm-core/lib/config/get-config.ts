@@ -449,7 +449,6 @@ export function postprocessConfig(config: Config/*, opts: GetConfigOpts */): Con
     dryRun: false,
     local: false,
   }
-  config = mergeDefaults(config, readEnv())
   // process include directive after env
   if (config.include) {
     return processInclude(config.cwd, config.include).then(result => {

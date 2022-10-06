@@ -53,6 +53,8 @@ describe('@pvm/container', () => {
 
     expect(pvmContainer.container.get(CONFIG_TOKEN)).toMatchObject({
       plugins_v2: [{
+        plugin: require.resolve('@pvm/plugin-gitlab'),
+      }, {
         plugin: path.join(__dirname, '__fixtures__', 'plugin-with-config-with-plugins.js'),
       }, {
         plugin: './plugin-with-config-extension.js',
