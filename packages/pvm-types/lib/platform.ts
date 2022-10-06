@@ -7,7 +7,7 @@ import type {
 } from './vcs'
 
 export abstract class BasePlatformInterface<MergeRequest> {
-  currentMr: MergeRequest | null;
+  currentMr: MergeRequest | null = null;
   abstract requireMr(): MergeRequest;
   abstract getCommitLink(commit: string): Promise<string | null>;
   /** Создает и тег и релиз, если тег уже есть то выбрасывается исключение */
@@ -64,5 +64,5 @@ export abstract class BasePlatformInterfaceWithFileCommitApi<TMergeRequest, TCom
 
   abstract rollbackCommit(commitContext: TCommitContext): Promise<void>;
 
-  abstract updateFile(commitContext: TCommitContext, file_path, content): void;
+  abstract updateFile(commitContext: TCommitContext, file_path: string, content: string): void;
 }

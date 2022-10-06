@@ -55,7 +55,7 @@ export interface FileCommitApi<TCommitContext> {
   appendFile(commitContext: TCommitContext, filePath: string, content: string): void,
   beginCommit(): TCommitContext,
   rollbackCommit(commitContext: TCommitContext): Promise<void>,
-  updateFile(commitContext: TCommitContext, file_path, content): void,
+  updateFile(commitContext: TCommitContext, file_path: string, content: string): void,
   deleteFile(commitContext: TCommitContext, file_path: string): void,
   commit(commitContext: TCommitContext, message: string, opts?: CommitOptions): Promise<CommitResult>,
 }
