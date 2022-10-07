@@ -410,7 +410,6 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
   }
 
   private logReleaseTag(tagName: string): void {
-    const { CI_PROJECT_NAMESPACE, CI_PROJECT_NAME } = env
-    log.info(`release tag link: ${getHostUrl(this.config.cwd)}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/tags/${tagName}`)
+    log.info(`release tag link: ${getHostUrl(this.config.cwd)}/${this.githubRepoPath.owner}/${this.githubRepoPath.repo}/tags/${tagName}`)
   }
 }
