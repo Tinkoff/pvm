@@ -434,6 +434,9 @@ async function getSortedPublishedVersions(pkgName: string, registry?: string): P
     const versionsStr = (await execShell(`npm view ${pkgName} versions --json ${registry ? `--registry ${registry}` : ''}`)).stdout
     // could be undefined in nexus if only published version not with latest tag
     distTags = versionsStr ? JSON.parse(versionsStr) : []
+    if (typeof distTags === 'string') {
+      distTags = [distTags]
+    }
   } catch (e) {
     // if package completely unpublished
     if (e.toString().indexOf('E404') !== -1) {
