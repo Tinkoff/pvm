@@ -60,7 +60,22 @@ export class Pvm {
     }))
   }
 
-  protected static mergeConfigs<T extends Record<string, any>>(a: T, b: Record<string, any>): T {
+  private setupConfigDirs(resultConfig: RecursivePartial<Config>, cwd: string, configLookupDir: string) {
+    resultConfig.cwd = cwd
+    resultConfig.configLookupDir = configLookupDir
+
+    return resultConfig
+  }
+
+  protected mergeConfigExtensions(): Config {
+    return this.configExtensions.reduce((acc, extension) => {
+      acc.plugins_v2 = (acc.plugins_v2 ?? []).concat(extension.plugins_v2 ?? [])
+      acc = this.mergeConfigs(acc, extension)
+      return acc
+    }, {} as Config) as Config
+  }
+
+  protected mergeConfigs<T extends Record<string, any>>(a: T, b: Record<string, any>): T {
     const result = { ...a }
 
     Object.keys(b).forEach((key: keyof T & string) => {
@@ -73,31 +88,11 @@ export class Pvm {
           result[key] = b[key]
         }
       } else if (isPlainObject(a[key]) && isPlainObject(b[key])) {
-        result[key] = Pvm.mergeConfigs(a[key], b[key])
+        result[key] = this.mergeConfigs(a[key], b[key])
       }
     })
 
     return result as T
-  }
-
-  protected mergeConfigExtensions(): Config {
-    return this.configExtensions.reduce((acc, extension) => {
-      acc.plugins_v2 = (acc.plugins_v2 ?? []).concat(extension.plugins_v2 ?? [])
-      acc = Pvm.mergeConfigs(acc, extension)
-      return acc
-    }, {} as Config) as Config
-  }
-
-  private setupConfigDirs(resultConfig: RecursivePartial<Config>, cwd: string, configLookupDir: string) {
-    resultConfig.cwd = cwd
-    resultConfig.configLookupDir = configLookupDir
-
-    return resultConfig
-  }
-
-  protected fulfillConfig(): Config {
-    const config = this.mergeConfigExtensions()
-    return postprocessConfig(config as Config)
   }
 
   protected registerPlugins(plugins: PluginConfig[], resolveRoot: string): void {
@@ -130,7 +125,8 @@ export class Pvm {
     return { ...opts, resolvedPath: resolveRoot }
   }
 
-  protected initNodeApi() {
-
+  protected fulfillConfig(): Config {
+    const config = this.mergeConfigExtensions()
+    return postprocessConfig(config as Config)
   }
 }
