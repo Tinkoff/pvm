@@ -65,7 +65,7 @@ jobs:
       - run: npm exec pvm lint
       - run: npm run lint
       - if: steps.packageChanges.outputs.changes == 'true'
-        run: npm run test -- -w `node -p 'Math.min(os.cpus().length, 2)'`
+        run: npm run test -- --runInBand
         env:
           PVM_GITHUB_TEST_REPO_TOKEN: ${{ secrets.PVM_GITHUB_TEST_REPO_TOKEN }}
       - run: node scripts/github-test-repos-cleanup.js
