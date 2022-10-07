@@ -80,21 +80,13 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
   static getRepoUrlParts(cwd: string): { owner: string, repo: string } {
     let resultRepo
 
-    if (env.GITHUB_REPOSITORY) {
-      const [owner, repo] = env.GITHUB_REPOSITORY.split('/')
-      resultRepo = {
-        owner,
-        repo,
-      }
-    } else {
-      const repoUrl = wdShell(cwd, 'git remote get-url origin')
-      const info = hostedGitInfo.fromUrl(repoUrl)
+    const repoUrl = wdShell(cwd, 'git remote get-url origin')
+    const info = hostedGitInfo.fromUrl(repoUrl)
 
-      if (info?.type === 'github') {
-        resultRepo = {
-          owner: info.user,
-          repo: info.project,
-        }
+    if (info?.type === 'github') {
+      resultRepo = {
+        owner: info.user,
+        repo: info.project,
       }
     }
 
@@ -384,7 +376,7 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
   }
 
   async getCommitLink(commit: string): Promise<string> {
-    return `${env.GITHUB_SERVER_URL}/${env.GITHUB_REPOSITORY}/commit/${commit}`
+    return `${env.GITHUB_SERVER_URL}/${this.githubRepoPath.owner}/${this.githubRepoPath.repo}/commit/${commit}`
   }
 
   getCurrentBranch(): string | undefined {

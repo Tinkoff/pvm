@@ -74,10 +74,6 @@
             ],
             "type": "string"
         },
-        "GITHUB_REPOSITORY": {
-            "description": "The owner and repository name. For example, octocat/Hello-World.",
-            "type": "string"
-        },
         "GITHUB_RUN_ID": {
             "description": "A unique number for each run within a repository. This number does not change if you re-run the workflow run",
             "type": "string"

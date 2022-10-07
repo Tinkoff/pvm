@@ -181,10 +181,6 @@ export interface Env {
    */
   PVM_GITHUB_AUTH_STRATEGY?: 'authApp' | 'authToken' | 'authAction',
   /**
-   * The owner and repository name. For example, octocat/Hello-World.
-   */
-  GITHUB_REPOSITORY?: string,
-  /**
    * A unique number for each run within a repository. This number does not change if you re-run the workflow run
    */
   GITHUB_RUN_ID?: string,
