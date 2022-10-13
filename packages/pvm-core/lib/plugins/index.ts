@@ -11,14 +11,14 @@ import { releaseMark } from '../consts'
 import { mema } from '../memoize'
 import { resolvePvmProvider } from './provider'
 
-import type { Commit } from '../../types/git-log'
+import type { Commit, PvmReleaseType, SemverReleaseType } from '@pvm/types'
 import type { Pkg } from '../pkg'
 import type { ChangedContext } from '@pvm/update/lib/changed-context'
 import type { VcsPlatform } from '@pvm/vcs/lib'
 import type { ReleaseContext } from '@pvm/update/types'
 import type { ReleaseData, ReleaseDataExt } from '@pvm/releases/types'
 import type { VcsRelease } from '@pvm/vcs/types'
-import type { PvmReleaseType, SemverReleaseType } from '../../types'
+
 import type { UpdateState } from '@pvm/update/lib/update-state'
 
 type PipelineFn<R = any> = (...args: any[]) => Promise<R>
@@ -131,22 +131,28 @@ function makePluginsContext(cwd: string): PluginsContext {
         const [ns, method] = feature.split('.')
         const cls = this.getOr(ns, undefined)
         if (!cls) {
-          throw new Error(`there is no ${feature} feature`)
+          return
         }
 
         impl = cls[method]
         if (!impl) {
-          throw new Error(`there is no method "${method}" in class "${cls.name}"`)
+          return
         }
         impl = impl.bind(cls)
       }
       return impl
     },
     run(feature, ...args) {
-      return this.resolve(feature)(...args)
+      const impl = this.resolve(feature)
+
+      if (impl) {
+        return impl(...args)
+      }
+
+      throw new Error(`Feature ${feature} not found`)
     },
     runOr(feature, defaultValue, ...args) {
-      const impl = this.getOr(feature, void 0)
+      const impl = this.resolve(feature)
       if (impl === void 0) {
         return defaultValue
       }

@@ -4,8 +4,7 @@ import { issueToMdLink } from '@pvm/core/lib/text/jira'
 import { parseCommit } from './common'
 
 import type { Commit as ConventionalCommit } from 'conventional-commits-parser'
-import type { ReleasedProps } from '@pvm/core/types/publish'
-import type { Message } from '@pvm/types'
+import type { ReleasedProps, Message } from '@pvm/types'
 
 function cutText(text: string, maxLen: number): string {
   return text.length <= maxLen ? text : text.substr(0, maxLen)

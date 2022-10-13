@@ -17,10 +17,10 @@ import getTemplateEnv from '@pvm/template'
 import { Notificator } from '@pvm/notifications'
 
 import type { Pkg } from '@pvm/core/lib/pkg'
-import type { ReleaseContext, ForceReleaseState, UpdateMethod } from '../types'
-import type { PvmReleaseType } from '@pvm/core/types'
+import type { ReleaseContext, ForceReleaseState, UpdateMethod, CliUpdateOpts } from '../types'
+import type { PvmReleaseType } from '@pvm/types'
 import type { ChangedContext } from './changed-context'
-import type { CliUpdateOpts } from '../types/cli'
+
 import { env } from '@pvm/core/lib/env'
 
 async function markReleaseTypes(updateState: UpdateState, forceReleaseState: ForceReleaseState): Promise<void> {

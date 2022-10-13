@@ -2,6 +2,8 @@ module.exports = {
   preset: 'ts-jest',
   testMatch: [
     '<rootDir>/packages/**/__tests__/**/*.spec.ts',
+    '<rootDir>/src/**/__tests__/**/*.spec.ts',
+    '<rootDir>/src/**/*.spec.js',
     '<rootDir>/test/**/*.spec.js',
   ],
   setupFiles: [

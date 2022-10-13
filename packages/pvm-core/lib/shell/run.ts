@@ -2,7 +2,7 @@
 import { spawn } from 'child_process'
 import type { StdioOptions } from 'child_process'
 
-import type { RunShellOptions } from '../../types/shell'
+import type { RunShellOptions } from '@pvm/types'
 import WritableStream = NodeJS.WritableStream
 import { env } from '../env'
 

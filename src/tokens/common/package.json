@@ -1,0 +1,9 @@
+{
+  "name": "@pvm/tokens-common",
+  "version": "0.0.0-stub",
+  "exports": "./index.js",
+  "dependencies": {
+    "@pvm/di": "0.0.0-stub",
+    "@pvm/types": "0.0.0-stub"
+  }
+}

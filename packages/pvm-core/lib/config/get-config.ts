@@ -1,6 +1,5 @@
 import fs from 'fs'
 import path from 'path'
-import { promisify } from 'util'
 import vm from 'vm'
 import { URL } from 'url'
 
@@ -12,7 +11,6 @@ import json5 from 'json5'
 import { applyPatch } from 'rfc6902'
 
 import { logger } from '../logger'
-import httpreq from '../httpreq'
 import { wdShell } from '../shell/index'
 import defaultConfig from './defaults'
 import { cachedRealPath } from '../fs'
@@ -22,9 +20,11 @@ import { resolvePvmProvider } from '../plugins/provider'
 import { taggedCacheManager, CacheTag, mema } from '../memoize'
 
 import type { Config } from './types'
-import type { RecursivePartial } from '../../types/base'
+import type { RecursivePartial } from '@pvm/types'
 import { getWorktreeRoot, getMainWorktreePath, cwdToGitRelativity } from '../git/worktree'
 import { env } from '../env'
+import { Pvm } from '../app/index'
+import { CONFIG_TOKEN } from '@pvm/tokens-common'
 
 // with high probability this line will be invoked in any api call
 // kind a hacky solution
@@ -32,15 +32,10 @@ import { env } from '../env'
 import '../node-boot'
 
 export interface GetConfigOpts {
-  ref?: string,
-  noUpconf?: boolean,
-  raw?: boolean,
-  noIncludes?: boolean,
+  config?: string,
 }
 
-const readFile = promisify(fs.readFile)
-
-const configCache = taggedCacheManager.make<Config>([CacheTag.pvmConfig])
+const appCache = taggedCacheManager.make<Pvm>([CacheTag.pvmConfig])
 
 const allLoaders = {
   ...defaultLoaders,
@@ -81,6 +76,10 @@ function sanitizeValue(strValue: string): string | boolean | number {
   if (strValue === 'true') {
     return true
   }
+  if (strValue.startsWith('{') && strValue.endsWith('}') || strValue.startsWith('[') && strValue.endsWith(']')) {
+    return JSON.parse(strValue)
+  }
+
   return strValue
 }
 
@@ -184,15 +183,13 @@ function pickLoaderAndLoad(contents: string, contentsPath: string): Record<strin
   return loader(contentsPath, contents)
 }
 
-async function fetchInclude(resolveFromPath: string, remotePath: string): Promise<Record<string, any>> {
+function fetchInclude(resolveFromPath: string, remotePath: string): Record<string, any> {
   let contents: string | Record<string, unknown>
   if (/^https?:\/\//.test(remotePath)) {
-    // @TODO: добавить http кеширование
-    const { body } = await httpreq(remotePath)
-    contents = body
+    throw new Error('Http includes are not supported')
   } else {
     const realPath = path.resolve(resolveFromPath, remotePath)
-    contents = await readFile(realPath, { encoding: 'utf8' })
+    contents = fs.readFileSync(realPath, { encoding: 'utf8' })
   }
 
   if (typeof contents !== 'string') {
@@ -202,11 +199,11 @@ async function fetchInclude(resolveFromPath: string, remotePath: string): Promis
   return pickLoaderAndLoad(contents, remotePath)
 }
 
-async function processInclude(cwd: string, include: string | string[]): Promise<Record<string, any>> {
+function processInclude(cwd: string, include: string | string[]): Record<string, any> {
   const remotePaths: string[] = Array.isArray(include) ? include : [ include ]
   let acc = Object.create(null)
   for (const remotePath of remotePaths) {
-    const data = await fetchInclude(cwd, remotePath)
+    const data = fetchInclude(cwd, remotePath)
     acc = mergeDefaults(data, acc)
   }
   return acc
@@ -214,11 +211,11 @@ async function processInclude(cwd: string, include: string | string[]): Promise<
 
 const compiledSchemaMap = new Map<string, Ajv.ValidateFunction>()
 
-function validateAgainstSchema(config: Config): void {
+export function validateAgainstSchema(config: Config): void {
   let compiledSchema = compiledSchemaMap.get(config.cwd)
   if (!compiledSchema) {
     const ajv = new Ajv()
-    const schema = TOML.parse(require('../../config-schema.json'))
+    const schema = TOML.parse(require('@pvm/types/lib/config-schema.json'))
     compiledSchema = ajv.compile(schema)
     compiledSchemaMap.set(config.cwd, compiledSchema)
   }
@@ -291,7 +288,7 @@ export function migrateDeprecated(config: Config): void {
 }
 
 function clearConfigCacheFor(cwd: string): void {
-  configCache.clear(cwd)
+  appCache.clear(cwd)
 }
 
 export interface ConfigResult {
@@ -343,6 +340,8 @@ function loadRawConfig(cwd: string, ref: string | undefined = void 0): ConfigRes
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+// @ts-ignore
 function applyUpconf(configLookupDir: string, config: Config): Config {
   // в этом методе брать cwd из конфига нельзя т.к. он может быть еще не готов
   const upconfData = loadUpconfFile(configLookupDir)
@@ -368,7 +367,7 @@ const forceIgnoreUpconf = new Map<string, boolean>()
 
 export function markUpconfDeleted(cwd: string): void {
   forceIgnoreUpconf.set(cachedRealPath(cwd), true)
-  configCache.clear(cwd)
+  appCache.clear(cwd)
 }
 
 function defaultsFromProvider(cwd: string): RecursivePartial<Config> | undefined {
@@ -390,85 +389,92 @@ function defaultsFromProvider(cwd: string): RecursivePartial<Config> | undefined
 const cachedMainWorktreePath = mema((dir: string) => getMainWorktreePath(dir))
 const cachedWorktreeRoot = mema((dir: string) => getWorktreeRoot(dir))
 
-function getConfigImpl(cwd: string, opts: GetConfigOpts = {}): Promise<Config> | Config {
-  cwd = cachedRealPath(cwd)
+/**
+ * Only for internal usage. Will be removed after full migration to single entrypoint
+ * @param opts
+ */
+function getAppImpl(opts: {
+  config?: string,
+  cwd: string,
+}): Pvm {
+  const cwd = cachedRealPath(opts.cwd)
   const worktreeRoot = cachedWorktreeRoot(cwd)
   const relativeCwdPath = path.relative(worktreeRoot, cwd)
   // if cwd if <git root>/package, than consider to search in /package directory in main worktree (not just in root
   // because it might be not the same place as cwd)
-  const configLookupDir = path.resolve(cachedMainWorktreePath(cwd), relativeCwdPath)
-  const { ref, noUpconf = false, raw = false } = opts
-  let config = configCache.get(cwd, opts)
-  if (!config) {
+  const configLookupDir = opts.config ?? path.resolve(cachedMainWorktreePath(cwd), relativeCwdPath)
+  const cacheKey = { config: configLookupDir }
+  let app: Pvm | undefined = appCache.get(cwd, cacheKey)
+  if (!app) {
     logger.debug(`search config from ${configLookupDir}`)
-    const configResult = loadRawConfig(configLookupDir, ref)
-
-    config = configResult.config as Config
-
-    if (!noUpconf && !forceIgnoreUpconf.get(cwd)) {
-      config = applyUpconf(configLookupDir, config)
-    }
-
-    const postProcessConfig = (config: Config, fromIncludes?: RecursivePartial<Config>): Config => {
-      if (!raw) {
-        if (fromIncludes) {
-          config = mergeDefaults(config, fromIncludes)
-        }
-        config = mergeDefaults(config, defaultsFromProvider(configLookupDir) || {})
-        config = mergeDefaults(config, defaultConfig)
-        config.cwd = cwd
-        config.configLookupDir = configLookupDir
-      }
-
-      migrateDeprecated(config)
-
-      validateAgainstSchema(config)
-      if (noUpconf) {
-        logger.debug('config read without upconf')
-      }
-      logger.debug('config.versioning.source is', config.versioning.source)
-      logger.debug('config.versioning.unified_versions_for is', JSON.stringify(config.versioning.unified_versions_for))
-
-      configCache.set(cwd, opts, config)
-
-      return config
-    }
-
-    if (!raw) {
-      config.executionContext = {
-        dryRun: false,
-        local: false,
-      }
-      config.filepath = configResult.filepath
-      config = mergeDefaults(config, readEnv())
-      // process include directive after env
-      if (config.include && !opts.noIncludes) {
-        return processInclude(cwd, config.include).then(result => {
-          return postProcessConfig(config!, result)
-        })
-      }
-
-      return postProcessConfig(config)
-    }
+    app = new Pvm({
+      cwd,
+      config: configLookupDir,
+    })
+    appCache.set(cwd, cacheKey, app)
   }
 
-  return config
+  return app
 }
 
-async function getConfig(cwd = env.PVM_CONFIG_SEARCH_FROM || process.cwd(), opts: GetConfigOpts = {}): Promise<Config> {
-  return Promise.resolve(getConfigImpl(cwd, opts))
+function getConfigImpl(cwd: string, opts: GetConfigOpts = {}): Config {
+  return getAppImpl({ cwd, config: opts.config }).container.get(CONFIG_TOKEN)
 }
 
-function getConfigWithoutIncludes(cwd: string, opts: Omit<GetConfigOpts, 'noIncludes'> = {}): Config {
-  return getConfigImpl(cwd, {
-    ...opts,
-    noIncludes: true,
-  }) as Config
+export function postprocessConfig(config: Config/*, opts: GetConfigOpts */): Config {
+  // if (!noUpconf && !forceIgnoreUpconf.get(config.cwd)) {
+  //   config = applyUpconf(config.configLookupDir, config)
+  // }
+
+  const postProcessConfig = (config: Config, fromIncludes?: RecursivePartial<Config>): Config => {
+    if (fromIncludes) {
+      config = mergeDefaults(config, fromIncludes)
+    }
+    config = mergeDefaults(config, defaultsFromProvider(config.configLookupDir) || {})
+    config = mergeDefaults(config, defaultConfig)
+
+    migrateDeprecated(config)
+
+    validateAgainstSchema(config)
+    /*    if (noUpconf) {
+      logger.debug('config read without upconf')
+    } */
+    logger.debug('config.versioning.source is', config.versioning.source)
+    logger.debug('config.versioning.unified_versions_for is', JSON.stringify(config.versioning.unified_versions_for))
+
+    return config
+  }
+
+  config.executionContext = {
+    dryRun: false,
+    local: false,
+  }
+  // process include directive after env
+  if (config.include) {
+    return processInclude(config.cwd, config.include).then(result => {
+      return postProcessConfig(config!, result)
+    })
+  }
+
+  return postProcessConfig(config)
 }
+
+function getConfig(cwd = env.PVM_CONFIG_SEARCH_FROM || process.cwd(), opts?: GetConfigOpts): Config {
+  return getConfigImpl(cwd, opts)
+}
+
+function getApp(cwd = env.PVM_CONFIG_SEARCH_FROM || process.cwd(), opts: GetConfigOpts = {}): Pvm {
+  return getAppImpl({ cwd, config: opts.config })
+}
+
+/**
+ * @deprecated Please use `getConfig` instead
+ */
+export const getConfigWithoutIncludes = getConfig
 
 export default getConfig
 export {
+  getApp,
   clearConfigCacheFor,
   loadRawConfig,
-  getConfigWithoutIncludes,
 }

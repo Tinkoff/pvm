@@ -29,6 +29,7 @@ async function upconf(vcs: VcsOnly, opts: UpconfOpts = {}): Promise<void> {
   const { dryRun = vcs.isDryRun } = opts
 
   logger.info('pvm-upconf.json file found, start migration', dryRun ? 'in DRY RUN mode' : '')
+  // @ts-ignore
   const nextConfig = await getConfig(vcs.cwd, { noUpconf: true })
   const prevConfig = await getConfig(vcs.cwd)
 

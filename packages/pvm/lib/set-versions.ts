@@ -6,7 +6,7 @@ import { pkgsetFromFlags } from '@pvm/pkgset'
 import micromatch from 'micromatch'
 import type { ReleaseType } from 'semver'
 import semver from 'semver'
-import type { PvmReleaseType } from '@pvm/core/types/index'
+import type { PvmReleaseType } from '@pvm/types'
 
 export async function setVersions(opts: {
   versionOrReleaseType: PvmReleaseType | string,

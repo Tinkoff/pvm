@@ -4,7 +4,7 @@ import { prevReleaseTag } from './last-release-tag'
 import { releaseMark } from '../consts'
 import { wdShell } from '../shell'
 import getCommits from './commits'
-import type { Commit } from '../../types/git-log'
+import type { Commit } from '@pvm/types'
 import { logger } from '../logger'
 
 interface ReleaseCommitsOpts {

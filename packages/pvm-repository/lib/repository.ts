@@ -14,7 +14,7 @@ import { noPackagesInMugError } from '@pvm/core/lib/behaviors/no-packages-in-mug
 
 import type { Config } from '@pvm/core/lib/config'
 import type { Pkg, AppliedPkg } from '@pvm/core/lib/pkg'
-import type { UpdateHints } from '@pvm/core/types'
+import type { UpdateHints } from '@pvm/types'
 import { wdShell } from '@pvm/core'
 import revParse from '@pvm/core/lib/git/rev-parse'
 import { initVcsPlatform } from '@pvm/vcs'

@@ -1,7 +1,7 @@
 import type { UpdateState } from '../lib/update-state'
-import type { PvmReleaseType } from '@pvm/core/types'
+import type { PvmReleaseType, Config } from '@pvm/types'
 import type { ImmutablePkgSet } from '@pvm/core/lib/pkg-set'
-import type { Config } from '@pvm/core/lib/config/types'
+
 import type { Vcs } from '@pvm/vcs'
 import type { CliUpdateOpts } from './cli'
 

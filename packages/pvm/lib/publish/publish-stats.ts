@@ -1,4 +1,4 @@
-import type { PkgFailStats, PkgSkippedStats, PkgSuccessStats, PublishedStats } from '@pvm/core/types/publish'
+import type { PkgFailStats, PkgSkippedStats, PkgSuccessStats, PublishedStats } from '@pvm/types'
 import { cmpStr } from '@pvm/core/lib/utils/string'
 import chalk from 'chalk'
 import CliTable from 'cli-table'

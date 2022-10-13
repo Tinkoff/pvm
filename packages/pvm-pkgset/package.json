@@ -8,6 +8,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@pvm/core": "0.0.0-stub",
+    "@pvm/types": "0.0.0-stub",
     "@pvm/repository": "0.0.0-stub",
     "chalk": "^4.0.0",
     "micromatch": "^3.1.10",

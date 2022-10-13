@@ -563,7 +563,7 @@ describe('pvm/publish', () => {
       const pkgInfo = JSON.parse((await execScript(repo, `npm view --registry ${npmControls.registryUrl} simple-one --json`)).stdout)
 
       expect(pkgInfo.versions).toContain(`0.1.0-beta.1`)
-    })
+    }, 50000)
 
     it('should choose correct canary index if several published and matched canary releases found', async () => {
       const repo = await initRepo('simple-one')
@@ -585,7 +585,7 @@ describe('pvm/publish', () => {
       expect(pkgInfo.versions).toContain(`0.1.0-beta.0`)
       expect(pkgInfo.versions).toContain(`0.1.0-beta.1`)
       expect(pkgInfo.versions).toContain(`0.1.0-beta.2`)
-    })
+    }, 50000)
 
     it('should be possible to publish root of monorepo', async () => {
       const repo = await initRepo('monorepo-new', {

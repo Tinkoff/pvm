@@ -2,7 +2,7 @@ import padLines from './text/pad-lines'
 import { issueToMdLink } from './text/jira'
 import { stripServiceLabels } from './text/commits'
 
-import type { Commit } from '../types/git-log'
+import type { Commit } from '@pvm/types'
 
 function fixBody(body: string): string {
   // больше чем две пустые строки заставляют markdown оборвать контекст элемента списка

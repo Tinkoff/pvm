@@ -1,6 +1,7 @@
 const path = require('path')
 const fs = require('fs-extra')
 const { spawn } = require('child_process')
+const getPort = require('get-port')
 
 async function runRegistryMockServer() {
   const npmRegistryMockPath = path.join(require('../mock-dir').mockDir, 'npm')
@@ -17,9 +18,10 @@ async function runRegistryMockServer() {
     .replace('$[STORAGE_PATH]', dbDirectory)
   fs.outputFileSync(preparedConfigPath, preparedConfig, 'utf-8')
   let killTimeout
+  const freePort = await getPort()
 
   return new Promise(function(resolve, reject) {
-    const registryProc = spawn(`node`, [`node_modules/verdaccio/bin/verdaccio`, `--config`, preparedConfigPath], {
+    const registryProc = spawn(`node`, [`node_modules/verdaccio/bin/verdaccio`, `--config`, preparedConfigPath, `--listen`, freePort ], {
       stdio: ['pipe', 'pipe', 'inherit'],
     })
 

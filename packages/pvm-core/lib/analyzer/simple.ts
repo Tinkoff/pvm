@@ -1,4 +1,4 @@
-import type { PvmReleaseType } from '../../types'
+import type { PvmReleaseType } from '@pvm/types'
 
 const isPatchRe = /^(fix|patch):/i
 const isMajorRe = /^BREAKING CHANGE:/

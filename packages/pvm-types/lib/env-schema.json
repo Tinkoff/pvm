@@ -1,0 +1,241 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "description": "Env variables, used by pvm\n\n## [Defaults](config/env-defaults.md)",
+    "properties": {
+        "CI": {
+            "description": "Flag that script running in continuous integration environment",
+            "enum": [
+                "false",
+                "true"
+            ],
+            "type": "string"
+        },
+        "CI_COMMIT_REF_NAME": {
+            "description": "Git ref of commit on which pipeline running",
+            "type": "string"
+        },
+        "CI_COMMIT_SHA": {
+            "description": "The SHA of commit where pipeline running",
+            "type": "string"
+        },
+        "CI_COMMIT_TAG": {
+            "description": "The commit tag name. Available only in pipelines for tags",
+            "type": "string"
+        },
+        "CI_PIPELINE_URL": {
+            "description": "Url of pipeline where pvm running",
+            "type": "string"
+        },
+        "CI_PROJECT_ID": {
+            "description": "Project ID in vcs platform. Used in calls to vcs platform api.",
+            "type": "string"
+        },
+        "CI_PROJECT_NAME": {
+            "description": "The project name",
+            "type": "string"
+        },
+        "CI_PROJECT_NAMESPACE": {
+            "description": "The project namespace (username or group name)",
+            "type": "string"
+        },
+        "CI_PROJECT_PATH": {
+            "description": "The project namespace with the project name included",
+            "type": "string"
+        },
+        "CI_PROJECT_URL": {
+            "description": "Vcs platform project url (example: https://example.com/some-org/some-project)",
+            "type": "string"
+        },
+        "CI_SERVER_HOST": {
+            "description": "Host of CI server",
+            "type": "string"
+        },
+        "DEBUG": {
+            "description": "If set with 'pvm' string, then treated as PVM_LL=debug",
+            "type": "string"
+        },
+        "GITHUB_AUTH": {
+            "description": "Auth strategy options.",
+            "type": "string"
+        },
+        "GITHUB_HEAD_REF": {
+            "description": "The head ref or source branch of the pull request in a workflow run. This property is only set when the event that triggers a workflow run is either pull_request or pull_request_target. For example, feature-branch-1.",
+            "type": "string"
+        },
+        "GITHUB_REF_NAME": {
+            "description": "The branch or tag name that triggered the workflow run.",
+            "type": "string"
+        },
+        "GITHUB_REF_TYPE": {
+            "description": "The type of ref that triggered the workflow run. Valid values are branch or tag",
+            "enum": [
+                "branch",
+                "tag"
+            ],
+            "type": "string"
+        },
+        "GITHUB_RUN_ID": {
+            "description": "A unique number for each run within a repository. This number does not change if you re-run the workflow run",
+            "type": "string"
+        },
+        "GITHUB_SERVER_URL": {
+            "description": "Returns the URL of the GitHub server. For example: https://github.com.",
+            "type": "string"
+        },
+        "GITHUB_SHA": {
+            "description": "The commit SHA that triggered the workflow",
+            "type": "string"
+        },
+        "GITHUB_TOKEN": {
+            "description": "Token, provided by github and used for token authentication https://github.com/octokit/authentication-strategies.js/#github-action-authentication\n\nIt can also be personal or app access token, manually provided via secrets",
+            "type": "string"
+        },
+        "GITLAB_AUTH_COMMAND": {
+            "description": "Shell command that outputs generated GITLAB_TOKEN. Used when token generating dynamically.",
+            "type": "string"
+        },
+        "GITLAB_CI": {
+            "enum": [
+                "false",
+                "true"
+            ],
+            "type": "string"
+        },
+        "GITLAB_TOKEN": {
+            "description": "User or bot gitlab token, that have access rights for creating merge requests and commiting to protected branches",
+            "type": "string"
+        },
+        "GITLAB_USER_EMAIL": {
+            "description": "Email of gitlab user, who start's publish pipeline",
+            "type": "string"
+        },
+        "GIT_DEPTH": {
+            "description": "Gitlab specific. Amount of commits that are fetching in CI environment. Useful when amount commits between releases is big enough ' +\n'that previous release falls outside of fetched commits count.",
+            "type": "string"
+        },
+        "GIT_SSH_PRIV_KEY": {
+            "description": "SSH private key to push to vcs platform from CI via git",
+            "type": "string"
+        },
+        "GL_TOKEN": {
+            "type": "string"
+        },
+        "NPM_TOKEN": {
+            "description": "NPM registry token with publish access",
+            "type": "string"
+        },
+        "PVM_CONFIG_SEARCH_FROM": {
+            "description": "What directory pvm config to search from. Default is current working directory.",
+            "type": "string"
+        },
+        "PVM_DIRECT_GIT_PUSH": {
+            "description": "looks like",
+            "type": "string"
+        },
+        "PVM_EXTERNAL_DRY_RUN": {
+            "description": "Enable dry run mode for all pvm commands who support's it",
+            "type": "string"
+        },
+        "PVM_FORCE_TEST_PUBLISH": {
+            "description": "Used when we want to do real publish to registry in tests (useful in e2e publish test)",
+            "type": "string"
+        },
+        "PVM_GITHUB_AUTH_STRATEGY": {
+            "description": "Github authentication strategy. See https://github.com/octokit/authentication-strategies.js/ for more details",
+            "enum": [
+                "authAction",
+                "authApp",
+                "authToken"
+            ],
+            "type": "string"
+        },
+        "PVM_GITHUB_TEST_REPO_TOKEN": {
+            "description": "Access token for test repo",
+            "type": "string"
+        },
+        "PVM_LL": {
+            "description": "Logging level",
+            "type": "string"
+        },
+        "PVM_MATTERMOST_INCOMING_WEBHOOK": {
+            "description": "Optional incoming webhook. https://docs.mattermost.com/developer/webhooks-incoming.html.\nIt will be used prior to token if specified",
+            "type": "string"
+        },
+        "PVM_MATTERMOST_TEAM": {
+            "description": "If provided than mattermost client will try first to get channel id from team and passed channel and, if failed,\nthen try to use channel as channel_id.",
+            "type": "string"
+        },
+        "PVM_MATTERMOST_TOKEN": {
+            "description": "Private access token for mattermost. Can be bot or regular user token",
+            "type": "string"
+        },
+        "PVM_MATTERMOST_URL": {
+            "description": "Mattermost endpoint url. Will be postfixed with api method path",
+            "type": "string"
+        },
+        "PVM_NO_GIT_FETCH": {
+            "description": "Disable default `get fetch` call before pvm starts work when in CI",
+            "enum": [
+                "false",
+                "true"
+            ],
+            "type": "string"
+        },
+        "PVM_OUTPUT_ALL_RUN_SHELL_COMMANDS": {
+            "description": "Log out all shell commands",
+            "type": "string"
+        },
+        "PVM_PLATFORM_TYPE": {
+            "description": "Manually set vcs platform type (gitlab or github)",
+            "type": "string"
+        },
+        "PVM_SLACK_API_URL": {
+            "type": "string"
+        },
+        "PVM_SLACK_TOKEN": {
+            "type": "string"
+        },
+        "PVM_SLACK_WEBHOOK": {
+            "type": "string"
+        },
+        "PVM_SLACK_WEBHOOK_URL": {
+            "type": "string"
+        },
+        "PVM_TESTING_ENV": {
+            "description": "Flag that pvm running in testing environment",
+            "type": "string"
+        },
+        "PVM_TEST_DATE_NOW": {
+            "description": "Replace current time with provided. Useful in tests.",
+            "type": "string"
+        },
+        "PVM_VCS_TYPE": {
+            "description": "Manually set vcs type (git or local fs)",
+            "enum": [
+                "fs",
+                "git"
+            ],
+            "type": "string"
+        },
+        "SLACK_API_URL": {
+            "description": "Slack api server url",
+            "type": "string"
+        },
+        "SLACK_TOKEN": {
+            "description": "Slack bot token that have post message access in target channel",
+            "type": "string"
+        },
+        "SLACK_WEBHOOK": {
+            "type": "string"
+        },
+        "SLACK_WEBHOOK_URL": {
+            "type": "string"
+        },
+        "STOP_AT": {
+            "description": "Set lower commits bound when generating fresh releases list",
+            "type": "string"
+        }
+    },
+    "type": "object"
+}
+

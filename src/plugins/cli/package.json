@@ -1,0 +1,11 @@
+{
+  "name": "@pvm/plugin-cli",
+  "version": "0.0.0-stub",
+  "exports": "./index.js",
+  "dependencies": {
+    "@pvm/di": "0.0.0-stub",
+    "@pvm/types": "0.0.0-stub",
+    "@pvm/tokens-cli": "0.0.0-stub",
+    "yargs": "^16.1.1"
+  }
+}

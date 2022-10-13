@@ -9,6 +9,10 @@
   "workspaces": {
     "packages": [
       "packages/*",
+      "src/tokens/*",
+      "src/plugins/*",
+      "src/libs/*",
+      "src/types/*",
       "tools/*"
     ]
   },
@@ -20,7 +24,7 @@
     "check-ts-strict": "tsc -p tsconfig.strict.json -d --noEmit",
     "watch-ts-strict": "tsc -p tsconfig.strict.json -d --watch --noEmit",
     "lint": "eslint --ext .js,.ts packages test",
-    "generate-config-schema": "cross-env NODE_OPTIONS=\"--unhandled-rejections=strict\" npm exec typescript-json-schema -- --out packages/pvm-core/config-schema.json packages/pvm-core/config-schema.ts Config && npm exec typescript-json-schema -- --out packages/pvm-core/env-schema.json packages/pvm-core/env-schema.ts Env",
+    "generate-config-schema": "cross-env NODE_OPTIONS=\\\"--unhandled-rejections=strict\\\" npm exec typescript-json-schema -- --out packages/pvm-types/lib/config-schema.json packages/pvm-types/lib/config-schema.ts Config && npm exec typescript-json-schema -- --out packages/pvm-types/lib/env-schema.json packages/pvm-types/lib/env-schema.ts Env",
     "check-no-staged-changes": "git diff --name-only --exit-code",
     "lint:config-schema": "bash -c 'scripts/check-config-sync.sh'",
     "whoami": "node ./user.js"
@@ -76,9 +80,10 @@
     "remark-stringify": "^10.0.2",
     "sprout-data": "^1.3.0",
     "ts-jest": "^26.4.4",
-    "typescript": "^4.4.3",
+    "typescript": "^4.7.4",
     "typescript-json-schema": "^0.51.0",
     "unified": "^10.1.2",
-    "verdaccio": "^5.1.6"
+    "verdaccio": "^5.1.6",
+    "get-port": "^5.1.1"
   }
 }

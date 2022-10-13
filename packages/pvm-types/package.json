@@ -2,8 +2,16 @@
   "name": "@pvm/types",
   "version": "0.0.0-stub",
   "description": "Common types",
-  "main": "lib/index.js",
   "repository": "git@github.com:Tinkoff/pvm.git",
   "author": "Mikhail Shipov <ext.mshipov@tinkoff.ru>",
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "main": "./lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./lib/env-schema.json": "./lib/env-schema.json",
+    "./lib/config-schema.json": "./lib/config-schema.json"
+  },
+  "dependencies": {
+    "@tinkoff/dippy": "^0.8.6"
+  }
 }

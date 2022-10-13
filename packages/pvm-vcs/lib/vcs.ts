@@ -1,5 +1,3 @@
-import hostedGitInfo from 'hosted-git-info'
-
 import { getConfig } from '@pvm/core/lib/config'
 import { inspectArgs } from '@pvm/core/lib/inspect-args'
 import { logger } from '@pvm/core/lib/logger'
@@ -16,38 +14,12 @@ import type {
   AbstractVcs, AddTagOptions, CommitResult, GetReleaseResult, PushOptions, PlatformReleaseTag,
 } from '../types'
 import { env } from '@pvm/core/lib/env'
-import { mema } from '@pvm/core/lib/memoize'
+import { getApp } from '@pvm/core/lib/config/get-config'
+import { PLATFORM_TOKEN } from '@pvm/tokens-common'
 
 const VcsMap = {
   git: initGitVcs,
   fs: initFsVcs,
-}
-
-function detectPlatformType(cwd: string): string {
-  if (env.PVM_PLATFORM_TYPE) {
-    return env.PVM_PLATFORM_TYPE
-  }
-
-  if (env.GITLAB_CI) {
-    return 'gitlab'
-  }
-
-  if (env.GITHUB_REPOSITORY) {
-    return 'github'
-  }
-
-  const repoUrl = wdShell(cwd, 'git remote get-url origin')
-  const info = hostedGitInfo.fromUrl(repoUrl)
-
-  if (info && info.type) {
-    return info.type
-  }
-
-  if (repoUrl.indexOf('gitlab') !== -1) {
-    return 'gitlab'
-  }
-
-  return 'unknown'
 }
 
 function detectVcsType() {
@@ -66,40 +38,16 @@ async function loadBuiltinVcs(cwd: string, customVcsType?: string): Promise<void
   hostApi.provideRecord('vcs', VcsMap[vcsType](cwd))
 }
 
-const getPlatforms = mema(async function getPlatformsRaw() {
-  const gitlabPlatform = (await (import('@pvm/gitlab/lib/platform').catch(() => {
-    logger.info('@pvm/gitlab not installed. Gitlab platform support is disabled')
-    return {
-      GitlabPlatform: undefined,
-    }
-  }))).GitlabPlatform
-
-  const githubPlatform = (await (import('@pvm/github').catch(() => {
-    logger.info('@pvm/github not installed. Github platform support is disabled')
-    return {
-      GithubPlatform: undefined,
-    }
-  }))).GithubPlatform
-
-  return {
-    gitlab: gitlabPlatform,
-    github: githubPlatform,
-  }
-})
-
 async function loadBuiltinPlatform(cwd: string): Promise<void> {
-  const platforms = await getPlatforms()
-  const platformType = detectPlatformType(cwd)
+  const platform = getApp(cwd).container.get(PLATFORM_TOKEN)
 
-  if (!platforms[platformType]) {
-    // если нет платформы ничего страшного, возможно она и не понадобится вообще
+  if (!platform) {
     return
   }
 
   const hostApi = await getHostApi(cwd)
-  const config = await getConfig(cwd)
 
-  hostApi.provideClass('platform', new platforms[platformType](config))
+  hostApi.provideClass('platform', platform)
 }
 
 function dryRunStub(method: string, ...args: any[]): void {
@@ -249,7 +197,7 @@ export class VcsPlatform implements VcsOnly {
   }
 
   getCurrentBranch(): string | undefined {
-    return this.hostApi.run(`platform.getCurrentBranch`)
+    return this.hostApi.runOr(`platform.getCurrentBranch`, undefined)
   }
 
   isLastAvailableRef(ref: string): boolean {
@@ -343,7 +291,7 @@ export class VcsPlatform implements VcsOnly {
 
   async getUpdateHintsByCommit(commit: string): Promise<Record<string, any> | null> {
     if (!this._localMode) {
-      return await this.hostApi.run('platform.getUpdateHintsByCommit', commit) ?? null
+      return this.hostApi.runOr('platform.getUpdateHintsByCommit', null, commit)
     }
 
     return null

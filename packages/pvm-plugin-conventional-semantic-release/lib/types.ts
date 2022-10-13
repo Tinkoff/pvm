@@ -1,4 +1,4 @@
-import type { PvmReleaseType } from '@pvm/core/types'
+import type { PvmReleaseType } from '@pvm/types'
 
 export type Options = {
   releaseRules?: Array<{

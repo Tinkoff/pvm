@@ -4,7 +4,7 @@ import * as TOML from '@iarna/toml'
 import { isValidReleaseType } from './semver-extra'
 import { wdShell } from './shell'
 
-import type { UpdateHints } from '../types'
+import type { UpdateHints } from '@pvm/types'
 import type { Config } from './config'
 import { cwdToGitRelativity } from './git/worktree'
 

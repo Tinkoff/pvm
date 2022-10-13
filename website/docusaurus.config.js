@@ -74,7 +74,7 @@ const siteConfig = {
           label: 'Book',
         },
         {
-          to: 'docs/api/interfaces/pvm_core.Config',
+          to: 'docs/config/configuration',
           label: 'Configuration',
         },
         {

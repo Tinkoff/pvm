@@ -1,6 +1,6 @@
 import log from './log'
 import { logger } from '../logger'
-import type { Commit } from '../../types/git-log'
+import type { Commit } from '@pvm/types'
 
 interface CommitsOptions {
   _?: string[],

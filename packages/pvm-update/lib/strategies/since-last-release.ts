@@ -6,7 +6,7 @@ import { getConfig } from '@pvm/core/lib/config'
 import __dangerous_shell, { wdShell } from '@pvm/core/lib/shell'
 import { lastReleaseTag } from '@pvm/core/lib/git/last-release-tag'
 import { changedFiles } from '@pvm/pkgset/lib/changed-files'
-import { getOldestDescendantCommitRef, gitFetch } from '@pvm/core/lib/git/commands'
+import { getCurrentBranchIgnoreEnv, getOldestDescendantCommitRef, gitFetch } from '@pvm/core/lib/git/commands'
 
 import { ChangedContext } from '../changed-context'
 
@@ -71,7 +71,7 @@ async function sinceLastRelease(targetRef: string, opts: SinceLastReleaseOpts): 
 
   const gitShell = (cmd: string) => __dangerous_shell(cmd, { cwd })
 
-  const noReleaseRef = noReleaseRefOpt || getOldestDescendantCommitRef(config.cwd, vcsPlatform.getCurrentBranch(), targetRef)
+  const noReleaseRef = noReleaseRefOpt || getOldestDescendantCommitRef(config.cwd, vcsPlatform.getCurrentBranch() || getCurrentBranchIgnoreEnv(cwd), targetRef)
 
   const lastRelease = lastReleaseTag(config, targetRef)
 

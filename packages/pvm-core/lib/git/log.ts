@@ -2,7 +2,7 @@ import gitLog from 'git-log-parser' // @TODO рассмотреть git-raw-comm
 import through from 'through2'
 import { error } from '../logger'
 
-import type { Commit } from '../../types/git-log'
+import type { Commit } from '@pvm/types'
 import type { SpawnOptions } from 'child_process'
 
 // format: https://github.com/bendrucker/git-log-parser#logparseconfig-options---streamcommits

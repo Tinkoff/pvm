@@ -1,5 +1,5 @@
 import { wdShell } from '../shell'
-import type { DiffStats, NamedDiff } from '../../types/git'
+import type { DiffStats, NamedDiff } from '@pvm/types'
 import { gitToCwdRelativity } from './worktree'
 
 export interface NamedDiffShellOpts {

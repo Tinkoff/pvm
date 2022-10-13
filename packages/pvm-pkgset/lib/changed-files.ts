@@ -1,6 +1,6 @@
 import { wdShell } from '@pvm/core/lib/shell'
 import namedDiff from '@pvm/core/lib/git/named-diff'
-import type { DiffStats } from '@pvm/core/types/git'
+import type { DiffStats } from '@pvm/types'
 import { mergeBase } from '@pvm/core/lib/git/merge-base'
 
 export interface ChangedFilesOpts {

@@ -72,7 +72,7 @@ async function releaseCommitsCommand(args): Promise<string | void> {
 }
 
 async function showConfig(): Promise<string> {
-  const config = await getConfig(process.cwd(), { raw: true })
+  const config = await getConfig(process.cwd())
   return TOML.stringify(config as { [key: string]: any })
 }
 

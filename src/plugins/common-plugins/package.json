@@ -1,0 +1,8 @@
+{
+  "name": "@pvm/plugin-common-plugins",
+  "version": "0.0.0-stub",
+  "exports": "./index.js",
+  "dependencies": {
+    "@pvm/plugin-cli": "0.0.0-stub"
+  }
+}

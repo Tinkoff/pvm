@@ -1,12 +1,10 @@
 // This file refers to those that you can freely copy to your own project.
-import type { Message } from '@pvm/types'
+import type { Message, ReleasedProps, Commit } from '@pvm/types'
 import { issueToMdLink } from '@pvm/core/lib/text/jira'
 import { stripServiceLabels } from '@pvm/core/lib/text/commits'
 import { isGenericTagUsed } from '@pvm/core/lib/tag-meta'
 import { padLines } from '@pvm/core/lib/text'
 
-import type { ReleasedProps } from '@pvm/core/types/publish'
-import type { Commit } from '@pvm/core/types/git-log'
 import { env } from '@pvm/core/lib/env'
 
 function cutText(text: string, maxLen: number): string {

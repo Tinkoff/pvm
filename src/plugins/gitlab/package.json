@@ -1,0 +1,10 @@
+{
+  "name": "@pvm/plugin-gitlab",
+  "version": "0.0.0-stub",
+  "exports": "./index.js",
+  "dependencies": {
+    "@pvm/core": "0.0.0-stub",
+    "@pvm/vcs": "0.0.0-stub",
+    "@pvm/gitlab": "0.0.0-stub"
+  }
+}

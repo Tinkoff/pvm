@@ -16,7 +16,7 @@ import { clone } from 'rfc6902/util'
 import revParse from './git/rev-parse'
 
 import type { Config } from './config'
-import type { PkgAppliedMeta, PkgDeps, PkgMeta } from '../types'
+import type { PkgAppliedMeta, PkgDeps, PkgMeta } from '@pvm/types'
 import { cwdToGitRelativity } from './git/worktree'
 
 const logger = loggerFor('pvm:pkg')
