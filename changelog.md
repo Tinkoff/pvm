@@ -3,6 +3,18 @@ id: index
 title: Change Log
 ---
 
+## v0.56.0
+**2022.10.13**
+
+
+
+### 🚀 Features
+
+* single entrypoint implementation first step ([49](https://github.com/Tinkoff/pvm/issues/49)) ([#f85d0b9](https://github.com/Tinkoff/pvm/commit/f85d0b9fa54b0726d1b8dafa181cba633a219d5f))
+
+
+
+
 ## v0.55.27
 **2022.09.23**
 
