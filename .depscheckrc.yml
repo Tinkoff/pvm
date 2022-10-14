@@ -1,0 +1,1 @@
+depcheck-ignore-dirs: ["__tests__", "__fixtures__", "tests"]

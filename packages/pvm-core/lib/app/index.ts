@@ -1,7 +1,7 @@
 import path from 'path'
 import type { PluginConfig, PluginFactory, Config, RecursivePartial, PluginDeclaration } from '@pvm/types'
 import { Container, DI_TOKEN, provide } from '@pvm/di'
-import { CONFIG_TOKEN, CWD_TOKEN } from '@pvm/tokens-common'
+import { CONFIG_TOKEN, CWD_TOKEN } from '@pvm/tokens-core'
 import { loadRawConfig, postprocessConfig, readEnv } from '../config/get-config'
 import { loggerFor } from '../logger'
 import chalk from 'chalk'

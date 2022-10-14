@@ -24,7 +24,7 @@ import type { RecursivePartial } from '@pvm/types'
 import { getWorktreeRoot, getMainWorktreePath, cwdToGitRelativity } from '../git/worktree'
 import { env } from '../env'
 import { Pvm } from '../app/index'
-import { CONFIG_TOKEN } from '@pvm/tokens-common'
+import { CONFIG_TOKEN } from '@pvm/tokens-core'
 
 // with high probability this line will be invoked in any api call
 // kind a hacky solution

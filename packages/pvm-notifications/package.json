@@ -11,6 +11,7 @@
     "@pvm/types": "^0.0.0-stub",
     "get-stdin": "^7.0.0",
     "resolve-from": "^5.0.0",
-    "lodash.defaultsdeep": "4.6.1"
+    "lodash.defaultsdeep": "4.6.1",
+    "yargs": "^16.1.1"
   }
 }

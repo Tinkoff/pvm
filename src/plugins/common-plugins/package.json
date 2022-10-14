@@ -3,6 +3,9 @@
   "version": "0.0.0-stub",
   "exports": "./index.js",
   "dependencies": {
-    "@pvm/plugin-cli": "0.0.0-stub"
+    "@pvm/di": "0.0.0-stub",
+    "@pvm/plugin-base-commands": "0.0.0-stub",
+    "@pvm/plugin-cli": "0.0.0-stub",
+    "@pvm/plugin-update": "0.0.0-stub"
   }
 }

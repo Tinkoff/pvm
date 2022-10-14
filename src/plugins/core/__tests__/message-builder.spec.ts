@@ -1,4 +1,4 @@
-import { releaseMessage } from '../message-builder'
+import { releaseMessage } from '../messages/message-builder'
 
 describe('notifications/message-builder', () => {
   it('should take full tag for simple repositories', async () => {

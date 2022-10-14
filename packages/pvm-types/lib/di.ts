@@ -1,4 +1,4 @@
-import type { Provider } from '@tinkoff/dippy'
+import type { Provider } from '@pvm/di'
 import type { Config } from './config'
 import type { RecursivePartial } from './utils'
 

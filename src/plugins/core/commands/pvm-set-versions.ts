@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { setVersions } from '../../lib/set-versions'
+import { setVersions } from '../set-versions'
 
 export const command = 'set-versions <versionOrReleaseType>'
 export const description = 'Set given version for given packages'

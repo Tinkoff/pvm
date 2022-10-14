@@ -23,7 +23,7 @@ and as cli:
 ```javascript
 // cli.js
 import { Pvm } from '@pvm/app'
-import { CLI_TOKEN } from '@pvm/tokens-cli'
+import { CLI_TOKEN } from '@pvm/tokens-core'
 import PvmCliPlugin from '@pvm/plugin-cli'
 
 const pvm = new Pvm({

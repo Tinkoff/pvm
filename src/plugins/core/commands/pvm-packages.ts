@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import pprint from '@pvm/pkgset/lib/pprint'
-import { getPackages } from '../../lib'
+import { getPackages } from '../packages'
 
 export const command = 'packages'
 export const description = 'Shows the list of packages by the specified criterion'

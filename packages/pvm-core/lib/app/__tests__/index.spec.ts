@@ -1,7 +1,7 @@
 import { Pvm } from '../index'
 import { provide } from '@pvm/di'
 import path from 'path'
-import { CONFIG_TOKEN } from '@pvm/tokens-common'
+import { CONFIG_TOKEN } from '@pvm/tokens-core'
 
 describe('@pvm/container', () => {
   afterEach(() => {

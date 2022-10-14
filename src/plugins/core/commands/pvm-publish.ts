@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-import { publish } from '../../lib'
-import type { Flags } from '../../lib/publish/flags'
-import { flagsBuilder } from '../../lib/publish/flags'
+import { publish } from '../publish'
+import { flagsBuilder } from '../publish/flags'
+import type { Flags } from '../publish/flags'
 
 export const command = 'publish'
 export const description = 'Publish packages to npm registry'

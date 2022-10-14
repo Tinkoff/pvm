@@ -1,6 +1,6 @@
 import { Pvm } from '@pvm/core/lib/app'
-import { CLI_EXTENSION_TOKEN, CLI_TOKEN } from '@pvm/tokens-cli'
-import PvmCliPlugin from '@pvm/plugin-cli'
+import { CLI_EXTENSION_TOKEN, CLI_TOKEN } from '@pvm/tokens-core'
+import PvmCorePlugin from '@pvm/plugin-core'
 import { provide } from '@pvm/di'
 
 describe('@pvm/cli', () => {
@@ -8,7 +8,7 @@ describe('@pvm/cli', () => {
     let outputStore = ''
     const pvm = new Pvm({
       plugins: [{
-        plugin: PvmCliPlugin,
+        plugin: PvmCorePlugin,
       }, {
         plugin: () => ({
           providers: [provide({

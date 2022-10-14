@@ -5,7 +5,7 @@ import { hideBin } from 'yargs/helpers'
 import '@pvm/core/lib/node-boot'
 
 import type { Argv } from 'yargs'
-import type { CLI_EXTENSION_TOKEN } from '@pvm/tokens-cli'
+import type { CLI_EXTENSION_TOKEN } from '@pvm/tokens-core'
 
 function initCommands(yargs: Argv, commands: Array<typeof CLI_EXTENSION_TOKEN>) {
   commands.forEach(command => {

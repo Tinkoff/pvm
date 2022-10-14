@@ -20,7 +20,7 @@ export async function releaseMessage(releasedProps: ReleasedProps, opts: NotifyO
   const { strategy, hostApi } = opts
   const defaultScriptName = strategy === 'stale' ? 'stale' : 'release'
   let defaultScriptPath
-  const defaultScriptsPath = path.resolve(__dirname, '../../notify-scripts')
+  const defaultScriptsPath = path.resolve(__dirname, '../notify-scripts')
   const pluginNotifyScriptsPath = await hostApi?.notifyScriptsPath()
   const notifyScriptsPath = pluginNotifyScriptsPath ?? defaultScriptsPath
 

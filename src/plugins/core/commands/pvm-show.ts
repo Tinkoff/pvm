@@ -94,4 +94,4 @@ export const builder = (yargs: Argv) => {
     .command('config', 'show current config', {}, asyncPrint(showConfig))
 }
 
-exports.handler = function() {}
+export const handler = function() {}

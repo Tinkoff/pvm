@@ -16,7 +16,7 @@ describe('pvm-packages', () => {
         plugin: () => ({
           providers: [
             require('${require.resolve('@pvm/di').replace(/\\/g, '/')}').provide({
-              provide: require('${require.resolve('@pvm/tokens-common').replace(/\\/g, '/')}').PLATFORM_TOKEN,
+              provide: require('${require.resolve('@pvm/tokens-core').replace(/\\/g, '/')}').PLATFORM_TOKEN,
               useValue: null,
             }),
           ],

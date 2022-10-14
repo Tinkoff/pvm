@@ -98,7 +98,7 @@ export const flagsBuilder = {
     desc:
       `
       The script that will be executed to create the notification text after successfull packages publishing.
-      By default, the internal script "@pvm/pvm/notify-scripts/release.js" is used.
+      By default, the internal script "@pvm/lib-core/messages/notify-scripts/release.js" is used.
 
       Could be absolute file path, or file path relative to config, or http/https URL to script in the network.
 

@@ -1,4 +1,4 @@
-import { CONFIG_TOKEN, PLATFORM_TOKEN } from '@pvm/tokens-common'
+import { CONFIG_TOKEN, PLATFORM_TOKEN } from '@pvm/tokens-core'
 import { declarePlugin, provide } from '@pvm/di'
 import { GithubPlatform } from './platform'
 

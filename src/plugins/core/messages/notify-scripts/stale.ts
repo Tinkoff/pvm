@@ -1,6 +1,6 @@
 // This file refers to those that you can freely copy to your own project.
 import type { ReleasedProps } from '@pvm/types'
-import { buildMessage } from '@pvm/lib-core'
+import { buildMessage } from '../message-builder'
 
 process.on('message', (releaseProps: ReleasedProps) => {
   const message = buildMessage(releaseProps, {

@@ -58,6 +58,7 @@ jobs:
               - 'test/**'
       - run: npm run build
       - run: npm run check-ts-strict
+      - run: npm exec depscheck
       - run: npm run lint:config-schema
       - run: npm exec pvm vcs is-branch-actual
         env:

@@ -1,7 +1,7 @@
 // eslint-disable-next-line node/no-extraneous-import
 import type { Argv } from 'yargs'
 
-import * as pvmUpdate from '@pvm/update/cli/pvm-update'
+import * as pvmUpdate from './pvm-update'
 
 export const command = 'local <update>'
 export const description = 'Enables local mode for the following command'

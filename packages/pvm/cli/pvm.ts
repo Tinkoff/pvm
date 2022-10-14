@@ -15,13 +15,11 @@ import * as pvmReleases from '@pvm/releases/cli/pvm-releases'
 import * as pvmSlack from '@pvm/slack/cli/pvm-slack'
 import * as pvmNotification from '@pvm/notifications/cli/pvm-notification'
 import * as pvmTemplate from '@pvm/template/cli/pvm-template'
-import * as pvmUpdate from '@pvm/update/cli/pvm-update'
 import * as pvmVcs from '@pvm/vcs/cli/pvm-vcs'
 import * as pvmViz from '@pvm/viz/cli/pvm-viz'
 
 function initCommands(yargs: Argv): Argv {
   return yargs
-    .command(pvmUpdate)
     .command(pvmArtifacts)
     .command(pvmAddTag)
     .command(pvmChangelog)
@@ -33,7 +31,6 @@ function initCommands(yargs: Argv): Argv {
     .command(pvmTemplate)
     .command(pvmVcs)
     .command(pvmViz)
-    .commandDir('commands')
 }
 
 const yargs = initCommands(Yargs(hideBin(process.argv)))

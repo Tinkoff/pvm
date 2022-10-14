@@ -4,7 +4,10 @@ export default declarePlugin({
   configExt: {
     plugins_v2: [
       {
-        plugin: '@pvm/plugin-cli',
+        plugin: require.resolve('@pvm/plugin-core'),
+      },
+      {
+        plugin: require.resolve('@pvm/plugin-update'),
       },
     ],
   },

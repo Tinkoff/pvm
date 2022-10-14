@@ -18,7 +18,8 @@
     "date-fns": "^2.7.0",
     "front-matter": "^3.0.2",
     "remarkable": "^2.0.0",
-    "resolve-from": "^5.0.0"
+    "resolve-from": "^5.0.0",
+    "yargs": "^16.1.1"
   },
   "devDependencies": {
     "@pvm/vcs": "0.0.0-stub"
