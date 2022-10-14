@@ -215,7 +215,26 @@
                 "plugin": {
                     "anyOf": [
                         {
-                            "$ref": "#/definitions/PluginDeclaration"
+                            "properties": {
+                                "factory": {
+                                    "type": "object"
+                                }
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "$ref": "#/definitions/{configExt:RecursivePartial<Config>;}"
+                        },
+                        {
+                            "properties": {
+                                "configExt": {
+                                    "$ref": "#/definitions/RecursivePartial<Config>"
+                                },
+                                "factory": {
+                                    "type": "object"
+                                }
+                            },
+                            "type": "object"
                         },
                         {
                             "type": [
@@ -224,17 +243,6 @@
                             ]
                         }
                     ]
-                }
-            },
-            "type": "object"
-        },
-        "PluginDeclaration": {
-            "properties": {
-                "configExt": {
-                    "$ref": "#/definitions/RecursivePartial<Config>"
-                },
-                "factory": {
-                    "type": "object"
                 }
             },
             "type": "object"
@@ -1136,6 +1144,14 @@
                         "repo"
                     ],
                     "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "{configExt:RecursivePartial<Config>;}": {
+            "properties": {
+                "configExt": {
+                    "$ref": "#/definitions/RecursivePartial<Config>"
                 }
             },
             "type": "object"

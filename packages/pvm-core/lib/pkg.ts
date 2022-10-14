@@ -363,7 +363,7 @@ export interface PkgDiff {
   deps: Map<string, string>,
 }
 
-export class AppliedPkg extends Pkg implements AppliedPkg {
+export class AppliedPkg extends Pkg {
   protected _newDeps: Map<string, string> = new Map()
   meta: PkgAppliedMeta
 

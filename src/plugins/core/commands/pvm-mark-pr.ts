@@ -11,9 +11,6 @@ import { renderDot } from '@pvm/viz/lib'
 import { renderReleaseContext, RenderTarget } from '@pvm/changelog/lib'
 import { createReleaseContext } from '@pvm/update/lib/release/release-context'
 import { VcsOnlyStenographer } from '@pvm/vcs/lib/vcs-only-stenographer'
-import { upconf } from '@pvm/repository/lib/upconf/upconf'
-import { loadUpconfFile } from '@pvm/core/lib/config/upconf-data'
-import { logger } from '@pvm/core/lib/logger'
 
 import type { UpdateState } from '@pvm/update/lib/update-state'
 import type { Pkg } from '@pvm/core/lib/pkg'
@@ -66,9 +63,7 @@ async function attachChangelog(vcs: Vcs, updateState: UpdateState): Promise<unkn
 
 async function attachMigrationProcess(vcs: Vcs): Promise<void> {
   const vcsStenographist = new VcsOnlyStenographer(vcs.cwd)
-  await upconf(vcsStenographist, {
-    dryRun: true,
-  })
+
   if (!vcsStenographist.isEmpty) {
     await vcs.syncText('pvm configuration migration transcript', vcsStenographist.join())
   }
@@ -109,16 +104,6 @@ async function main(): Promise<void> {
   await vcs.beginMrAttribution()
 
   await attachMigrationProcess(vcs)
-
-  const isUpconfExists = !!loadUpconfFile(vcs.cwd)
-  if (isUpconfExists) {
-    logger.warn('Found upconf migration. makr-pr apply it locally in order to achieve correct MR attribution.')
-    const localVcs = await initVcsPlatform({
-      vcsType: 'git',
-      localMode: true,
-    })
-    await upconf(localVcs)
-  }
 
   const updateState = await getUpdateState()
 

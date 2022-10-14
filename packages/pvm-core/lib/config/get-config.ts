@@ -8,14 +8,11 @@ import * as TOML from '@iarna/toml'
 import { cosmiconfigSync, defaultLoaders } from 'cosmiconfig'
 import yaml from 'js-yaml'
 import json5 from 'json5'
-import { applyPatch } from 'rfc6902'
 
 import { logger } from '../logger'
 import { wdShell } from '../shell/index'
-import defaultConfig from './defaults'
 import { cachedRealPath } from '../fs'
 import { isPlainObject } from '../utils'
-import { loadUpconfFile } from './upconf-data'
 import { resolvePvmProvider } from '../plugins/provider'
 import { taggedCacheManager, CacheTag, mema } from '../memoize'
 
@@ -52,16 +49,26 @@ function parseConfig(filepath: string, content: string): Record<string, unknown>
   return loader(filepath, content)
 }
 
-function mergeDefaults<T extends Record<string, any>>(a: T, b: Record<string, any>): T {
-  Object.keys(b).forEach(key => {
-    if (a[key] === void 0) {
-      a[key as keyof T] = b[key]
+export function mergeDefaults<T extends Record<string, any>>(a: T, b: Record<string, any>): T {
+  const result = { ...a }
+
+  Object.keys(b).forEach((key: keyof T & string) => {
+    if (result[key] === void 0) {
+      if (Array.isArray(b[key])) {
+        result[key] = [...b[key]] as any
+      } else if (isPlainObject(b[key])) {
+        result[key] = { ...b[key] }
+      } else {
+        result[key] = b[key]
+      }
+    } else if (Array.isArray(a[key]) && Array.isArray(b[key])) {
+      result[key] = result[key].concat(b[key])
     } else if (isPlainObject(a[key]) && isPlainObject(b[key])) {
-      a[key as keyof T] = mergeDefaults(a[key], b[key])
+      result[key] = mergeDefaults(a[key], b[key])
     }
   })
 
-  return a
+  return result as T
 }
 
 // вообще это наивно и не совсем корректно
@@ -181,32 +188,6 @@ function pickLoaderAndLoad(contents: string, contentsPath: string): Record<strin
   }
 
   return loader(contentsPath, contents)
-}
-
-function fetchInclude(resolveFromPath: string, remotePath: string): Record<string, any> {
-  let contents: string | Record<string, unknown>
-  if (/^https?:\/\//.test(remotePath)) {
-    throw new Error('Http includes are not supported')
-  } else {
-    const realPath = path.resolve(resolveFromPath, remotePath)
-    contents = fs.readFileSync(realPath, { encoding: 'utf8' })
-  }
-
-  if (typeof contents !== 'string') {
-    return isPlainObject(contents) ? contents : {}
-  }
-
-  return pickLoaderAndLoad(contents, remotePath)
-}
-
-function processInclude(cwd: string, include: string | string[]): Record<string, any> {
-  const remotePaths: string[] = Array.isArray(include) ? include : [ include ]
-  let acc = Object.create(null)
-  for (const remotePath of remotePaths) {
-    const data = fetchInclude(cwd, remotePath)
-    acc = mergeDefaults(data, acc)
-  }
-  return acc
 }
 
 const compiledSchemaMap = new Map<string, Ajv.ValidateFunction>()
@@ -340,37 +321,7 @@ function loadRawConfig(cwd: string, ref: string | undefined = void 0): ConfigRes
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-// @ts-ignore
-function applyUpconf(configLookupDir: string, config: Config): Config {
-  // в этом методе брать cwd из конфига нельзя т.к. он может быть еще не готов
-  const upconfData = loadUpconfFile(configLookupDir)
-  if (upconfData) {
-    logger.info('found upconf, apply patch to config..')
-    const applyResults = applyPatch(config, upconfData.config_patch)
-    let wasError = false
-    for (const applyResult of applyResults) {
-      if (applyResult) {
-        wasError = true
-        logger.error(applyResult)
-      }
-    }
-    if (wasError) {
-      throw new Error(`Unable to apply config patch from pvm-upconf`)
-    }
-  }
-
-  return config
-}
-
-const forceIgnoreUpconf = new Map<string, boolean>()
-
-export function markUpconfDeleted(cwd: string): void {
-  forceIgnoreUpconf.set(cachedRealPath(cwd), true)
-  appCache.clear(cwd)
-}
-
-function defaultsFromProvider(cwd: string): RecursivePartial<Config> | undefined {
+export function defaultsFromProvider(cwd: string): RecursivePartial<Config> | undefined {
   const provider = resolvePvmProvider(cwd)
   if (!provider) {
     return
@@ -419,44 +370,6 @@ function getAppImpl(opts: {
 
 function getConfigImpl(cwd: string, opts: GetConfigOpts = {}): Config {
   return getAppImpl({ cwd, config: opts.config }).container.get(CONFIG_TOKEN)
-}
-
-export function postprocessConfig(config: Config/*, opts: GetConfigOpts */): Config {
-  // if (!noUpconf && !forceIgnoreUpconf.get(config.cwd)) {
-  //   config = applyUpconf(config.configLookupDir, config)
-  // }
-
-  const postProcessConfig = (config: Config, fromIncludes?: RecursivePartial<Config>): Config => {
-    if (fromIncludes) {
-      config = mergeDefaults(config, fromIncludes)
-    }
-    config = mergeDefaults(config, defaultsFromProvider(config.configLookupDir) || {})
-    config = mergeDefaults(config, defaultConfig)
-
-    migrateDeprecated(config)
-
-    validateAgainstSchema(config)
-    /*    if (noUpconf) {
-      logger.debug('config read without upconf')
-    } */
-    logger.debug('config.versioning.source is', config.versioning.source)
-    logger.debug('config.versioning.unified_versions_for is', JSON.stringify(config.versioning.unified_versions_for))
-
-    return config
-  }
-
-  config.executionContext = {
-    dryRun: false,
-    local: false,
-  }
-  // process include directive after env
-  if (config.include) {
-    return processInclude(config.cwd, config.include).then(result => {
-      return postProcessConfig(config!, result)
-    })
-  }
-
-  return postProcessConfig(config)
 }
 
 function getConfig(cwd = env.PVM_CONFIG_SEARCH_FROM || process.cwd(), opts?: GetConfigOpts): Config {

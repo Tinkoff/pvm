@@ -30,7 +30,8 @@
     "signales": "^2.0.5",
     "through2": "^4.0.2",
     "git-url-parse": "^11.4.4",
-    "json5": "^2.2.1"
+    "json5": "^2.2.1",
+    "bin-version-check": "^4.0.0"
   },
   "devDependencies": {
     "@pvm/releases": "0.0.0-stub",

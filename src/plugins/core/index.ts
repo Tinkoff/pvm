@@ -10,7 +10,6 @@ import * as rewriteSetVersions from './commands/pvm-set-versions'
 import * as showCommand from './commands/pvm-show'
 import * as syncTagCommand from './commands/pvm-sync-tag'
 import * as toJsonCommand from './commands/pvm-tojson'
-import * as upconfCommand from './commands/pvm-upconf'
 import * as writeVersionsCommand from './commands/pvm-write-versions'
 import { runCli } from './cli-runner'
 import { publish } from './publish/index'
@@ -45,7 +44,6 @@ export default declarePlugin({
             showCommand,
             syncTagCommand,
             toJsonCommand,
-            upconfCommand,
             writeVersionsCommand,
           ],
           multi: true,

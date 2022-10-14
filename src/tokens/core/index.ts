@@ -5,7 +5,6 @@ import type { Argv, Options } from 'yargs'
 
 export const CONFIG_TOKEN = createToken<Config>('CONFIG')
 export const CWD_TOKEN = createToken<string>('CWD_TOKEN')
-export const REPO_TOKEN = createToken<string>('REPO_TOKEN')
 /**
  * @deprecated use new plugin system and DI instead
  */

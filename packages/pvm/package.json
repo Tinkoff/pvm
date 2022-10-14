@@ -11,32 +11,6 @@
   "author": "Andrey Rublev <box@anru.me>",
   "license": "Apache-2.0",
   "dependencies": {
-    "@pvm/artifacts": "0.0.0-stub",
-    "@pvm/add-tag": "0.0.0-stub",
-    "@pvm/changelog": "0.0.0-stub",
-    "@pvm/core": "0.0.0-stub",
-    "@pvm/plugin-core": "0.0.0-stub",
-    "@pvm/cowners": "0.0.0-stub",
-    "@pvm/files": "0.0.0-stub",
-    "@pvm/gitlab": "0.0.0-stub",
-    "@pvm/pkgset": "0.0.0-stub",
-    "@pvm/releases": "0.0.0-stub",
-    "@pvm/repository": "0.0.0-stub",
-    "@pvm/slack": "0.0.0-stub",
-    "@pvm/template": "0.0.0-stub",
-    "@pvm/update": "0.0.0-stub",
-    "@pvm/vcs": "0.0.0-stub",
-    "@pvm/viz": "0.0.0-stub",
-    "@pvm/notifications": "0.0.0-stub",
-    "@pvm/types": "0.0.0-stub",
-    "chalk": "^4.0.0",
-    "cli-table": "^0.3.6",
-    "micromatch": "^3.1.10",
-    "p-map": "^4.0.0",
-    "semver": "^7.3.0",
-    "yargs": "^16.1.1",
-    "lodash": "^4.2.0",
-    "bin-version-check": "^4.0.0",
-    "ini": "^1.3.8"
+    "@pvm/core": "0.0.0-stub"
   }
 }

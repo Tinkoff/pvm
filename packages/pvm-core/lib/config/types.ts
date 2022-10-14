@@ -1,4 +1,3 @@
-import type { Operation } from 'rfc6902'
 import type { Config as ConfigSchema } from '@pvm/types'
 
 export type { StorageDef, ArtifactLimitDef } from '@pvm/types'
@@ -11,8 +10,4 @@ export interface Config extends ConfigSchema {
     dryRun: boolean,
     local: boolean,
   },
-}
-
-export interface UpconfData {
-  config_patch: Operation[],
 }

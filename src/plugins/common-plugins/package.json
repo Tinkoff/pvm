@@ -1,11 +1,19 @@
 {
   "name": "@pvm/plugin-common-plugins",
+  "description": "temporal package that will be removed as soon as single entrypoint will be reached",
   "version": "0.0.0-stub",
   "exports": "./index.js",
   "dependencies": {
     "@pvm/di": "0.0.0-stub",
-    "@pvm/plugin-base-commands": "0.0.0-stub",
-    "@pvm/plugin-cli": "0.0.0-stub",
-    "@pvm/plugin-update": "0.0.0-stub"
+    "@pvm/plugin-core": "0.0.0-stub",
+    "@pvm/update": "0.0.0-stub",
+    "@pvm/pkgset": "0.0.0-stub",
+    "@pvm/viz": "0.0.0-stub",
+    "@pvm/vcs": "0.0.0-stub",
+    "@pvm/releases": "0.0.0-stub",
+    "@pvm/artifacts": "0.0.0-stub",
+    "@pvm/changelog": "0.0.0-stub",
+    "@pvm/add-tag": "0.0.0-stub",
+    "@pvm/files": "0.0.0-stub"
   }
 }

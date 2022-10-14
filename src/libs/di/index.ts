@@ -2,9 +2,18 @@ import type { Config, PluginFactory } from '@pvm/types'
 
 export * from '@tinkoff/dippy'
 
-export function declarePlugin({ configExt, factory }: { configExt?: Partial<Config>, factory?: PluginFactory}) {
+export function declarePlugin(opts: { configExt: Partial<Config>, factory: PluginFactory} | { factory: PluginFactory} | { configExt: Partial<Config>}) {
+  if ('configExt' in opts && 'factory' in opts) {
+    return opts
+  }
+
+  if ('configExt' in opts) {
+    return {
+      configExt: opts.configExt,
+    }
+  }
+
   return {
-    configExt,
-    factory,
+    factory: opts.factory,
   }
 }
