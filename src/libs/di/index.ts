@@ -1,10 +1,10 @@
-import type { Config, PluginFactory } from '@pvm/types'
+import type { Config, PluginFactory, RecursivePartial } from '@pvm/types'
 
 export * from '@tinkoff/dippy'
 
-export function declarePlugin({ configExt, factory }: { configExt?: Partial<Config>, factory?: PluginFactory}) {
+export function declarePlugin(opts: { configExt: RecursivePartial<Config>, factory: PluginFactory} | { factory: PluginFactory} | { configExt: RecursivePartial<Config>}) {
   return {
-    configExt,
-    factory,
+    name: __filename,
+    ...opts,
   }
 }

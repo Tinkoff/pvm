@@ -5,7 +5,7 @@ import type Yargs from 'yargs'
 import { parseSubArgs } from '@pvm/core/lib/text/sub-args'
 import * as updateMethods from '../lib/update-methods'
 import { update } from '../lib'
-import type { CliUpdateOpts } from '../types/cli'
+import type { CliUpdateOpts } from '../types'
 import { getConfig } from '@pvm/core/lib/config'
 
 export const command = 'update'

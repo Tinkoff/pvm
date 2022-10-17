@@ -6,6 +6,9 @@
   "author": "Andrey Rublev <box@anru.me>",
   "license": "Apache-2.0",
   "dependencies": {
-    "viz.js": "^2.1.2"
+    "@pvm/di": "0.0.0-stub",
+    "@pvm/tokens-core": "0.0.0-stub",
+    "viz.js": "^2.1.2",
+    "yargs": "^16.1.1"
   }
 }

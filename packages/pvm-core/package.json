@@ -9,7 +9,7 @@
   "dependencies": {
     "@pvm/types": "^0.0.0-stub",
     "@pvm/di": "0.0.0-stub",
-    "@pvm/tokens-common": "0.0.0-stub",
+    "@pvm/tokens-core": "0.0.0-stub",
     "@pvm/plugin-common-plugins": "0.0.0-stub",
     "@iarna/toml": "^2.2.3",
     "@hutson/parse-repository-url": "^5.0.0",
@@ -30,7 +30,8 @@
     "signales": "^2.0.5",
     "through2": "^4.0.2",
     "git-url-parse": "^11.4.4",
-    "json5": "^2.2.1"
+    "json5": "^2.2.1",
+    "bin-version-check": "^4.0.0"
   },
   "devDependencies": {
     "@pvm/releases": "0.0.0-stub",

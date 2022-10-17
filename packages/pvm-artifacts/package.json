@@ -7,12 +7,15 @@
   "author": "Andrey Rublev <box@anru.me>",
   "license": "Apache-2.0",
   "dependencies": {
+    "@pvm/di": "0.0.0-stub",
+    "@pvm/tokens-core": "0.0.0-stub",
     "@pvm/core": "0.0.0-stub",
     "@pvm/vcs": "0.0.0-stub",
     "@pvm/vcs-git": "0.0.0-stub",
     "chalk": "^4.0.0",
     "fs-extra": "^10.0.0",
-    "tempy": "^1.0.1"
+    "tempy": "^1.0.1",
+    "yargs": "^16.1.1"
   },
   "devDependencies": {
     "@types/fs-extra": "^9.0.11"

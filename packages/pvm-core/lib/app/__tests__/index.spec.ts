@@ -1,7 +1,7 @@
 import { Pvm } from '../index'
-import { provide } from '@pvm/di'
+import { declarePlugin, provide } from '@pvm/di'
 import path from 'path'
-import { CONFIG_TOKEN } from '@pvm/tokens-common'
+import { CONFIG_TOKEN } from '@pvm/tokens-core'
 
 describe('@pvm/container', () => {
   afterEach(() => {
@@ -52,13 +52,13 @@ describe('@pvm/container', () => {
     })
 
     expect(pvmContainer.container.get(CONFIG_TOKEN)).toMatchObject({
-      plugins_v2: [{
+      plugins_v2: expect.arrayContaining([{
         plugin: require.resolve('@pvm/plugin-gitlab'),
       }, {
         plugin: path.join(__dirname, '__fixtures__', 'plugin-with-config-with-plugins.js'),
       }, {
         plugin: './plugin-with-config-extension.js',
-      }],
+      }]),
       mark_pr: {
         analyze_update: true,
       },
@@ -87,13 +87,13 @@ describe('@pvm/container', () => {
           analyze_update: false,
         },
         plugins_v2: [{
-          plugin: {
+          plugin: declarePlugin({
             configExt: {
               mark_pr: {
                 analyze_update: true,
               },
             },
-          },
+          }),
         }],
       },
     })

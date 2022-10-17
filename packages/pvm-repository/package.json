@@ -7,14 +7,10 @@
   "author": "Andrey Rublev <box@anru.me>",
   "license": "Apache-2.0",
   "dependencies": {
-    "@iarna/toml": "^2.2.3",
     "@pvm/core": "0.0.0-stub",
     "@pvm/types": "0.0.0-stub",
     "@pvm/pkgset": "0.0.0-stub",
-    "@pvm/update": "0.0.0-stub",
     "@pvm/vcs": "0.0.0-stub",
-    "chalk": "^4.0.0",
-    "rfc6902": "^4.0.2",
     "semver": "^7.3.0"
   }
 }

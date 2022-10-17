@@ -7,7 +7,8 @@
   "author": "Andrey Rublev <box@anru.me>",
   "license": "Apache-2.0",
   "dependencies": {
-    "@iarna/toml": "^2.2.3",
+    "@pvm/di": "0.0.0-stub",
+    "@pvm/tokens-core": "0.0.0-stub",
     "@pvm/artifacts": "0.0.0-stub",
     "@pvm/changelog": "0.0.0-stub",
     "@pvm/core": "0.0.0-stub",
@@ -16,18 +17,16 @@
     "@pvm/releases": "0.0.0-stub",
     "@pvm/repository": "0.0.0-stub",
     "@pvm/notifications": "0.0.0-stub",
-    "@pvm/suffixes": "0.0.0-stub",
     "@pvm/template": "0.0.0-stub",
     "@pvm/vcs": "0.0.0-stub",
     "chalk": "^4.0.0",
     "date-fns": "^2.7.0",
     "ignore": "^5.1.4",
     "micromatch": "^3.1.10",
-    "p-map": "^4.0.0",
     "resolve-from": "^5.0.0",
     "semver": "^7.3.0",
-    "semver-regex": "^3.1.1",
     "shuffle-seed": "^1.1.6",
-    "uniq": "^1.0.1"
+    "uniq": "^1.0.1",
+    "yargs": "^16.1.1"
   }
 }

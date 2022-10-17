@@ -7,5 +7,8 @@
     "@pvm/types": "0.0.0-stub",
     "@semantic-release/commit-analyzer": "^8.0.1",
     "conventional-commits-parser": "^3.2.1"
+  },
+  "peerDependencies": {
+    "semantic-release": ">=16.0.0"
   }
 }

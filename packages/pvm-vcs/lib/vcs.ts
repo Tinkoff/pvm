@@ -15,7 +15,7 @@ import type {
 } from '../types'
 import { env } from '@pvm/core/lib/env'
 import { getApp } from '@pvm/core/lib/config/get-config'
-import { PLATFORM_TOKEN } from '@pvm/tokens-common'
+import { PLATFORM_TOKEN } from '@pvm/tokens-core'
 
 const VcsMap = {
   git: initGitVcs,

@@ -48,6 +48,7 @@
     "@types/yargs": "^15.0.10",
     "@typescript-eslint/eslint-plugin": "^4.28.2",
     "@typescript-eslint/parser": "^4.20.0",
+    "@tinkoff-monorepo/depscheck": "^1.8.21",
     "babel-polyfill": "^6.26.0",
     "bench": "^0.3.6",
     "body-parser": "^1.18.3",

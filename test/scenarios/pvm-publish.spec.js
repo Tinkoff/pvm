@@ -2,7 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const { runRegistryMockServer } = require('../npm-registry-mock')
 const { runMessengerMocker } = require('../slack-mock')
-const { setupPublishNpmRCAndEnvVariables } = require('@pvm/pvm/lib/publish/prepare')
+const { setupPublishNpmRCAndEnvVariables } = require('@pvm/plugin-core/publish/prepare')
 const fsExtra = require('fs-extra')
 
 function readStats(repo, statsName = 'publish-stats.json') {
@@ -407,7 +407,14 @@ describe('pvm/publish', () => {
       slackMocker.spy((req) => {
         slackRequestsBody.push(req.body)
       })
-      const repo = await initRepo('simple-one')
+      const repo = await initRepo('simple-one', {
+        notifications: {
+          clients: [{
+            name: 'slack',
+            pkg: '@pvm/slack',
+          }],
+        },
+      })
       await testPublish(repo, `-s all --canary --notify --message-channel test`, {
         ...process.env,
         SLACK_API_URL: slackMocker.mockerUrl,
@@ -434,7 +441,14 @@ describe('pvm/publish', () => {
       slackMocker.spy((req) => {
         slackRequestsBody.push(req.body)
       })
-      const repo = await initRepo('simple-one')
+      const repo = await initRepo('simple-one', {
+        notifications: {
+          clients: [{
+            name: 'slack',
+            pkg: '@pvm/slack',
+          }],
+        },
+      })
 
       await repo.touch('modification_1.txt', 'modification_1')
       await runScript(repo, `pvm update`)
@@ -466,7 +480,14 @@ describe('pvm/publish', () => {
       slackMocker.spy((req) => {
         slackRequestsBody.push(req.body)
       })
-      const repo = await initRepo('simple-one')
+      const repo = await initRepo('simple-one', {
+        notifications: {
+          clients: [{
+            name: 'slack',
+            pkg: '@pvm/slack',
+          }],
+        },
+      })
 
       await testPublish(repo, `--canary --message-channel test-channel`, {
         ...process.env,
@@ -484,7 +505,14 @@ describe('pvm/publish', () => {
       slackMocker.spy((req) => {
         slackRequestsBody.push(req.body)
       })
-      const repo = await initRepo('simple-one')
+      const repo = await initRepo('simple-one', {
+        notifications: {
+          clients: [{
+            name: 'slack',
+            pkg: '@pvm/slack',
+          }],
+        },
+      })
 
       await expect(testPublish(repo, `-r invalid-reg --canary --message-channel test-channel`, {
         ...process.env,
@@ -500,7 +528,14 @@ describe('pvm/publish', () => {
       slackMocker.spy((req) => {
         slackRequestsBody.push(req.body)
       })
-      const repo = await initRepo('monorepo-new')
+      const repo = await initRepo('monorepo-new', {
+        notifications: {
+          clients: [{
+            name: 'slack',
+            pkg: '@pvm/slack',
+          }],
+        },
+      })
 
       repo.updatePkg('src/a', {
         publishConfig: {

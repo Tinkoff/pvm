@@ -7,12 +7,12 @@
   "author": "Andrey Rublev <box@anru.me>",
   "license": "Apache-2.0",
   "dependencies": {
+    "@pvm/di": "0.0.0-stub",
+    "@pvm/tokens-core": "0.0.0-stub",
     "@pvm/core": "0.0.0-stub",
-    "@pvm/cowners": "0.0.0-stub",
     "@pvm/vcs-git": "0.0.0-stub",
     "@pvm/vcs-fs": "0.0.0-stub",
-    "@pvm/tokens-common": "0.0.0-stub",
-    "resolve-from": "^5.0.0",
-    "string-to-color": "^2.2.2"
+    "string-to-color": "^2.2.2",
+    "yargs": "^16.1.1"
   }
 }

@@ -7,8 +7,7 @@
   "author": "ext.mshipov@tinkoff.ru",
   "license": "Apache-2.0",
   "dependencies": {
-    "@pvm/core": "0.0.0-stub",
-    "@pvm/gitlab": "0.0.0-stub"
+    "@pvm/core": "0.0.0-stub"
   },
   "devDependencies": {
     "@pvm/vcs": "0.0.0-stub"
