@@ -13,6 +13,7 @@ export default declarePlugin({
       { plugin: require.resolve('@pvm/files/plugin') },
       { plugin: require.resolve('@pvm/changelog/plugin') },
       { plugin: require.resolve('@pvm/add-tag/plugin') },
+      { plugin: require.resolve('@pvm/notifications/plugin') },
     ],
   },
 })

@@ -1,5 +1,5 @@
 import { Pvm } from '../index'
-import { provide } from '@pvm/di'
+import { declarePlugin, provide } from '@pvm/di'
 import path from 'path'
 import { CONFIG_TOKEN } from '@pvm/tokens-core'
 
@@ -87,13 +87,13 @@ describe('@pvm/container', () => {
           analyze_update: false,
         },
         plugins_v2: [{
-          plugin: {
+          plugin: declarePlugin({
             configExt: {
               mark_pr: {
                 analyze_update: true,
               },
             },
-          },
+          }),
         }],
       },
     })

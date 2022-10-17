@@ -78,12 +78,14 @@ export class Pvm {
     nextConfigExtensions = []
 
     const providerConfig = defaultsFromProvider(this.configDir)
-    if (providerConfig && providerConfig.plugins_v2) {
-      nextConfigExtensions = this.registerPlugins(providerConfig.plugins_v2, cwd)
-      // Config extensions from provider plugins
-      nextConfig = mergeDefaults(nextConfig, this.mergeConfigExtensions(nextConfigExtensions))
+    if (providerConfig) {
       // Config extensions from provider itself
       nextConfig = mergeDefaults(nextConfig, providerConfig)
+      if (providerConfig.plugins_v2) {
+        nextConfigExtensions = this.registerPlugins(providerConfig.plugins_v2, cwd)
+        // Config extensions from provider plugins
+        nextConfig = mergeDefaults(nextConfig, this.mergeConfigExtensions(nextConfigExtensions))
+      }
     }
 
     if (defaultConfig.plugins_v2) {
@@ -129,7 +131,7 @@ export class Pvm {
       const { factory, configExt, resolvedPath } = this.resolvePlugin(pluginConfig, resolveRoot)
 
       if (factory ? this.registeredPlugins.has(factory) : this.registeredPlugins.has(configExt)) {
-        throw new Error(`Plugin ${pluginConfig} resolved from ${resolveRoot} already registered`)
+        throw new Error(`Plugin ${typeof pluginConfig.plugin === 'string' ? pluginConfig.plugin : pluginConfig.plugin.name} resolved from ${resolveRoot} already registered`)
       }
       this.registeredPlugins.add(factory ?? configExt)
       const pluginProviders = factory ? factory(pluginConfig.options || {}).providers : []

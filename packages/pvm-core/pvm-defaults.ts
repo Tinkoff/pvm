@@ -163,12 +163,7 @@ export const defaultConfig: ConfigSchema = {
   dangerously_opts: {},
   notifications: {
     target: 'first_available',
-    clients: [
-      {
-        name: 'slack',
-        pkg: '@pvm/slack',
-      },
-    ],
+    clients: [],
     clients_common_config: {},
     client_configs: {},
   },
