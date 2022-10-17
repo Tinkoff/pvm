@@ -3,6 +3,18 @@ id: index
 title: Change Log
 ---
 
+## v0.56.1
+**2022.10.17**
+
+
+
+### 🐛 Bug Fixes
+
+* move cli to di extensions ([50](https://github.com/Tinkoff/pvm/issues/50)) ([#09011a4](https://github.com/Tinkoff/pvm/commit/09011a4fcdc272610f692c95d226e53589c49dfa))
+
+
+
+
 ## v0.56.0
 **2022.10.13**
 
