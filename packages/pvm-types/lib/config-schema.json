@@ -215,26 +215,62 @@
                 "plugin": {
                     "anyOf": [
                         {
-                            "properties": {
-                                "factory": {
+                            "allOf": [
+                                {
+                                    "properties": {
+                                        "name": {
+                                            "type": "string"
+                                        }
+                                    },
                                     "type": "object"
-                                }
-                            },
-                            "type": "object"
-                        },
-                        {
-                            "$ref": "#/definitions/{configExt:RecursivePartial<Config>;}"
-                        },
-                        {
-                            "properties": {
-                                "configExt": {
-                                    "$ref": "#/definitions/RecursivePartial<Config>"
                                 },
-                                "factory": {
+                                {
+                                    "properties": {
+                                        "factory": {
+                                            "type": "object"
+                                        }
+                                    },
                                     "type": "object"
                                 }
-                            },
-                            "type": "object"
+                            ]
+                        },
+                        {
+                            "allOf": [
+                                {
+                                    "properties": {
+                                        "name": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                },
+                                {
+                                    "$ref": "#/definitions/{configExt:RecursivePartial<Config>;}"
+                                }
+                            ]
+                        },
+                        {
+                            "allOf": [
+                                {
+                                    "properties": {
+                                        "name": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                },
+                                {
+                                    "properties": {
+                                        "configExt": {
+                                            "$ref": "#/definitions/RecursivePartial<Config>"
+                                        },
+                                        "factory": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            ]
                         },
                         {
                             "type": [
