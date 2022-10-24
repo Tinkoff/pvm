@@ -1,0 +1,28 @@
+name: 'release'
+
+on:
+  push:
+    branches:
+      - 'beta'
+
+env:
+  PVM_LL: silly
+
+jobs:
+  release-beta:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 150
+      - uses: ./.github/actions/setup
+      - run: npm run build
+      - run: node scripts/remark-readme.js
+      - run: npm exec pvm publish --canary --tag beta -s all
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PVM_SLACK_TOKEN: ${{ secrets.PVM_SLACK_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          PVM_MATTERMOST_URL: ${{ secrets.PVM_MATTERMOST_URL }}
+          PVM_MATTERMOST_TOKEN: ${{ secrets.PVM_MATTERMOST_TOKEN }}
+          PVM_MATTERMOST_INCOMING_WEBHOOK: ${{ secrets.PVM_MATTERMOST_INCOMING_WEBHOOK }}
