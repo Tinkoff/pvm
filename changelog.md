@@ -3,6 +3,18 @@ id: index
 title: Change Log
 ---
 
+## v0.56.2
+**2022.10.24**
+
+
+
+### 🐛 Bug Fixes
+
+* **@pvm/core:** plugins init corrected ([51](https://github.com/Tinkoff/pvm/issues/51)) ([#8f13cba](https://github.com/Tinkoff/pvm/commit/8f13cba5a2056e1577fc13074643ab84a4878b07))
+
+
+
+
 ## v0.56.1
 **2022.10.17**
 
