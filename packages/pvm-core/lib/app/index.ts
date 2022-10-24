@@ -73,7 +73,7 @@ export class Pvm {
     let nextConfig = this.mergeConfigExtensions(configExtensions)
 
     // Config extensions from plugins
-    let nextConfigExtensions = this.registerPlugins((plugins ?? []).concat(nextConfig.plugins_v2), cwd)
+    let nextConfigExtensions = this.registerPlugins((plugins ?? []).concat(nextConfig.plugins_v2 ?? []), cwd)
     nextConfig = mergeDefaults(nextConfig, this.mergeConfigExtensions(nextConfigExtensions))
     nextConfigExtensions = []
 
