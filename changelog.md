@@ -3,6 +3,18 @@ id: index
 title: Change Log
 ---
 
+## v0.56.3
+**2022.10.25**
+
+
+
+### 🐛 Bug Fixes
+
+* **@pvm/core:** plugins and plugins_v2 load compat ([#0e8f765](https://github.com/Tinkoff/pvm/commit/0e8f7652bf1178571b23b7b7fcad0d57b73ec332))
+
+
+
+
 ## v0.56.2
 **2022.10.24**
 
