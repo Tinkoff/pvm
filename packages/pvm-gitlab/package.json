@@ -11,6 +11,11 @@
     "@pvm/vcs": "0.0.0-stub",
     "p-map": "^4.0.0",
     "parse-md": "^2.0.4",
-    "parse-path": "^4.0.1"
+    "parse-path": "^4.0.1",
+    "@iarna/toml": "^2.2.5",
+    "@pvm/gitlab": "0.0.0-stub",
+    "@pvm/di": "0.0.0-stub",
+    "@pvm/tokens-core": "0.0.0-stub",
+    "marked": "^2.1.3"
   }
 }
