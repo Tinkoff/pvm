@@ -3,6 +3,18 @@ id: index
 title: Change Log
 ---
 
+## v0.56.4
+**2022.10.25**
+
+
+
+### 🐛 Bug Fixes
+
+* **@pvm/gitlab:** move plugin to @pvm/gitlab to preserve backward compatibility ([#1d4487b](https://github.com/Tinkoff/pvm/commit/1d4487bf4c4ce88357ab05d5a065e1080369af67))
+
+
+
+
 ## v0.56.3
 **2022.10.25**
 
