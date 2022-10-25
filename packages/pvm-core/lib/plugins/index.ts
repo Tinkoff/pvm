@@ -194,7 +194,10 @@ function makePluginsContext(cwd: string): PluginsContext {
 
   async function loadPluginByName(name: string, resolveFromPath: string = cwd): Promise<void> {
     const plugin = requireDefault(resolveFrom(resolveFromPath, name))
-    await loadPlugin(plugin, name)
+    // todo: will be removed with all the old plugins mechanism
+    if (typeof plugin === 'function') {
+      await loadPlugin(plugin, name)
+    }
   }
 
   async function loadProvidedPlugins(): Promise<unknown> {
