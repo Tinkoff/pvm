@@ -11,7 +11,7 @@ export const defaultConfig: ConfigSchema = {
   tagging: {
     release_tag_package: '',
     annotation_lookup_depth: 30,
-    suffixes: '@pvm/suffixes',
+    suffixes: require.resolve('@pvm/suffixes'),
     generic_tag: {
       prefix: 'release',
       date_format: 'yyyy.MM.dd',
