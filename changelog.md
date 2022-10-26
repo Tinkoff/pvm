@@ -3,6 +3,18 @@ id: index
 title: Change Log
 ---
 
+## v0.56.5
+**2022.10.26**
+
+
+
+### 🐛 Bug Fixes
+
+* **@pvm/core:** fix plugin resolution paths ([#459ecda](https://github.com/Tinkoff/pvm/commit/459ecda402cbf771d01fdbc355561f2e07ee5f95))
+
+
+
+
 ## v0.56.4
 **2022.10.25**
 
