@@ -13,7 +13,7 @@ import { logger } from '../logger'
 import { wdShell } from '../shell/index'
 import { cachedRealPath } from '../fs'
 import { isPlainObject } from '../utils'
-import { resolvePvmProvider } from '../plugins/provider'
+import type { PvmProviderInfo } from '../plugins/provider'
 import { taggedCacheManager, CacheTag, mema } from '../memoize'
 
 import type { Config } from './types'
@@ -321,12 +321,7 @@ function loadRawConfig(cwd: string, ref: string | undefined = void 0): ConfigRes
   }
 }
 
-export function defaultsFromProvider(cwd: string): RecursivePartial<Config> | undefined {
-  const provider = resolvePvmProvider(cwd)
-  if (!provider) {
-    return
-  }
-
+export function defaultsFromProvider(provider: PvmProviderInfo): RecursivePartial<Config> | undefined {
   if (provider.pkg.pvm.configDefaults) {
     const configDefaultsPath = path.resolve(provider.path, provider.pkg.pvm.configDefaults)
     if (!fs.existsSync(configDefaultsPath)) {

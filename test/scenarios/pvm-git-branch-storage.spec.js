@@ -12,6 +12,11 @@ describe('pvm-git-branch-storage', () => {
           'pvm-local/local.js',
         ],
       },
+      plugins_v2: [
+        {
+          plugin: './pvm-plugin-v2/plugin.js',
+        },
+      ],
       changelog: {
         enabled: true,
         storage: {
@@ -20,11 +25,13 @@ describe('pvm-git-branch-storage', () => {
         },
       },
     })
+
     await repo.writeFile('change_trigger.txt', 'change', 'change')
 
     const { stdout } = await repo.execScript('pvm update')
 
     expect(stdout).toMatch(/local plugin loaded sucessfully. Branch: pvm-artifacts/)
+    expect(stdout).toMatch(/plugin_v2 loaded successfully/)
   })
 
   it('defaults for new worktree cwd should be taken from main worktree config', async () => {
