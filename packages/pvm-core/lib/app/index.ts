@@ -14,6 +14,7 @@ import { defaultConfig } from '../../pvm-defaults'
 import { logger, loggerFor } from '../logger'
 import { verifyRequiredBins } from './required-bin-versions'
 import chalk from 'chalk'
+import { resolvePvmProvider } from '../plugins/provider'
 
 const log = loggerFor('pvm:app')
 
@@ -49,7 +50,7 @@ export class Pvm {
       provide: DI_TOKEN,
     }))
 
-    this.initConfigAndPlugins(config ?? {}, plugins, cwd)
+    this.initConfigAndPlugins(config ?? {}, plugins)
   }
 
   runCli(argv: string[] = process.argv): void {
@@ -63,7 +64,7 @@ export class Pvm {
     })
   }
 
-  protected initConfigAndPlugins(config: RecursivePartial<Config> | string | null, plugins: PluginConfig[] = [], cwd: string) {
+  protected initConfigAndPlugins(config: RecursivePartial<Config> | string | null, plugins: PluginConfig[] = []) {
     const configExtensions:RecursivePartial<Config>[] = []
     // Env config
     configExtensions.push(readEnv())
@@ -73,23 +74,29 @@ export class Pvm {
     let nextConfig = this.mergeConfigExtensions(configExtensions)
 
     // Config extensions from plugins
-    let nextConfigExtensions = this.registerPlugins((plugins ?? []).concat(nextConfig.plugins_v2 ?? []), cwd)
+    let nextConfigExtensions = this.registerPlugins(plugins ?? [], this.configDir)
     nextConfig = mergeDefaults(nextConfig, this.mergeConfigExtensions(nextConfigExtensions))
-    nextConfigExtensions = []
 
-    const providerConfig = defaultsFromProvider(this.configDir)
-    if (providerConfig) {
-      // Config extensions from provider itself
-      nextConfig = mergeDefaults(nextConfig, providerConfig)
-      if (providerConfig.plugins_v2) {
-        nextConfigExtensions = this.registerPlugins(providerConfig.plugins_v2, cwd)
-        // Config extensions from provider plugins
-        nextConfig = mergeDefaults(nextConfig, this.mergeConfigExtensions(nextConfigExtensions))
+    // Config extensions from user defined plugins
+    nextConfigExtensions = this.registerPlugins(nextConfig.plugins_v2 ?? [], this.configDir)
+    nextConfig = mergeDefaults(nextConfig, this.mergeConfigExtensions(nextConfigExtensions))
+
+    const provider = resolvePvmProvider(this.configDir)
+    if (provider) {
+      const providerConfig = defaultsFromProvider(provider)
+      if (providerConfig) {
+        // Config extensions from provider itself
+        nextConfig = mergeDefaults(nextConfig, providerConfig)
+        if (providerConfig.plugins_v2) {
+          nextConfigExtensions = this.registerPlugins(providerConfig.plugins_v2, provider.path)
+          // Config extensions from provider plugins
+          nextConfig = mergeDefaults(nextConfig, this.mergeConfigExtensions(nextConfigExtensions))
+        }
       }
     }
 
     if (defaultConfig.plugins_v2) {
-      nextConfigExtensions = this.registerPlugins(defaultConfig.plugins_v2, cwd)
+      nextConfigExtensions = this.registerPlugins(defaultConfig.plugins_v2, path.dirname(require.resolve('../../pvm-defaults')))
       // Config extensions from default config plugins
       nextConfig = mergeDefaults(nextConfig, this.mergeConfigExtensions(nextConfigExtensions))
     }
@@ -138,7 +145,7 @@ export class Pvm {
       for (const provider of pluginProviders) {
         this.container.register(provider)
       }
-      log.info(chalk`plugin {blue ${resolvedPath}} loaded`)
+      log.info(chalk`plugin {blue ${resolvedPath}} loaded. Resolved from ${resolveRoot}`)
 
       if (configExt) {
         configExtensions.push(configExt)
