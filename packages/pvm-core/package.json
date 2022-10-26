@@ -11,6 +11,7 @@
     "@pvm/di": "0.0.0-stub",
     "@pvm/tokens-core": "0.0.0-stub",
     "@pvm/plugin-common-plugins": "0.0.0-stub",
+    "@pvm/suffixes": "0.0.0-stub",
     "@iarna/toml": "^2.2.3",
     "@hutson/parse-repository-url": "^5.0.0",
     "ajv": "^6.12.2",
