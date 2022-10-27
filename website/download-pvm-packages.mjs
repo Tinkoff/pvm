@@ -9,7 +9,7 @@ const __filename = fileURLToPath(import.meta.url);
 
 const pvmPackages = (await drainItems.default(pkgset('all', {
   cwd: path.join(path.dirname(__filename), '..')
-}))).map(pkg => ({
+}))).filter(pkg => !pkg.meta.private).map(pkg => ({
   name: pkg.name,
   version: pkg.version,
   tgz: `${pkg.shortName}-${pkg.version}.tgz`,

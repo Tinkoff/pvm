@@ -1,0 +1,4 @@
+release-type = 'patch'
+
+[force-release]
+packages = ['*']
