@@ -3,6 +3,18 @@ id: index
 title: Change Log
 ---
 
+## v0.56.7
+**2022.10.27**
+
+
+
+### 🐛 Bug Fixes
+
+* **@pvm/plugin-core:** remove exports restrictions ([#426b088](https://github.com/Tinkoff/pvm/commit/426b088502521d5ad87b6ac707fe72c894ab385b))
+
+
+
+
 ## v0.56.6
 **2022.10.27**
 
