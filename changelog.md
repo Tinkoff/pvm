@@ -3,6 +3,19 @@ id: index
 title: Change Log
 ---
 
+## v0.56.6
+**2022.10.27**
+
+
+
+### 🐛 Bug Fixes
+
+* **@pvm/core:** add backward imports ([#1a14287](https://github.com/Tinkoff/pvm/commit/1a142871b93d1ebee2b33e594a67bd8273519b7a))
+* **@pvm/core:** add missing package ([#9f263cf](https://github.com/Tinkoff/pvm/commit/9f263cfeb8d538a346fb6e6a1e43e31d6a6ccb2c))
+
+
+
+
 ## v0.56.5
 **2022.10.26**
 
