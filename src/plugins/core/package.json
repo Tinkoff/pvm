@@ -1,7 +1,6 @@
 {
   "name": "@pvm/plugin-core",
   "version": "0.0.0-stub",
-  "exports": "./index.js",
   "dependencies": {
     "yargs": "^16.1.1",
     "@iarna/toml": "^2.2.3",
