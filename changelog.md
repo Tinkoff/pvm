@@ -3,6 +3,18 @@ id: index
 title: Change Log
 ---
 
+## v0.56.8
+**2022.10.27**
+
+
+
+### 🐛 Bug Fixes
+
+* **@pvm/core:** resolve providers against config file dir ([#39d7711](https://github.com/Tinkoff/pvm/commit/39d7711c7be3659449e461136c66491e460435d6))
+
+
+
+
 ## v0.56.7
 **2022.10.27**
 
