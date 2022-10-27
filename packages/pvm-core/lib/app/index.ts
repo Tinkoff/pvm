@@ -50,7 +50,7 @@ export class Pvm {
       provide: DI_TOKEN,
     }))
 
-    this.initConfigAndPlugins(config ?? {}, plugins)
+    this.initConfigAndPlugins(config, plugins)
   }
 
   runCli(argv: string[] = process.argv): void {
@@ -64,13 +64,14 @@ export class Pvm {
     })
   }
 
-  protected initConfigAndPlugins(config: RecursivePartial<Config> | string | null, plugins: PluginConfig[] = []) {
+  protected initConfigAndPlugins(config: RecursivePartial<Config> | string | null | undefined, plugins: PluginConfig[] = []) {
     const configExtensions:RecursivePartial<Config>[] = []
     // Env config
     configExtensions.push(readEnv())
 
     // User defined config
-    configExtensions.push(this.setupConfigDirs((typeof config === 'string' || config === undefined) ? loadRawConfig(config).config : config ?? {}, this.cwd, this.configDir))
+    const userConfig: { config: RecursivePartial<Config>, filepath: string | null } = (typeof config === 'string' || !config) ? loadRawConfig(this.configDir) : { config: config ?? {}, filepath: null }
+    configExtensions.push(this.setupConfigDirs(userConfig.config, this.cwd, this.configDir))
     let nextConfig = this.mergeConfigExtensions(configExtensions)
 
     // Config extensions from plugins
@@ -81,7 +82,7 @@ export class Pvm {
     nextConfigExtensions = this.registerPlugins(nextConfig.plugins_v2 ?? [], this.configDir)
     nextConfig = mergeDefaults(nextConfig, this.mergeConfigExtensions(nextConfigExtensions))
 
-    const provider = resolvePvmProvider(this.configDir)
+    const provider = resolvePvmProvider(userConfig.filepath ? path.dirname(path.resolve(this.configDir, userConfig.filepath)) : this.configDir)
     if (provider) {
       const providerConfig = defaultsFromProvider(provider)
       if (providerConfig) {
