@@ -11,6 +11,7 @@
   "author": "Andrey Rublev <box@anru.me>",
   "license": "Apache-2.0",
   "dependencies": {
-    "@pvm/core": "0.0.0-stub"
+    "@pvm/core": "0.0.0-stub",
+    "@pvm/plugin-core": "0.0.0-stub"
   }
 }
