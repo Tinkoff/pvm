@@ -118,4 +118,11 @@ describe('@pvm/container', () => {
 
     expect(spy).toHaveBeenCalledWith(expect.stringMatching(/common-plugins[\\/]index\.js.+?loaded. Resolved from .+?packages[\\/]pvm-core/), undefined, expect.anything())
   })
+
+  it('should resolve provider against resolved config path', () => {
+    expect(new Pvm({
+      cwd: path.join(__dirname, '__fixtures__', 'non-cwd-config-and-provider', 'pvm'),
+      // @ts-ignore
+    }).container.get(CONFIG_TOKEN)['test-provider']).toBe(true)
+  })
 })

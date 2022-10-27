@@ -1,0 +1,7 @@
+{
+  "name": "provider",
+  "pvm": {
+    "provider": true,
+    "configDefaults": "./configDefaults.toml"
+  }
+}
