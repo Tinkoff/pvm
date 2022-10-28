@@ -3,6 +3,23 @@ id: index
 title: Change Log
 ---
 
+## v0.56.11
+**2022.10.28**
+
+
+
+### 🐛 Bug Fixes
+
+* add locators support for publish config ([#71d0a9e](https://github.com/Tinkoff/pvm/commit/71d0a9e2fd8b5004e67f33db07ae1eb8c8520b0f)), closes [    35](https://github.com/Tinkoff/pvm/issues/35)
+
+
+### Other
+
+* Remove slack notifications ([#b735750](https://github.com/Tinkoff/pvm/commit/b735750d0b68dc94850e041b7ed7e368da7c13aa))
+
+
+
+
 ## v0.56.10
 **2022.10.28**
 
