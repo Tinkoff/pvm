@@ -3,6 +3,23 @@ id: index
 title: Change Log
 ---
 
+## v0.56.9
+**2022.10.28**
+
+
+
+### ↩️ Reverts
+
+* Revert "chore: filter private pkgs from published list" ([#c27bbc4](https://github.com/Tinkoff/pvm/commit/c27bbc4f62eb5e432723745d594df280b2e4b9f2))
+
+
+### Other
+
+* publish artifacts to website ([#3e9b761](https://github.com/Tinkoff/pvm/commit/3e9b761c602345427e0474ebf3f45dbffd0e0983))
+
+
+
+
 ## v0.56.8
 **2022.10.27**
 
