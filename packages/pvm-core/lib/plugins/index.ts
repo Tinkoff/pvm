@@ -230,8 +230,6 @@ function makePluginsContext(cwd: string): PluginsContext {
 
   async function loadPluginsFromDeps(): Promise<unknown> {
     const config = await getConfig(cwd)
-    const pluginsConfig = config.plugins
-    const { load_first = [] } = pluginsConfig
 
     const rootPkgPath = path.join(config.configLookupDir, 'package.json')
     let pkg
@@ -247,22 +245,6 @@ function makePluginsContext(cwd: string): PluginsContext {
     }
 
     const pluginsToLoad = filterPluginsFromDeps(deps)
-
-    pluginsToLoad.sort((a, b) => {
-      const aFirstIndex = load_first.indexOf(a)
-      const bFirstIndex = load_first.indexOf(b)
-      if (aFirstIndex === -1 && bFirstIndex === -1) {
-        return 0
-      }
-      if (aFirstIndex === -1) {
-        return 1
-      }
-      if (bFirstIndex === -1) {
-        return -1
-      }
-
-      return aFirstIndex - bFirstIndex
-    })
 
     return pEachSeries(pluginsToLoad, async (name) => loadPluginByName(name, config.configLookupDir))
   }

@@ -129,7 +129,6 @@ export const defaultConfig: ConfigSchema = {
   },
   plugins: {
     local_plugins: [],
-    load_first: [],
     options: {},
   },
   plugins_v2: [
@@ -158,8 +157,6 @@ export const defaultConfig: ConfigSchema = {
   github: {
     auth_strategy: undefined,
   },
-  slack_notification: {},
-  slack_auth: {},
   dangerously_opts: {},
   notifications: {
     target: 'first_available',

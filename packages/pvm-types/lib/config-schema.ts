@@ -415,9 +415,11 @@ export interface Config {
      */
     renderer: ChangelogRenderer,
   },
+  /**
+   * @deprecated please use [plugins_v2](/api/interfaces/pvm_types.Config.md#plugins_v2)
+   */
   plugins: {
     local_plugins: string[],
-    load_first: string[],
     options: Record<string, Record<string, string>>,
   },
   plugins_v2: PluginConfig[],
@@ -511,12 +513,6 @@ export interface Config {
    * @deprecated Use @notifications.clients_common_config instead
    */
   slack_notification?: Record<string, string>,
-  /**
-   * Here you can specify a token for the slag authentication, but this method is not recommended - it is better to use the SLACK_TOKEN environment variable.
-   * token = 'xoxp-....'
-   * @deprecated Use env variable PVM_SLACK_TOKEN
-   */
-  slack_auth: Record<string, string>,
   /**
    * How to deal with messages.
    */

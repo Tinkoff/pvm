@@ -376,7 +376,7 @@
                     "$ref": "#/definitions/RecursivePartial<{ignore_files:string[];affected_files:{if_changed:string[];then_affected:PkgFlexGlobs;}[];}>"
                 },
                 "plugins": {
-                    "$ref": "#/definitions/RecursivePartial<{local_plugins:string[];load_first:string[];options:Record<string,Record<string,string>>;}>"
+                    "$ref": "#/definitions/RecursivePartial<{local_plugins:string[];options:Record<string,Record<string,string>>;}>"
                 },
                 "plugins_v2": {
                     "items": {
@@ -392,10 +392,6 @@
                 },
                 "release_list": {
                     "$ref": "#/definitions/RecursivePartial<{enabled:boolean;path:string;limit:ArtifactLimitDef;storage:StorageDef;}>"
-                },
-                "slack_auth": {
-                    "$ref": "#/definitions/RecursivePartial<Record<string,string>>",
-                    "description": "Here you can specify a token for the slag authentication, but this method is not recommended - it is better to use the SLACK_TOKEN environment variable.\ntoken = 'xoxp-....'"
                 },
                 "slack_notification": {
                     "$ref": "#/definitions/RecursivePartial<Record<string,string>>",
@@ -866,14 +862,8 @@
             },
             "type": "object"
         },
-        "RecursivePartial<{local_plugins:string[];load_first:string[];options:Record<string,Record<string,string>>;}>": {
+        "RecursivePartial<{local_plugins:string[];options:Record<string,Record<string,string>>;}>": {
             "properties": {
-                "load_first": {
-                    "items": {
-                        "type": "string"
-                    },
-                    "type": "array"
-                },
                 "local_plugins": {
                     "items": {
                         "type": "string"
@@ -1461,12 +1451,6 @@
         },
         "plugins": {
             "properties": {
-                "load_first": {
-                    "items": {
-                        "type": "string"
-                    },
-                    "type": "array"
-                },
                 "local_plugins": {
                     "items": {
                         "type": "string"
@@ -1576,10 +1560,6 @@
                 }
             },
             "type": "object"
-        },
-        "slack_auth": {
-            "$ref": "#/definitions/Record<string,string>",
-            "description": "Here you can specify a token for the slag authentication, but this method is not recommended - it is better to use the SLACK_TOKEN environment variable.\ntoken = 'xoxp-....'"
         },
         "slack_notification": {
             "$ref": "#/definitions/Record<string,string>",
