@@ -182,11 +182,11 @@ export interface Config {
      */
     registry?: string,
     /**
-     * Do not perform publish for packages that matches specified package path patterns
+     * Do not perform publish for packages that matches specified [locators](/book/glossary.md#locators).
      */
     disabled_for: GlobPattern[],
     /**
-     * Patterns list for publication paths. If not empty then only those packages, that match patterns, are going to publish
+     * Patterns list for published packages. If not empty then only those packages, that match [locators](/book/glossary.md#locators), are going to publish
      */
     enabled_only_for: GlobPattern[],
     /**
@@ -508,9 +508,9 @@ export interface Config {
   },
   /**
    * See https://api.slack.com/methods/chat.postMessage#arguments
-   * @deprecated Use @messaging.defaults.slack instead
+   * @deprecated Use @notifications.clients_common_config instead
    */
-  slack_notification: Record<string, string>,
+  slack_notification?: Record<string, string>,
   /**
    * Here you can specify a token for the slag authentication, but this method is not recommended - it is better to use the SLACK_TOKEN environment variable.
    * token = 'xoxp-....'
@@ -524,7 +524,7 @@ export interface Config {
     /**
      * Which clients use to send messages:<br />
      * `all` - all provided and ready to use clients.<br />
-     * `first_available` - find first ready client (order determined by order of clients in messaging.clients config) and use it.<br />
+     * `first_available` - find first ready client (order determined by order of clients in notifications.clients config) and use it.<br />
      * `MessengerName` or list of names - try to send message through specified clients.<br />
      * <br />
      * In all cases `ready` client means all necessary env variables or configuration values are provided. If message

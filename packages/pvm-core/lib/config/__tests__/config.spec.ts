@@ -18,6 +18,15 @@ describe('pvm/config', () => {
 
   it('should migrate deprecated values', () => {
     const config = {
+      slack_notification: {
+        channel: 'test',
+        username: 'user',
+        icon_emoji: 'icon',
+      },
+      publish: {
+        enabled_only_for: ['src/c', 'src/b'],
+        disabled_for: ['src/c', 'src/b'],
+      },
       release: {},
       tagging: {
         unified_tag: {
@@ -36,6 +45,19 @@ describe('pvm/config', () => {
     migrateDeprecated(config as unknown as Config)
 
     expect(config).toEqual({
+      notifications: {
+        clients_common_config: {
+          channel: 'test',
+          author: {
+            name: 'user',
+            avatarEmoji: 'icon',
+          },
+        },
+      },
+      publish: {
+        enabled_only_for: ['/src/c', '/src/b'],
+        disabled_for: ['/src/c', '/src/b'],
+      },
       release: {},
       tagging: {
         suffixes: ['apple', 'banana', 'orange'],

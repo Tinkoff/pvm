@@ -3,7 +3,6 @@ import os from 'os'
 import chalk from 'chalk'
 import vm from 'vm'
 
-import micromatch from 'micromatch'
 import semver from 'semver'
 import pMap from 'p-map'
 import defaults from 'lodash/defaults'
@@ -198,8 +197,13 @@ export async function publish(flags: Flags): Promise<PublishedStats> {
   async function publishAndCatch(pkg: Pkg): Promise<void> {
     const disabledFor = config.publish.disabled_for
     const enabledOnlyFor = config.publish.enabled_only_for
-    if (micromatch.isMatch(pkg.path, disabledFor) || enabledOnlyFor.length && !micromatch.isMatch(pkg.path, enabledOnlyFor)) {
-      logger.info(`Skip publish for ${pkg.name} due to "publish.disabled_for" or "publish.enabled_only_for" configuration`)
+    if (matchAny(pkg, disabledFor)) {
+      logger.info(`Skip publish for ${pkg.name} due to "publish.disabled_for" configuration`)
+      return
+    }
+
+    if (enabledOnlyFor.length && !matchAny(pkg, enabledOnlyFor)) {
+      logger.info(`Skip publish for ${pkg.name} due to "publish.enabled_only_for" configuration`)
       return
     }
 

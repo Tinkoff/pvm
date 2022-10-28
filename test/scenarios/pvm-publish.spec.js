@@ -152,7 +152,7 @@ describe('pvm/publish', () => {
   it('не должен паблишить пакеты, подпадающие под disabled_for', async () => {
     const repo = await initRepo('monorepo-new', {
       publish: {
-        disabled_for: ['src/c', 'src/b'],
+        disabled_for: ['/src/c', 'b'],
       },
     })
 
@@ -168,7 +168,7 @@ describe('pvm/publish', () => {
   it('должен паблишить только пакеты, подпадающие под enabled_only_for', async () => {
     const repo = await initRepo('monorepo-new', {
       publish: {
-        enabled_only_for: ['src/c', 'src/b'],
+        enabled_only_for: ['/src/c', 'b'],
       },
     })
 
