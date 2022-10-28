@@ -3,6 +3,18 @@ id: index
 title: Change Log
 ---
 
+## v0.56.12
+**2022.10.28**
+
+
+
+### 🐛 Bug Fixes
+
+* remove deprecated unused config options ([#44b9155](https://github.com/Tinkoff/pvm/commit/44b9155f922b423fe2d888566a744174fcdb51dd))
+
+
+
+
 ## v0.56.11
 **2022.10.28**
 
