@@ -32,7 +32,8 @@
     "through2": "^4.0.2",
     "git-url-parse": "^11.4.4",
     "json5": "^2.2.1",
-    "bin-version-check": "^4.0.0"
+    "bin-version-check": "^4.0.0",
+    "ini": "^1.3.8"
   },
   "devDependencies": {
     "@pvm/releases": "0.0.0-stub",

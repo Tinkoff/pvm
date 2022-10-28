@@ -2,8 +2,8 @@ const fs = require('fs')
 const path = require('path')
 const { runRegistryMockServer } = require('../npm-registry-mock')
 const { runMessengerMocker } = require('../slack-mock')
-const { setupPublishNpmRCAndEnvVariables } = require('@pvm/plugin-core/publish/prepare')
 const fsExtra = require('fs-extra')
+const execShell = require('@pvm/core/lib/shell/exec').default
 
 function readStats(repo, statsName = 'publish-stats.json') {
   const rawStr = fs.readFileSync(path.join(repo.dir, statsName)).toString('utf8')
@@ -246,19 +246,25 @@ describe('pvm/publish', () => {
     expect(successNames).not.toContain('c')
   })
 
-  it('should provide strict-ssl value from .npmrc to publish command if yarn v1 used', async () => {
+  it('should provide strict-ssl value from .npmrc as env npm config if yarn v1 used', async () => {
     const repo = await initRepo('simple-one')
-    await repo.writeFile('.npmrc', `strict-ssl = abc`, `disable strict-ssl`)
-    process.env['npm_config_user_agent'] = 'yarn/1.22.19 npm/? node/v16.16.0 win32 x64'
-    const { publishEnv } = await setupPublishNpmRCAndEnvVariables(repo.cwd)
-    expect(publishEnv['npm_config_strict_ssl']).toBe('abc')
+    await repo.writeFile('.npmrc', `strict-ssl = "strict-ssl value"`, `disable strict-ssl`)
+    const { stdout } = await execShell(`node -r "${require.resolve('./__fixtures__/boot-test.js')}" -e "console.log(process.env['npm_config_strict_ssl'])" "${repo.cwd}"`, {
+      env: {
+        ...process.env,
+        'npm_config_user_agent': 'yarn/1.22.19 npm/? node/v16.16.0 win32 x64',
+      },
+    })
+    expect(stdout).toContain('strict-ssl value')
   })
 
-  it('should not provide strict-ssl value from .npmrc to publish command if yarn v1 not used', async () => {
+  it('should not provide strict-ssl value from .npmrc as env npm config if yarn v1 not used', async () => {
     const repo = await initRepo('simple-one')
-    await repo.writeFile('.npmrc', `strict-ssl = abc`, `disable strict-ssl`)
-    const { publishEnv } = await setupPublishNpmRCAndEnvVariables(repo.cwd)
-    expect(publishEnv['npm_config_strict_ssl']).not.toBe('abc')
+    await repo.writeFile('.npmrc', `strict-ssl = "strict-ssl value"`, `disable strict-ssl`)
+    const { stdout } = await execShell(`node -r "${require.resolve('./__fixtures__/boot-test.js')}" -e "console.log(process.env['npm_config_strict_ssl'])" "${repo.cwd}"`, {
+      env: process.env,
+    })
+    expect(stdout).not.toContain('strict-ssl value')
   })
 
   it('should take unified version from tag in case of unified wildcard and publish path set', async () => {
