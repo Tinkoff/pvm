@@ -11,7 +11,7 @@ export abstract class AbstractMessengerClient {
   getMessageWithDefaults(message: Message): Message {
     const clientConfig = this.clientConfig
 
-    return defaultsDeep({}, message, { author: { name: this.config.slack_notification?.username } }, {
+    return defaultsDeep({}, message, {
       channel: clientConfig.channel,
       author: clientConfig.author,
     })

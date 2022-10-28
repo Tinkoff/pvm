@@ -24,21 +24,19 @@ export interface SlackSendOpts {
   env?: Record<string, string>,
 }
 
-function getDefaultsParams(config: Config): Partial<SlackMessage> {
+function getDefaultsParams(): Partial<SlackMessage> {
   const projectPkg = resolveFrom.silent(process.cwd(), './package')
   const username = projectPkg ? `${requireDefault(projectPkg).name} minion` : void 0
-  const confMessage = config.slack_notification
 
   return {
     username,
-    ...confMessage,
   }
 }
 
 // https://api.slack.com/custom-integrations/incoming-webhooks
 // https://api.slack.com/messaging/webhooks
 // !Warning:  new webhooks supports only text,blocks fields in SlackMessage
-function webhookSend(config: Config, message: SlackMessage, opts: SlackSendOpts = {}): Promise<HttpResponseSuccess<unknown>> {
+function webhookSend(message: SlackMessage, opts: SlackSendOpts = {}): Promise<HttpResponseSuccess<unknown>> {
   // eslint-disable-next-line pvm/no-process-env
   const { env = defaultEnv } = opts
   const SLACK_WEBHOOK = readPvmEnv('SLACK_WEBHOOK', env)
@@ -53,14 +51,14 @@ function webhookSend(config: Config, message: SlackMessage, opts: SlackSendOpts 
   return httpreq(webhookUrl!, {
     method: 'POST',
     body: {
-      ...getDefaultsParams(config),
+      ...getDefaultsParams(),
       ...message,
     },
   })
 }
 
 // https://api.slack.com/methods/chat.postMessage
-function chatPostMessage(config: Config, message: SlackMessage, opts: SlackSendOpts = {}): Promise<HttpResponseSuccess<unknown>> {
+function chatPostMessage(message: SlackMessage, opts: SlackSendOpts = {}): Promise<HttpResponseSuccess<unknown>> {
   const { env = defaultEnv } = opts
   const SLACK_TOKEN = readPvmEnv('SLACK_TOKEN', env)
 
@@ -71,7 +69,7 @@ function chatPostMessage(config: Config, message: SlackMessage, opts: SlackSendO
   const url = `${SLACK_API_URL}/chat.postMessage`
   logger.debug(`sending message to slack via chat.postMessage api method`)
   const body = {
-    ...getDefaultsParams(config),
+    ...getDefaultsParams(),
     ...message,
   }
   logger.silly(JSON.stringify(body))
@@ -107,9 +105,9 @@ async function sendMessage(config: Config, message: SlackMessage, opts: SlackSen
 
   let response
   if (SLACK_WEBHOOK || SLACK_WEBHOOK_URL) {
-    response = await webhookSend(config, message, opts)
+    response = await webhookSend(message, opts)
   } else if (SLACK_TOKEN) {
-    response = await chatPostMessage(config, message, opts)
+    response = await chatPostMessage(message, opts)
   } else {
     logger.warn('Neither SLACK_WEBHOOK_URL nor SLACK_TOKEN env variables have been configured. Unable to send message to slack:')
     logger.warn(JSON.stringify(message))

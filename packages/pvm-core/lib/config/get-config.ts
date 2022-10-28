@@ -225,6 +225,24 @@ function migrateRenderer(parent: Record<string, any>, parentPath: string): void 
   }
 }
 
+function migratePublishEnabledDisable(config: Config, keyName: 'enabled_only_for' | 'disabled_for'): void {
+  let migrated = false
+
+  for (const [i, value] of config.publish[keyName].entries()) {
+    // dirA/dirB
+    if (!value.startsWith('@') && value.indexOf('/') > 0) {
+      // align with locator format
+      config.publish[keyName][i] = `/${value}`
+
+      migrated = true
+    }
+  }
+
+  if (migrated) {
+    logger.warn(`Setting "publish.${keyName}" should have list of locators starting with '/' if file path matching required`)
+  }
+}
+
 export function migrateDeprecated(config: Config): void {
   // @ts-ignore
   if (config.tagging?.unified_tag) {
@@ -242,6 +260,29 @@ export function migrateDeprecated(config: Config): void {
     }
     // @ts-ignore
     delete config.tagging.unified_tag
+  }
+
+  if (config.publish?.enabled_only_for?.length) {
+    migratePublishEnabledDisable(config, 'enabled_only_for')
+  }
+
+  if (config.publish?.disabled_for?.length) {
+    migratePublishEnabledDisable(config, 'disabled_for')
+  }
+
+  if (config.slack_notification) {
+    config.notifications = config.notifications || {}
+    config.notifications.clients_common_config = {
+      channel: config.slack_notification.channel,
+      ...config.notifications.clients_common_config,
+      author: {
+        name: config.slack_notification.username,
+        avatarEmoji: config.slack_notification.icon_emoji,
+        ...config.notifications.clients_common_config?.author,
+      },
+    }
+    delete config.slack_notification
+    logger.warn(`Setting "config.slack_notification" is deprecated. Consider to use "config.notifications" section entries.`)
   }
 
   migrateRenderer(config.changelog, 'changelog')

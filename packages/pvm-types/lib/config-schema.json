@@ -950,7 +950,7 @@
                     "type": "string"
                 },
                 "disabled_for": {
-                    "description": "Do not perform publish for packages that matches specified package path patterns",
+                    "description": "Do not perform publish for packages that matches specified [locators](/book/glossary.md#locators).",
                     "items": {
                         "type": "string"
                     },
@@ -962,7 +962,7 @@
                     "type": "string"
                 },
                 "enabled_only_for": {
-                    "description": "Patterns list for publication paths. If not empty then only those packages, that match patterns, are going to publish",
+                    "description": "Patterns list for published packages. If not empty then only those packages, that match [locators](/book/glossary.md#locators), are going to publish",
                     "items": {
                         "type": "string"
                     },
@@ -1054,7 +1054,7 @@
                             "type": "string"
                         }
                     ],
-                    "description": "Which clients use to send messages:<br />\n`all` - all provided and ready to use clients.<br />\n`first_available` - find first ready client (order determined by order of clients in messaging.clients config) and use it.<br />\n`MessengerName` or list of names - try to send message through specified clients.<br />\n<br />\nIn all cases `ready` client means all necessary env variables or configuration values are provided. If message\nnot sent to messenger you expect to - look at log output"
+                    "description": "Which clients use to send messages:<br />\n`all` - all provided and ready to use clients.<br />\n`first_available` - find first ready client (order determined by order of clients in notifications.clients config) and use it.<br />\n`MessengerName` or list of names - try to send message through specified clients.<br />\n<br />\nIn all cases `ready` client means all necessary env variables or configuration values are provided. If message\nnot sent to messenger you expect to - look at log output"
                 }
             },
             "type": "object"
@@ -1401,7 +1401,7 @@
                             "type": "string"
                         }
                     ],
-                    "description": "Which clients use to send messages:<br />\n`all` - all provided and ready to use clients.<br />\n`first_available` - find first ready client (order determined by order of clients in messaging.clients config) and use it.<br />\n`MessengerName` or list of names - try to send message through specified clients.<br />\n<br />\nIn all cases `ready` client means all necessary env variables or configuration values are provided. If message\nnot sent to messenger you expect to - look at log output"
+                    "description": "Which clients use to send messages:<br />\n`all` - all provided and ready to use clients.<br />\n`first_available` - find first ready client (order determined by order of clients in notifications.clients config) and use it.<br />\n`MessengerName` or list of names - try to send message through specified clients.<br />\n<br />\nIn all cases `ready` client means all necessary env variables or configuration values are provided. If message\nnot sent to messenger you expect to - look at log output"
                 }
             },
             "type": "object"
@@ -1492,7 +1492,7 @@
                     "type": "string"
                 },
                 "disabled_for": {
-                    "description": "Do not perform publish for packages that matches specified package path patterns",
+                    "description": "Do not perform publish for packages that matches specified [locators](/book/glossary.md#locators).",
                     "items": {
                         "type": "string"
                     },
@@ -1504,7 +1504,7 @@
                     "type": "string"
                 },
                 "enabled_only_for": {
-                    "description": "Patterns list for publication paths. If not empty then only those packages, that match patterns, are going to publish",
+                    "description": "Patterns list for published packages. If not empty then only those packages, that match [locators](/book/glossary.md#locators), are going to publish",
                     "items": {
                         "type": "string"
                     },
