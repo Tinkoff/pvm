@@ -36,10 +36,6 @@ strip_namespace = false
 target = 'all'
 
 [[notifications.clients]]
-name = 'slack'
-pkg = '@pvm/slack'
-
-[[notifications.clients]]
 name = 'mattermost'
 pkg = '@pvm/mattermost'
 
