@@ -11,7 +11,6 @@ import shell from '@pvm/core/lib/shell'
 import { logger as defaultLogger } from '@pvm/core/lib/logger'
 import type { LoggerFunc } from '@pvm/core/lib/logger'
 import { env } from '@pvm/core/lib/env'
-import ini from 'ini'
 
 interface LoggerLike {
   log: LoggerFunc,
@@ -103,19 +102,6 @@ export async function setupPublishNpmRCAndEnvVariables(cwd: string, opts: Prepar
     const email = config.publish.email || 'pvm@pvm.service'
     logger.log(`appending email ${email} to .npmrc due to your npm version requires email for publishing`)
     npmrcContents.push(`email=${email}`)
-  }
-
-  // eslint-disable-next-line pvm/no-process-env
-  const classicYarn = process.env.npm_config_user_agent ? process.env.npm_config_user_agent.indexOf('yarn/1') !== -1 : false
-  // yarn 1 overrides npmrc settings with its own set of npm config envs so `yarn publish-command` wont work if it depends on those
-  // strict-ssl is one of those important settings, so copy it to envs and override yarn default one
-  if (classicYarn && npmRc) {
-    if (npmRc.indexOf('strict-ssl') !== -1) {
-      const parsedNpmRc = ini.parse(npmRc)
-      if (parsedNpmRc['strict-ssl'] !== undefined) {
-        publishEnv.npm_config_strict_ssl = parsedNpmRc['strict-ssl']
-      }
-    }
   }
 
   if (!dontWriteNpmRc && npmrcContents.length) {
