@@ -17,9 +17,7 @@ describe('slack-api', () => {
       .reply(200, { ok: true })
 
     // @ts-ignore
-    const repo = await initRepo('monouno')
-
-    await sendMessage(repo.config, { text: 'hello world' }, {
+    await sendMessage({ text: 'hello world' }, {
       env: {
         PVM_SLACK_TOKEN: 'xoxb-test-token',
       },

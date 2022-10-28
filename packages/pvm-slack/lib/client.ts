@@ -17,7 +17,7 @@ export class SlackClient extends AbstractMessengerClient {
   }
 
   protected async internalSendMessage(message: Message): Promise<void> {
-    await sendMessage(await this.config, omitBy({
+    await sendMessage(omitBy({
       username: message.author?.name,
       icon_emoji: message.author?.avatarEmoji,
       icon_url: message.author?.avatarUrl,

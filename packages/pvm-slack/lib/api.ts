@@ -4,7 +4,6 @@ import httpreq from '@pvm/core/lib/httpreq'
 import resolveFrom from 'resolve-from'
 import { requireDefault } from '@pvm/core/lib'
 
-import type { Config } from '@pvm/core/lib/config'
 import { env as defaultEnv } from '@pvm/core/lib/env'
 
 const SLACK_API_URL = defaultEnv.SLACK_API_URL || 'https://slack.com/api'
@@ -86,13 +85,12 @@ function readPvmEnv(name: string, env = defaultEnv): string | undefined {
   return env[name] ?? env[`PVM_${name}`]
 }
 
-async function sendMessage(config: Config, message: SlackMessage, opts: SlackSendOpts = {}): Promise<HttpResponseSuccess<unknown> | void> {
-  const { slack_auth = {} } = config
+async function sendMessage(message: SlackMessage, opts: SlackSendOpts = {}): Promise<HttpResponseSuccess<unknown> | void> {
   const { env = defaultEnv } = opts
 
   const SLACK_WEBHOOK = readPvmEnv('SLACK_WEBHOOK', env)
   const SLACK_WEBHOOK_URL = readPvmEnv('SLACK_WEBHOOK_URL', env)
-  const SLACK_TOKEN = readPvmEnv('SLACK_TOKEN', env) ?? slack_auth.token
+  const SLACK_TOKEN = readPvmEnv('SLACK_TOKEN', env)
 
   // Если передали SLACK_API_URL, то скорее всего хотим таки вызывать пуш нотификации и сервер замокирован
   if ((env.PVM_TESTING_ENV && !env.SLACK_API_URL) || env.PVM_EXTERNAL_DRY_RUN) {
