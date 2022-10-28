@@ -3,6 +3,18 @@ id: index
 title: Change Log
 ---
 
+## v0.56.10
+**2022.10.28**
+
+
+
+### 🐛 Bug Fixes
+
+* yarn v1 npm commands call fix ([#3fd7819](https://github.com/Tinkoff/pvm/commit/3fd7819ffe3196f484704498785d9e1ea305cc3a)), closes [    58](https://github.com/Tinkoff/pvm/issues/58)
+
+
+
+
 ## v0.56.9
 **2022.10.28**
 
