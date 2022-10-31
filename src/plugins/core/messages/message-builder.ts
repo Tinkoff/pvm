@@ -1,5 +1,5 @@
 // This file refers to those that you can freely copy to your own project.
-import type { Message, ReleasedProps, Commit } from '@pvm/types'
+import type { Message, ReleasedProps, Commit, PublishedStats } from '@pvm/types'
 import { issueToMdLink } from '@pvm/core/lib/text/jira'
 import { stripServiceLabels } from '@pvm/core/lib/text/commits'
 import { isGenericTagUsed } from '@pvm/core/lib/tag-meta'
@@ -74,33 +74,47 @@ export function buildMessage(releaseProps: ReleasedProps, opts: BuildMessageOpts
   }
 }
 
+export function defaultMessageBodyWrapper({ body, releaseLink, releaseName, packagesStats }: {
+  body: string,
+  releaseLink: string | null,
+  releaseName: string,
+  packagesStats: PublishedStats
+}) {
+  let header = releaseLink || releaseName
+
+  if (packagesStats.error.length) {
+    let warnSuffix
+    if (packagesStats.success.length) {
+      warnSuffix = 'partially failed to release'
+    } else {
+      warnSuffix = 'failed to release'
+    }
+
+    let pipelineSuffix
+    if (env.CI_PIPELINE_URL) {
+      pipelineSuffix = `([pipeline](${env.CI_PIPELINE_URL}))`
+    }
+
+    header = `:warning: ${releaseName} ${warnSuffix}${pipelineSuffix ? ` ${pipelineSuffix}` : ''}`
+  } else if (!releaseLink) {
+    header += ' has been released'
+  }
+
+  return body ? `${header}\n${body}` : header
+}
+
 export function releaseMessage(releaseProps: ReleasedProps, opts: MessageBuilderOpts = {}): Message {
   const { pvmConfig, packagesStats } = releaseProps
   const { attachPackages = isGenericTagUsed(pvmConfig) } = opts
 
   return buildMessage(releaseProps, {
     bodyWrapper: (body, { releaseLink, releaseName }) => {
-      let header = releaseLink || releaseName
-
-      if (packagesStats.error.length) {
-        let warnSuffix
-        if (packagesStats.success.length) {
-          warnSuffix = ' partially failed to release'
-        } else {
-          warnSuffix = ' failed to release'
-        }
-
-        let pipelineSuffix
-        if (env.CI_PIPELINE_URL) {
-          pipelineSuffix = `(<${env.CI_PIPELINE_URL}|pipeline>)`
-        }
-
-        header = `:warning: ${releaseName} ${warnSuffix}${pipelineSuffix ? ` ${pipelineSuffix}` : ''}`
-      } else if (!releaseLink) {
-        header += ' has been released'
-      }
-
-      return body ? `${header}\n${body}` : header
+      return defaultMessageBodyWrapper({
+        body,
+        releaseLink,
+        releaseName,
+        packagesStats,
+      })
     },
     attachPackages,
   })

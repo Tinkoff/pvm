@@ -7,6 +7,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@pvm/core": "0.0.0-stub",
+    "@pvm/plugin-core": "0.0.0-stub",
     "@pvm/types": "0.0.0-stub",
     "@pvm/vcs": "0.0.0-stub",
     "conventional-changelog-angular": "^5.0.10",

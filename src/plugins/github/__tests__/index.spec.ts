@@ -10,6 +10,7 @@ const API_ATTEMPT_THROTTLE = 300
 const RETRY_CONTINUE = 'RETRY_CONTINUE'
 
 jest.setTimeout(25000)
+jest.retryTimes(2)
 
 const githubClient = new Octokit({
   auth: env.PVM_GITHUB_TEST_REPO_TOKEN,
