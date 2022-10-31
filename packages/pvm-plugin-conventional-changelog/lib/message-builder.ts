@@ -5,6 +5,7 @@ import { parseCommit } from './common'
 
 import type { Commit as ConventionalCommit } from 'conventional-commits-parser'
 import type { ReleasedProps, Message } from '@pvm/types'
+import { defaultMessageBodyWrapper } from '@pvm/plugin-core/messages/message-builder'
 
 function cutText(text: string, maxLen: number): string {
   return text.length <= maxLen ? text : text.substr(0, maxLen)
@@ -245,17 +246,18 @@ export async function releaseMessage(
   releaseProps: ReleasedProps,
   opts: MessageBuilderOpts = {}
 ): Promise<Omit<Message, 'channel'>> {
-  const { pvmConfig } = releaseProps
+  const { pvmConfig, packagesStats } = releaseProps
   const { attachPackages = isGenericTagUsed(pvmConfig) } = opts
   const conventionalCommits = convertCommitsToConvFormat(releaseProps.commits)
 
   return buildMessage(releaseProps, {
     bodyWrapper: (body, { releaseLink, releaseName }) => {
-      let header = releaseLink || releaseName
-      header += ' has been released'
-      header = `**${header}**`
-
-      return body ? `${header}\n${body}` : header
+      return defaultMessageBodyWrapper({
+        body,
+        releaseName,
+        releaseLink,
+        packagesStats,
+      })
     },
     attachPackages,
     conventionalCommits,

@@ -132,17 +132,17 @@ export async function publish(flags: Flags): Promise<PublishedStats> {
     printUnpublishedSummary(publishedPkgsStats.skipped)
   }
 
-  if (publishedPkgsStats.error.length) {
-    logger.log(`errored packages:`)
-    printUnpublishedSummary(publishedPkgsStats.error, chalk.red)
-  }
-
   if (skipRealPublishing) {
     logger.log(chalk`{yellowBright [DRY RUN] publish summary}:`)
   } else {
     logger.log(chalk`{yellowBright successfully published packages}:`)
   }
   printPublishedSummary(publishedPkgsStats.success)
+
+  if (publishedPkgsStats.error.length) {
+    logger.log(`errored packages:`)
+    printUnpublishedSummary(publishedPkgsStats.error, chalk.red)
+  }
 
   if (flags.notify) {
     try {
@@ -180,6 +180,10 @@ export async function publish(flags: Flags): Promise<PublishedStats> {
   if (flags.outputStats) {
     logger.log(chalk`writing output stats to {yellow ${flags.outputStats}}`)
     fs.writeFileSync(flags.outputStats, JSON.stringify(sortPublishedStats(publishedPkgsStats), null, 2))
+  }
+
+  if (publishedPkgsStats.error.length) {
+    throw new Error(`Failed to publish ${publishedPkgsStats.success.length ? 'some' : 'all'} packages`)
   }
 
   return publishedPkgsStats

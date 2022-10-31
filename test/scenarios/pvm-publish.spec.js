@@ -295,6 +295,32 @@ describe('pvm/publish', () => {
     expect(pkgs.find(p => p.pkg === 'c').publishedVersion).toBe('0.44.1')
   })
 
+  it('publish command should fail if some packages failed to publish', async () => {
+    const repoPath = writeRepo({ name: 'invalid-publish-registry', spec: 'src/a@1.0.0,src/b@1.0.0' })
+    const repo = await initRepo(repoPath)
+
+    await repo.updatePkg('src/b', {
+      publishConfig: {
+        registry: 'invalid',
+      },
+    })
+
+    await expect(() => testPublish(repo, '-s all')).rejects.toBeTruthy()
+  })
+
+  it('publish with --bail flag should fail if some packages failed to publish', async () => {
+    const repoPath = writeRepo({ name: 'invalid-publish-registry', spec: 'src/a@1.0.0,src/b@1.0.0' })
+    const repo = await initRepo(repoPath)
+
+    await repo.updatePkg('src/b', {
+      publishConfig: {
+        registry: 'invalid',
+      },
+    })
+
+    await expect(() => testPublish(repo, '-s all --bail')).rejects.toBeTruthy()
+  })
+
   describe('canary', () => {
     let slackMocker
     beforeAll(async () => {
