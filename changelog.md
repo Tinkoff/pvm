@@ -3,6 +3,18 @@ id: index
 title: Change Log
 ---
 
+## v0.56.13
+**2022.10.31**
+
+
+
+### 🐛 Bug Fixes
+
+* **@pvm/plugin-core:** partially failed publish now throws error ([#d59ec04](https://github.com/Tinkoff/pvm/commit/d59ec047cc39f3c0361dff3a14ae17de63731d89)), closes [    21](https://github.com/Tinkoff/pvm/issues/21)
+
+
+
+
 ## v0.56.12
 **2022.10.28**
 
