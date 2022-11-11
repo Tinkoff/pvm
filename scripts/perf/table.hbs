@@ -1,0 +1,32 @@
+<table class="table table-bordered">
+  <thead>
+  <tr>
+    <th scope="col">Timestamp</th>
+    <th scope="col">Release</th>
+    <th scope="col">Packages</th>
+    <th scope="col">Releases</th>
+    <th scope="col">Commits</th>
+    <th scope="col">pkgset -s all</th>
+    <th scope="col">pkgset -s affected</th>
+    <th scope="col">update --dry-run</th>
+    <th scope="col">publish --dry-run</th>
+  </tr>
+  </thead>
+  <tbody>
+  {{#each this}}
+    <tr>
+      <td>{{timestamp}}</td>
+      <td>{{{releaseLink}}}</td>
+      <td>{{packagesCount}}</td>
+      <td>{{releasesCount}}</td>
+      <td>{{commitsCount}}</td>
+      {{#with commands}}
+        <td>{{[pkgset -s all]}} s</td>
+        <td>{{[pkgset -s affected]}} s</td>
+        <td>{{[update --dry-run]}} s</td>
+        <td>{{[publish --dry-run]}} s</td>
+      {{/with}}
+    </tr>
+  {{/each}}
+  </tbody>
+</table>

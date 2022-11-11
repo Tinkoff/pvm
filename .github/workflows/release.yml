@@ -33,7 +33,9 @@ jobs:
   docs:
     runs-on: ubuntu-latest
     container: mshipov/plantuml:1.0.4
-    needs: release
+    needs:
+      - release
+      - perf-test
     permissions:
       contents: write
     concurrency:
@@ -46,8 +48,28 @@ jobs:
       - uses: ./.github/actions/build-docs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@master
+        with:
+          name: metrics
+          path: website/build
       - uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./website/build
-          force_orphan: true
+
+  perf-test:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: docs
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+      - uses: ./.github/actions/setup
+      - run: npm run build
+      - run: node scripts/perf/run.js
+      - uses: actions/upload-artifact@master
+        with:
+          name: metrics
+          path: public/

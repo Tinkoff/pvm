@@ -58,13 +58,11 @@ export class StorageManager {
       case ArtifactsStorages.ReleaseList: {
         const result = await this.init(ReleaseListStorage, config.release_list.storage)
         logger.info(`Initialized ${result.name} storage for ReleaseList artifact`)
-        // @ts-ignore не очень понятно почему ts не разрешает вернуть ReleaseListStorage здесь
         return result
       }
       case ArtifactsStorages.Changelogs: {
         const result = await this.init(ChangelogsStorage, config.changelog.storage)
         logger.info(`Initialized ${result.name} storage for Changelogs artifact`)
-        // @ts-ignore
         return result
       }
       default:
