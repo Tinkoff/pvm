@@ -41,6 +41,19 @@ jobs:
           name: docs
           path: ./website/build
 
+  perf-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+      - uses: ./.github/actions/setup
+      - run: npm run build
+      - run: node scripts/perf/run.js --historyLength 2
+      - run: node scripts/perf/create-report-comment.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   test:
     runs-on: ubuntu-latest
     steps:
