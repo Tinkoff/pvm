@@ -3,6 +3,18 @@ id: index
 title: Change Log
 ---
 
+## v0.56.14
+**2022.11.14**
+
+
+
+### 🐛 Bug Fixes
+
+* add total perf metrics ([#0d800c3](https://github.com/Tinkoff/pvm/commit/0d800c3170c9a20dc916591b67a4936453d8657b))
+
+
+
+
 ## v0.56.13
 **2022.10.31**
 
