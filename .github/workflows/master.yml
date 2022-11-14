@@ -30,7 +30,7 @@ jobs:
       - update
       - perf-test
     permissions:
-      contents: read
+      contents: write
       pages: write
     concurrency:
       group: docs
