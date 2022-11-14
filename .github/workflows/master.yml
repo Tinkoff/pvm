@@ -53,9 +53,6 @@ jobs:
 
   perf-test:
     runs-on: ubuntu-latest
-    concurrency:
-      group: docs
-      cancel-in-progress: true
     steps:
       - uses: actions/checkout@v2
         with:
