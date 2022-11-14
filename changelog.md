@@ -3,6 +3,25 @@ id: index
 title: Change Log
 ---
 
+## v0.56.15
+**2022.11.14**
+
+
+
+### 🐛 Bug Fixes
+
+* **@pvm/core:** revParse optimization ([#f1e4430](https://github.com/Tinkoff/pvm/commit/f1e4430318e3c9506f6ec8600185ec8642ff5c0c))
+* concurrency in perf-test job ([#ede99ae](https://github.com/Tinkoff/pvm/commit/ede99aee022e779812c5d35b35dccdb76c78acf5))
+
+
+### 📝 Documentation
+
+* correct ref link in perf test resport ([#000c441](https://github.com/Tinkoff/pvm/commit/000c441cfc1a3bbadbac3dba9320903e08e6f086))
+* try fix permissions issue ([#bdfad68](https://github.com/Tinkoff/pvm/commit/bdfad68884d16e8e2d3444d6c4f07483d8b19f3c))
+
+
+
+
 ## v0.56.14
 **2022.11.14**
 
