@@ -14,7 +14,7 @@ export default function revParse(ref: string, cwd: string): string {
     if (headContent) {
       // symref
       if (headContent.startsWith('ref: ')) {
-        return fs.readFileSync(path.join(cwd, '.git', headContent.split('ref: ')[1]), 'utf-8')
+        return fs.readFileSync(path.join(cwd, '.git', headContent.split('ref: ')[1]), 'utf-8').trim()
       // plain commit sha
       } else {
         return headContent
