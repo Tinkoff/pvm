@@ -1,1 +1,1 @@
-[]
+[{"releaseLink":"<a href=\"https://github.com/Tinkoff/pvm/releases/tag/master\">master</a>","timestamp":"Mon, 14 Nov 2022 11:33:53 GMT","packagesCount":200,"releasesCount":3,"commitsCount":10,"commands":{"pkgset -s all":"2.441","pkgset -s affected":"3.966","update --dry-run":"5.533","publish --dry-run":"4.228"}}]
