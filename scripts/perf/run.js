@@ -49,8 +49,10 @@ ${versions.map(p => p.split('/')[1]).join('\n')}`)
     }
   }
 
+  const ref = process.env.GITHUB_REF_TYPE === 'branch' ? process.env.GITHUB_SHA : process.env.GITHUB_REF_NAME
+  const refUrlPath = process.env.GITHUB_REF_TYPE === 'branch' ? '/commit/' : '/releases/tag/'
   const result = {
-    releaseLink: `<a href="${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/releases/tag/${process.env.GITHUB_REF_NAME}">${process.env.GITHUB_REF_NAME}</a>`,
+    releaseLink: `<a href="${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}${refUrlPath}${ref}">${ref}</a>`,
     timestamp: new Date().toUTCString(),
     packagesCount: PACKAGES_COUNT,
     releasesCount: RELEASES_COUNT,
