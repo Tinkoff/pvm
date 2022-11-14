@@ -144,5 +144,10 @@ if (fs.existsSync(sourceChangelogPath)) {
     position: 'right',
   })
 }
+siteConfig.themeConfig.navbar.items.push({
+  label: 'Performance',
+  href: 'https://tinkoff.github.io/pvm/metrics.html',
+  position: 'right',
+})
 
 module.exports = siteConfig
