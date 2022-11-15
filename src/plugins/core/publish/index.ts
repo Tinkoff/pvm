@@ -110,6 +110,8 @@ export async function publish(flags: Flags): Promise<PublishedStats> {
   const publishApplier = flags.canary ? new CanaryPublishApplier(repo, new PkgSet(packagesForPublish), flags)
     : new BasicPublishApplier(repo)
 
+  await publishApplier.prepare()
+
   if (flags.byDependentOrder) {
     const dependentPackagesList: Pkg[][] = []
     const tree = buildDependantPackagesListIntoTree(packagesForPublish)

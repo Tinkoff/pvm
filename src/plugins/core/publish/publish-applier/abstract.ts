@@ -16,6 +16,10 @@ export abstract class AbstractPublishApplier {
 
   abstract getPkgPublishVersion(pkg: Pkg): Promise<string>;
 
+  async prepare(): Promise<void> {
+    return Promise.resolve()
+  }
+
   async applyActualDeps(pkg: Pkg): Promise<AppliedPkg> {
     const deps = pkg.deps
     const newDeps: Map<string, string> = new Map()
