@@ -3,6 +3,23 @@ id: index
 title: Change Log
 ---
 
+## v0.56.16
+**2022.11.15**
+
+
+
+### 🐛 Bug Fixes
+
+* **@pvm/plugin-core:** add unified canary version calculation option ([#d0d9a22](https://github.com/Tinkoff/pvm/commit/d0d9a226c71e8bbc3694ed99ed2db045af1bba80))
+
+
+### 📝 Documentation
+
+* add links to and from perf doc ([#852eac3](https://github.com/Tinkoff/pvm/commit/852eac3fa4096b52188fab197ec1ec30fba4e049))
+
+
+
+
 ## v0.56.15
 **2022.11.14**
 
