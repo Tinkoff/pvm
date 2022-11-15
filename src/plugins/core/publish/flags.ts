@@ -12,6 +12,16 @@ const canaryFlag = {
       'preid suffix from parametes (example: 1.0.1-12ax3f.0). Also in canary mode "strategy" parameter changes it`s default value to "affected"',
     default: false,
   },
+  'canary-unified': {
+    type: 'boolean' as const,
+    desc: 'If true then all packages in canary release will have same version.',
+    default: false,
+  },
+  'canary-base-version': {
+    type: 'string' as const,
+    desc: 'Base for canary version if unified set to true. For example if base_version = "0.0.0", then canary version will be (by default) "0.0.0-<commit sha>.0"',
+    default: '0.0.0',
+  },
 }
 
 const messageChannelFlag = {

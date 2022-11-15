@@ -35,6 +35,20 @@ function readStatsAsStr(repo, statsName = 'publish-stats.json') {
   return JSON.stringify(readStats(repo, statsName), null, 2)
 }
 
+async function nativePublish({
+  repo,
+  pkgPath,
+  version,
+  tag,
+  registry,
+}) {
+  await repo.updatePkg(pkgPath, {
+    version,
+  })
+  await repo.writeFile('.npmrc', `_auth = "fooBar"`)
+  await runScript(repo, `npm publish ${repo.dir}/${pkgPath} --tag ${tag} --registry ${registry}`)
+}
+
 describe('pvm/publish', () => {
   let npmControls
   let testPublish
@@ -682,6 +696,95 @@ describe('pvm/publish', () => {
       const pkgInfo = JSON.parse((await execScript(repo, `npm view --registry ${npmControls.registryUrl} monorepo-new --json`)).stdout)
 
       expect(pkgInfo.version).toEqual('0.1.0')
+    })
+
+    describe('unified', () => {
+      it('default', async () => {
+        const repo = await initRepo(await writeRepo({
+          name: 'canary_config',
+          spec: 'pkgs/a@0.0.1,pkgs/b@0.0.2',
+        }))
+
+        await testPublish(repo, ` --canary -s all --canary-unified`)
+        const pkgAInfo = JSON.parse((await execScript(repo, `npm view --registry ${npmControls.registryUrl} a --json`)).stdout)
+        const pkgBInfo = JSON.parse((await execScript(repo, `npm view --registry ${npmControls.registryUrl} a --json`)).stdout)
+        expect(pkgAInfo['dist-tags'][repo.env.CI_COMMIT_SHA]).toEqual(`0.0.0-${repo.env.CI_COMMIT_SHA}.0`)
+        expect(pkgBInfo['dist-tags'][repo.env.CI_COMMIT_SHA]).toEqual(`0.0.0-${repo.env.CI_COMMIT_SHA}.0`)
+      })
+
+      it('base version', async () => {
+        const repo = await initRepo(await writeRepo({
+          name: 'canary_config',
+          spec: 'pkgs/a@0.0.1,pkgs/b@0.0.2',
+        }))
+
+        await testPublish(repo, ` --canary -s all --tag alpha --canary-unified --canary-base-version 1.0.0`)
+        const pkgAInfo = JSON.parse((await execScript(repo, `npm view --registry ${npmControls.registryUrl} a --json`)).stdout)
+        const pkgBInfo = JSON.parse((await execScript(repo, `npm view --registry ${npmControls.registryUrl} a --json`)).stdout)
+        expect(pkgAInfo['dist-tags']['alpha']).toEqual(`1.0.0-alpha.0`)
+        expect(pkgBInfo['dist-tags']['alpha']).toEqual(`1.0.0-alpha.0`)
+      })
+
+      it('already published', async () => {
+        const repo = await initRepo(await writeRepo({
+          name: 'canary_config',
+          spec: 'pkgs/a@0.0.1,pkgs/b@0.0.2',
+        }))
+
+        await testPublish(repo, ` --canary -s all --canary-unified --tag alpha `)
+        await testPublish(repo, ` --canary -s all --canary-unified --tag alpha`)
+        const pkgAInfo = JSON.parse((await execScript(repo, `npm view --registry ${npmControls.registryUrl} a --json`)).stdout)
+        const pkgBInfo = JSON.parse((await execScript(repo, `npm view --registry ${npmControls.registryUrl} a --json`)).stdout)
+        expect(pkgAInfo['dist-tags']['alpha']).toEqual(`0.0.0-alpha.1`)
+        expect(pkgBInfo['dist-tags']['alpha']).toEqual(`0.0.0-alpha.1`)
+      })
+
+      it('canary published versions shift. Should take biggest version number.', async () => {
+        const repo = await initRepo(await writeRepo({
+          name: 'canary_config',
+          spec: 'pkgs/a@0.0.1,pkgs/b@0.0.2',
+        }))
+
+        await nativePublish({
+          repo,
+          pkgPath: 'pkgs/a',
+          version: '0.0.0-alpha.0',
+          tag: 'alpha',
+          registry: npmControls.registryUrl,
+        })
+        await testPublish(repo, ` --canary -s all --tag alpha`)
+        const pkgAInfo = JSON.parse((await execScript(repo, `npm view --registry ${npmControls.registryUrl} a --json`)).stdout)
+        const pkgBInfo = JSON.parse((await execScript(repo, `npm view --registry ${npmControls.registryUrl} a --json`)).stdout)
+        expect(pkgAInfo['dist-tags']['alpha']).toEqual(`0.0.0-alpha.1`)
+        expect(pkgBInfo['dist-tags']['alpha']).toEqual(`0.0.0-alpha.1`)
+      })
+
+      it('canary published versions double shift. Should take biggest version above all.', async () => {
+        const repo = await initRepo(await writeRepo({
+          name: 'canary_config',
+          spec: 'pkgs/a@0.0.1,pkgs/b@0.0.2',
+        }))
+
+        await nativePublish({
+          repo,
+          pkgPath: 'pkgs/a',
+          version: '0.0.0-alpha.1',
+          tag: 'alpha',
+          registry: npmControls.registryUrl,
+        })
+        await nativePublish({
+          repo,
+          pkgPath: 'pkgs/b',
+          version: '0.0.0-alpha.2',
+          tag: 'alpha',
+          registry: npmControls.registryUrl,
+        })
+        await testPublish(repo, ` --canary -s all --canary-unified --tag alpha`)
+        const pkgAInfo = JSON.parse((await execScript(repo, `npm view --registry ${npmControls.registryUrl} a --json`)).stdout)
+        const pkgBInfo = JSON.parse((await execScript(repo, `npm view --registry ${npmControls.registryUrl} a --json`)).stdout)
+        expect(pkgAInfo['dist-tags']['alpha']).toEqual(`0.0.0-alpha.3`)
+        expect(pkgBInfo['dist-tags']['alpha']).toEqual(`0.0.0-alpha.3`)
+      })
     })
   })
 })

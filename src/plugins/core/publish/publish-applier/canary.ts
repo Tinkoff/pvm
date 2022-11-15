@@ -26,28 +26,68 @@ export class CanaryPublishApplier extends AbstractPublishApplier {
     this.flags = flags
   }
 
-  async getPkgPublishVersion(pkg: Pkg): Promise<string> {
-    return this.asyncSafeCalcCanaryVersion(pkg)
+  async prepare(): Promise<void> {
+    if (this.flags['canary-unified']) {
+      await this.prepareUnifiedCanaryVersion(undefined)
+    }
   }
 
-  async asyncSafeCalcCanaryVersion(pkg: Pkg): Promise<string> {
+  /**
+   * Algorithm in here - taking max canary version index across all packages with given preid. Then incrementing it
+   * and use as common canary index that fits to all packages.
+   */
+  async prepareUnifiedCanaryVersion(unifiedBaseCanaryIndex: number | undefined) {
+    if (!unifiedBaseCanaryIndex) {
+      logger.info('Beginning loop for searching common canary index for unified release')
+    } else {
+      logger.info(`Next base canary index ${unifiedBaseCanaryIndex}. Testing its fit`)
+    }
+
+    const versions = (await Promise.all(this.publishedPackages.map(pkg => this.asyncSafeCalcCanaryVersion(pkg, unifiedBaseCanaryIndex)))).sort()
+    logger.info(`Canary iteration versions:\n${versions.join('\n')}`)
+
+    if (versions.length > 1 && versions[0] !== versions[versions.length - 1]) {
+      if (unifiedBaseCanaryIndex) {
+        // recursion break. According to algorithm this should never be reached.
+        throw new Error('Failed to calculate common canary version. ')
+      }
+
+      const maxVersion = versions[versions.length - 1]
+      unifiedBaseCanaryIndex = Number(semver.parse(maxVersion)?.prerelease[1])
+      logger.info(`Next canary base version: ${unifiedBaseCanaryIndex}`)
+
+      // dropping all calculation caches and recursively trying to find common canary index
+      this.canaryVersions = new PkgMap()
+      this.canaryVersionCalcTasks = new PkgMap()
+      await this.prepareUnifiedCanaryVersion(unifiedBaseCanaryIndex)
+    }
+  }
+
+  async getPkgPublishVersion(pkg: Pkg): Promise<string> {
+    return await this.asyncSafeCalcCanaryVersion(pkg, undefined)
+  }
+
+  async asyncSafeCalcCanaryVersion(pkg: Pkg, unifiedBaseCanaryIndex: number | undefined): Promise<string> {
     if (!this.publishedPackages.has(pkg.name)) {
       return pkg.version
     }
 
     if (!this.canaryVersionCalcTasks.has(pkg.name)) {
-      this.canaryVersionCalcTasks.set(pkg, this.calcCanaryVersion(pkg, getPkgRegistry(pkg, this.flags) || this.repo.registry, this.flags.tag))
+      this.canaryVersionCalcTasks.set(pkg, this.calcCanaryVersion(pkg, getPkgRegistry(pkg, this.flags) || this.repo.registry, this.flags.tag, unifiedBaseCanaryIndex))
     }
 
     return this.canaryVersionCalcTasks.get(pkg.name)!
   }
 
-  async calcCanaryVersion(pkg: Pkg, registry: string, preid: string): Promise<string> {
+  async calcCanaryVersion(pkg: Pkg, registry: string, preid: string, unifiedBaseCanaryIndex: number | undefined): Promise<string> {
+    const canaryUnified = this.flags['canary-unified']
+    const canaryBaseVersion = this.flags['canary-base-version']
+
     if (this.canaryVersions.has(pkg.name)) {
       return this.canaryVersions.get(pkg.name)!
     }
 
-    const currentVersion = pkg.version
+    const currentVersion = canaryUnified ? canaryBaseVersion : pkg.version
     const resultVersion = semver.parse(currentVersion)
     if (!resultVersion) {
       throw new Error(`Non semver-compatible version ${currentVersion} in pkg ${pkg.name}`)
@@ -73,17 +113,31 @@ export class CanaryPublishApplier extends AbstractPublishApplier {
       allPkgVersions = Object.keys(JSON.parse(packumentStr).versions)
     }
 
-    const canaryVersionPrefix = `${resultVersion.major}.${resultVersion.minor}.${resultVersion.patch}-${preid}`
-    const samePrefixVersions = allPkgVersions.filter(v => v.startsWith(canaryVersionPrefix))
-    const maxSatisfyingVersion = semver.sort(samePrefixVersions).reverse()[0] as string
     let nextCanaryIndex
-    if (maxSatisfyingVersion) {
-      logger.debug(`Found max satisfying version ${maxSatisfyingVersion} for pkg ${pkg.name} and canary prefix ${canaryVersionPrefix}`)
-      nextCanaryIndex = CanaryPublishApplier.getNextCanaryIndex(maxSatisfyingVersion, preid)
+    const canaryVersionPrefix = `${resultVersion.major}.${resultVersion.minor}.${resultVersion.patch}-${preid}`
+    if (canaryUnified && unifiedBaseCanaryIndex) {
+      const canaryVersionWithPreid = `${canaryVersionPrefix}.${unifiedBaseCanaryIndex}`
+      if (!allPkgVersions.find(v => v === canaryVersionWithPreid)) {
+        nextCanaryIndex = unifiedBaseCanaryIndex
+      } else {
+        let freeIndex = unifiedBaseCanaryIndex
+        while (allPkgVersions.find(v => v === `${canaryVersionPrefix}.${freeIndex}`)) {
+          freeIndex++
+        }
+        nextCanaryIndex = freeIndex
+      }
     } else {
-      logger.debug(`Max satisfying version for pkg ${pkg.name} and canary prefix ${canaryVersionPrefix} is not found`)
-      nextCanaryIndex = 0
+      const samePrefixVersions = allPkgVersions.filter(v => v.startsWith(canaryVersionPrefix))
+      const maxSatisfyingVersion = semver.sort(samePrefixVersions).reverse()[0] as string
+      if (maxSatisfyingVersion) {
+        logger.debug(`Found max satisfying version ${maxSatisfyingVersion} for pkg ${pkg.name} and canary prefix ${canaryVersionPrefix}`)
+        nextCanaryIndex = CanaryPublishApplier.getNextCanaryIndex(maxSatisfyingVersion, preid)
+      } else {
+        logger.debug(`Max satisfying version for pkg ${pkg.name} and canary prefix ${canaryVersionPrefix} is not found`)
+        nextCanaryIndex = 0
+      }
     }
+
     resultVersion.prerelease = [preid, nextCanaryIndex]
     const resultVersionString = resultVersion.format()
 
