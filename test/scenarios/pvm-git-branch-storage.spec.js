@@ -1,5 +1,5 @@
-const { getConfig } = require('@pvm/core/lib/config')
-const { GitBranchStorage } = require('@pvm/artifacts/lib/backend/git-branch-storage')
+const { getConfig } = require('@pvm/pvm/lib/config')
+const { GitBranchStorage } = require('@pvm/pvm/mechanics/artifacts/backend/git-branch-storage')
 
 describe('pvm-git-branch-storage', () => {
   it('config and plugins should load from main worktree', async () => {

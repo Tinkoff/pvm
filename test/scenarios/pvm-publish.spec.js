@@ -3,7 +3,7 @@ const path = require('path')
 const { runRegistryMockServer } = require('../npm-registry-mock')
 const { runMessengerMocker } = require('../slack-mock')
 const fsExtra = require('fs-extra')
-const execShell = require('@pvm/core/lib/shell/exec').default
+const execShell = require('@pvm/pvm/lib/shell/exec').default
 
 function readStats(repo, statsName = 'publish-stats.json') {
   const rawStr = fs.readFileSync(path.join(repo.dir, statsName)).toString('utf8')

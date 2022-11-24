@@ -34,7 +34,6 @@
   "include": [
     "packages",
     "typedoc",
-    "src",
     "test"
   ],
   "exclude": [

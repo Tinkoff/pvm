@@ -1,4 +1,4 @@
-const { loadPkg } = require('../../packages/pvm-core/lib/pkg')
+const { loadPkg } = require('../../packages/pvm/lib/pkg')
 const path = require('path')
 
 describe('pvm-core', () => {

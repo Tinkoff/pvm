@@ -9,10 +9,6 @@
   "workspaces": {
     "packages": [
       "packages/*",
-      "src/tokens/*",
-      "src/plugins/*",
-      "src/libs/*",
-      "src/types/*",
       "tools/*"
     ]
   },
@@ -24,7 +20,7 @@
     "check-ts-strict": "tsc -p tsconfig.strict.json -d --noEmit",
     "watch-ts-strict": "tsc -p tsconfig.strict.json -d --watch --noEmit",
     "lint": "eslint --ext .js,.ts packages test",
-    "generate-config-schema": "cross-env NODE_OPTIONS=\\\"--unhandled-rejections=strict\\\" npm exec typescript-json-schema -- --out packages/pvm-types/lib/config-schema.json packages/pvm-types/lib/config-schema.ts Config && npm exec typescript-json-schema -- --out packages/pvm-types/lib/env-schema.json packages/pvm-types/lib/env-schema.ts Env",
+    "generate-config-schema": "cross-env NODE_OPTIONS=\\\\\\\"--unhandled-rejections=strict\\\\\\\" npm exec typescript-json-schema -- --out packages/pvm/types/config-schema.json packages/pvm-types/lib/config-schema.ts Config && npm exec typescript-json-schema -- --out packages/pvm-types/lib/env-schema.json packages/pvm-types/lib/env-schema.ts Env",
     "check-no-staged-changes": "git diff --name-only --exit-code",
     "lint:config-schema": "bash -c 'scripts/check-config-sync.sh'",
     "whoami": "node ./user.js"

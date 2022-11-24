@@ -1,6 +1,6 @@
 const path = require('path')
-const runShell = require('../packages/pvm-core/lib/shell/run').default
-const execShell = require('../packages/pvm-core/lib/shell/exec').default
+const runShell = require('../packages/pvm/lib/shell/run').default
+const execShell = require('../packages/pvm/lib/shell/exec').default
 
 const PVM_ENV_CHECK_COMMAND = 'pvm _eval '
 

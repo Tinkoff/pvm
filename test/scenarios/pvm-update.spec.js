@@ -2,12 +2,12 @@ const dedent = require('dedent')
 const semver = require('semver')
 const { deepMerge } = require('sprout-data')
 
-const { UpdateReasonType } = require('@pvm/update/lib/update-state')
+const { UpdateReasonType } = require('@pvm/pvm/mechanics/update/update-state')
 
-const revParse = require('@pvm/core/lib/git/rev-parse').default
+const revParse = require('@pvm/pvm/lib/git/rev-parse').default
 const path = require('path')
 const { reposDir } = require('../repos-dir')
-const runShell = require('../../packages/pvm-core/lib/shell/run').default
+const runShell = require('../../packages/pvm/lib/shell/run').default
 const { execScript } = require('../executors')
 const got = require('got')
 

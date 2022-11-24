@@ -1,4 +1,4 @@
-const lastTag = require('../../packages/pvm-core/lib/git/last-tag').default
+const lastTag = require('../../packages/pvm/lib/git/last-tag').default
 
 describe('pvm/add-tag', () => {
   it('должен учитывать конфиг', async () => {

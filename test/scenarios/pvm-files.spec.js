@@ -1,4 +1,4 @@
-const getFiles = require('../../packages/pvm-files').default
+const getFiles = require('@pvm/pvm/mechanics/files/files').default
 const path = require('path')
 
 describe('pvm/files', () => {

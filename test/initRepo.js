@@ -1,15 +1,15 @@
 const path = require('path')
 const fs = require('fs')
 const fse = require('fs-extra')
-const { getConfig, clearConfigCacheFor } = require('../packages/pvm-core/lib/config')
-const { lastReleaseTag } = require('../packages/pvm-core/lib/git/last-release-tag')
-const httpreq = require('../packages/pvm-core/lib/httpreq').default
-const __unsafe_shell = require('../packages/pvm-core/lib/shell').default
-const { pkgTagRe } = require('../packages/pvm-core/lib/tag-meta')
-const { loadPkg } = require('../packages/pvm-core/lib/pkg')
-const { getTagAnnotation } = require('../packages/pvm-core/lib/git/commands')
-const { getHostApi } = require('../packages/pvm-core/lib/plugins')
-const { getUpdateState } = require('../packages/pvm-update/lib/index')
+const { getConfig, clearConfigCacheFor } = require('../packages/pvm/lib/config')
+const { lastReleaseTag } = require('../packages/pvm/lib/git/last-release-tag')
+const { httpreq } = require('../packages/pvm/lib/httpreq')
+const { shell: __unsafe_shell } = require('../packages/pvm/lib/shell')
+const { pkgTagRe } = require('../packages/pvm/lib/tag-meta')
+const { loadPkg } = require('../packages/pvm/lib/pkg')
+const { getTagAnnotation } = require('../packages/pvm/lib/git/commands')
+const { getHostApi } = require('../packages/pvm/lib/plugins')
+const { getUpdateState } = require('../packages/pvm/mechanics/update')
 const { setTagNotes, tagNotes } = require('./git/tagNotes')
 const { reposDir } = require('./repos-dir')
 const { writeConfig } = require('./helpers')
@@ -21,7 +21,7 @@ const os = require('os')
 const {
   taggedCacheManager,
   CacheTag,
-} = require('@pvm/core/lib/memoize')
+} = require('../packages/pvm/lib/memoize')
 
 const isPkgTag = pkgTagRe.test.bind(pkgTagRe)
 

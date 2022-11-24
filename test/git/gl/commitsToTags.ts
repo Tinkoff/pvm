@@ -1,7 +1,7 @@
 import makeTransformer from './transformCommit'
 
 import { tagNotes } from '../tagNotes'
-import shell from '../../../packages/pvm-core/lib/shell'
+import { shell } from '@pvm/pvm'
 
 const makeReducer = (cwd, opts: { onlyReleases?: boolean } = {}) => {
   const gitShell = cmd => shell(cmd, { cwd })

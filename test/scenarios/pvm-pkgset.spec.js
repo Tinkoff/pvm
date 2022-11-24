@@ -1,5 +1,5 @@
-const drainItems = require('../../packages/pvm-core/lib/iter/drain-items').default
-const { pkgset } = require('../../packages/pvm-pkgset')
+const drainItems = require('../../packages/pvm/lib/iter/drain-items').default
+const { pkgset } = require('@pvm/pvm/lib/pkgset/pkgset')
 
 describe('pvm/pkgset', () => {
   it('список изменившихся пакетов, плоский workspace', async () => {

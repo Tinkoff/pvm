@@ -1,8 +1,8 @@
 const express = require('express')
 const getTags = require('../git/gl/tags')
-const shell = require('../../packages/pvm-core/lib/shell').default
+const shell = require('../../packages/pvm/lib/shell').default
 const commitsToTags = require('../git/gl/commitsToTags').default
-const gitLog = require('@pvm/core/lib/git/log').default
+const gitLog = require('../../packages/pvm/lib/git/log').default
 const { tagNotes, setTagNotes } = require('../git/tagNotes')
 const { paginate, pagingQuery } = require('../platform-mock-helpers/paging')
 const repoRouterPlugin = require('../platform-mock-helpers/repo-router-plugin').default

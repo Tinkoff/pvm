@@ -1,4 +1,4 @@
-const gitLog = require('@pvm/core/lib/git/log').default
+const gitLog = require('../../../packages/pvm/lib/git/log').default
 const makeTransormer = require('./transformCommit')
 
 async function commits(repoDir, revRange = 'HEAD', opts = {}) {

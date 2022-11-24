@@ -1,7 +1,7 @@
 const assert = require('assert')
 const path = require('path')
 const fs = require('fs')
-const __unsafe_shell = require('../../packages/pvm-core/lib/shell').cwdShell
+const __unsafe_shell = require('../../packages/pvm/lib/shell').cwdShell
 const getGitConfigTools = require('../gitConfig')
 
 function addCommit(repoDir, commit) {
