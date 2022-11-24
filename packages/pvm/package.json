@@ -3,7 +3,6 @@
   "version": "0.0.0-stub",
   "initialVersion": "0.54.0",
   "description": "Featured, powerful and compliant package version/release manager",
-  "main": "lib/index.js",
   "bin": {
     "pvm": "bin/pvm.js"
   },

@@ -5,7 +5,7 @@ describe('vcs', () => {
     // @ts-ignore
     const repo = await initRepo('monorepo-new')
 
-    const vcs = await initVcsPlatform({
+    const vcs = await initVcsPlatform(repo.di, {
       localMode: true,
       vcsMode: 'vcs',
       cwd: repo.dir,

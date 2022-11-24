@@ -5,12 +5,12 @@ import { URL } from 'url'
 
 import semver from 'semver'
 
-import { getConfig } from '../../lib/config'
 import { getNpmVersion } from '../../lib/runtime-env/versions'
 import { shell } from '../../lib/shell'
 import { logger as defaultLogger } from '../../lib/logger'
 import type { LoggerFunc } from '../../lib/logger'
 import { env } from '../../lib/env'
+import type { Config } from '../../types/config'
 
 interface LoggerLike {
   log: LoggerFunc,
@@ -30,7 +30,7 @@ const writeFile = util.promisify(fs.writeFile)
 
 export function isProbablyBasicAuthToken(token: string): boolean {
   const decoded = Buffer.from(token, 'base64').toString('utf8')
-  return /^[\w\d]+:[\w\d\s!@#$%^&*()[\]\-=+{}:;'"\\|/?<>.,~`±§]+$/i.test(decoded);
+  return /^[\w\d]+:[\w\d\s!@#$%^&*()[\]\-=+{}:;'"\\|/?<>.,~`±§]+$/i.test(decoded)
 }
 
 export function readNpmRc(cwd: string): string {
@@ -43,13 +43,13 @@ export interface PublishPrepareResult {
   npmrc: string[],
 }
 
-export async function setupPublishNpmRCAndEnvVariables(cwd: string, opts: PrepareOpts = {}): Promise<PublishPrepareResult> {
+export async function setupPublishNpmRCAndEnvVariables(config: Config, opts: PrepareOpts = {}): Promise<PublishPrepareResult> {
+  const cwd = config.cwd
   const {
     baseRegistry = 'https://registry.npmjs.org',
     logger = defaultLogger,
     dontWriteNpmRc = false,
   } = opts
-  const config = await getConfig(cwd)
 
   const npmVersion = getNpmVersion() || '0.0.0'
   logger.log(`npm version is ${npmVersion}`)

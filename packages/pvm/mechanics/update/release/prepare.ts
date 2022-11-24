@@ -2,14 +2,14 @@ import { logger } from '../../../lib/logger'
 import { Repository } from '../../repository'
 import { lint } from '../../repository/linter'
 /* import { upconf } from '@pvm/repository/lib/upconf/upconf' */
-import { getConfig } from '../../../lib/config'
 
-import type { Config } from '../../../types'
+import type { Container } from '../../../lib/di'
+import { CONFIG_TOKEN } from '../../../tokens'
 /* import type { Vcs } from '@pvm/vcs' */
 
-async function autolint(config: Config) {
+async function autolint(di: Container) {
   logger.info('update.autolint is enabled, linting and fix if necessary packages before update..')
-  const repo = new Repository(config.cwd, config)
+  const repo = new Repository(di)
   const lintResult = lint(repo, {
     fix: true,
     index: true,
@@ -22,12 +22,12 @@ async function autolint(config: Config) {
   }
 }
 
-async function prepare(config: Config/*, vcs: Vcs */) {
+async function prepare(di: Container/*, vcs: Vcs */) {
   // await upconf(vcs)
   // after upconf we should refetch config
-  config = await getConfig(config.cwd)
+  const config = di.get(CONFIG_TOKEN)
   if (config.update.autolint) {
-    await autolint(config)
+    await autolint(di)
   }
 }
 

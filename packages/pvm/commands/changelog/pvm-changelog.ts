@@ -1,18 +1,21 @@
 #!/usr/bin/env node
 
-import * as pvmChangelogMake from './pvm-changelog-make'
-import * as pvmChangelogDownload from './pvm-changelog-download'
-import * as pvmChangelogUpload from './pvm-changelog-upload'
+import pvmChangelogMake from './pvm-changelog-make'
+import pvmChangelogDownload from './pvm-changelog-download'
+import pvmChangelogUpload from './pvm-changelog-upload'
 // eslint-disable-next-line node/no-extraneous-import
 import type { Argv } from 'yargs'
+import type { Container } from '../../lib/di'
 
-export const command = 'changelog <command>'
-export const description = 'Commands for working with Changelog artifacts'
-export const builder = (yargs: Argv) => {
-  return yargs
-    .command(pvmChangelogMake)
-    .command(pvmChangelogDownload)
-    .command(pvmChangelogUpload)
-}
+export default (di: Container) => ({
+  command: 'changelog <command>',
+  description: 'Commands for working with Changelog artifacts',
+  builder: (yargs: Argv) => {
+    return yargs
+      .command(pvmChangelogMake(di))
+      .command(pvmChangelogDownload(di))
+      .command(pvmChangelogUpload(di))
+  },
 
-export const handler = function() {}
+  handler: function() {},
+})

@@ -12,7 +12,7 @@ describe('pvm/getPackages', () => {
       },
     })
 
-    const packages = await getPackages('changed', { cwd: repo.dir })
+    const packages = await getPackages(repo.di, 'changed', { cwd: repo.dir })
 
     expect(packages.map(pkg => pkg.path).sort()).toEqual([
       'src/a',
@@ -30,7 +30,7 @@ describe('pvm/getPackages', () => {
       },
     })
 
-    const packages = await getPackages('affected', { cwd: repo.dir })
+    const packages = await getPackages(repo.di, 'affected', { cwd: repo.dir })
 
     expect(packages.map(pkg => pkg.path).sort()).toEqual([
       'src/a',
@@ -48,7 +48,7 @@ describe('pvm/getPackages', () => {
       },
     })
 
-    const packages = await getPackages('update', { cwd: repo.dir })
+    const packages = await getPackages(repo.di, 'update', { cwd: repo.dir })
 
     expect(packages.map(pkg => pkg.path).sort()).toEqual([
       'src/a',

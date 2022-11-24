@@ -1,8 +1,9 @@
 import chalk from 'chalk'
 import initVcs from '../../../mechanics/vcs'
 import { logger } from '../../../lib/logger'
-import { getConfig } from '../../../lib/config'
 import { StorageManager, ArtifactsStorages } from '../storage-manager'
+import type { Container } from '../../../lib/di'
+import { CONFIG_TOKEN, CWD_TOKEN } from '../../../tokens'
 
 export interface ArtifactsTransferArgs {
   force?: boolean,
@@ -12,11 +13,11 @@ export interface ArtifactsTransferArgs {
 
 export type TransferDirection = 'upload' | 'download'
 
-async function transfer(__args: ArtifactsTransferArgs, direction: TransferDirection): Promise<void> {
+async function transfer(di: Container, __args: ArtifactsTransferArgs, direction: TransferDirection): Promise<void> {
   const { kind, quiet = false, force = false } = __args
-  const cwd = process.cwd()
-  const config = await getConfig(cwd)
-  const vcs = await initVcs({
+  const cwd = di.get(CWD_TOKEN)
+  const config = di.get(CONFIG_TOKEN)
+  const vcs = await initVcs(di, {
     vcsType: 'fs',
     cwd,
   })
@@ -49,12 +50,12 @@ async function transfer(__args: ArtifactsTransferArgs, direction: TransferDirect
   }
 }
 
-async function upload(args: ArtifactsTransferArgs): Promise<void> {
-  await transfer(args, 'upload' as const)
+async function upload(di: Container, args: ArtifactsTransferArgs): Promise<void> {
+  await transfer(di, args, 'upload' as const)
 }
 
-async function download(args: ArtifactsTransferArgs): Promise<void> {
-  await transfer(args, 'download' as const)
+async function download(di: Container, args: ArtifactsTransferArgs): Promise<void> {
+  await transfer(di, args, 'download' as const)
 }
 
 export {

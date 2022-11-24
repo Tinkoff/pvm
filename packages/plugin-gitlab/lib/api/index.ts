@@ -1,5 +1,5 @@
-import type { HttpReqOptions, HttpResponseSuccess } from '@pvm/pvm'
-import { requestWithRetries, httpreq, shell, getConfig, getHostApi, env } from '@pvm/pvm'
+import type { Config, HttpReqOptions, HttpResponseSuccess } from '@pvm/pvm'
+import { requestWithRetries, httpreq, shell, getHostApi, env } from '@pvm/pvm'
 
 import { getApiUrl } from '../remote-url'
 
@@ -7,7 +7,7 @@ const retryTimeouts = [
   5000, 15000, 60000, 200000, 300000,
 ]
 
-async function glapi<T = any>(uri: string, opts: HttpReqOptions = {}): Promise<HttpResponseSuccess<T>> {
+async function glapi<T = any>(config: Config, uri: string, opts: HttpReqOptions = {}): Promise<HttpResponseSuccess<T>> {
   const {
     GL_TOKEN,
     GITLAB_TOKEN,
@@ -34,8 +34,6 @@ async function glapi<T = any>(uri: string, opts: HttpReqOptions = {}): Promise<H
       )
     }
   }
-  const config = await getConfig()
-
   const { headers = {} } = opts
 
   const authHeaders: Record<string, string> = {}

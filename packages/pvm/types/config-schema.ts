@@ -416,7 +416,7 @@ export interface Config {
     renderer: ChangelogRenderer,
   },
   /**
-   * @deprecated please use [plugins_v2](/api/interfaces/pvm_types.Config.md#plugins_v2)
+   * @deprecated please use [plugins_v2](/api/interfaces/pvm_pvm.Config.md#plugins_v2)
    */
   plugins: {
     local_plugins: string[],
@@ -550,7 +550,7 @@ export interface Config {
      * The mask will be applied to the path of the packages (workspaces).
      * This setting will affect the following places:
      * - getPackages method in '@pvm/pvm' (except 'released' and 'updated' types)
-     * - getUpdateState method in '@pvm/update', which affects pvm-update or pvm-release commands
+     * - pvm-update or pvm-release commands and update mechanic
      */
     always_changed_workspaces?: string[],
   },

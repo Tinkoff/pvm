@@ -1,12 +1,14 @@
 import type { Config, BasePlatformInterface } from './types'
 
-import { createToken } from '.'
+import { createToken } from './lib/di'
 import type { Argv, Options } from 'yargs'
+
+export { DI_TOKEN } from './lib/di'
 
 export const CONFIG_TOKEN = createToken<Config>('CONFIG')
 export const CWD_TOKEN = createToken<string>('CWD_TOKEN')
 /**
- * @deprecated use new plugin system and DI instead
+ * @deprecated use new plugin system and dependency injection instead
  */
 export const HOST_API = createToken<any>('HOST_API')
 

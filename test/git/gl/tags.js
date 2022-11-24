@@ -1,5 +1,5 @@
 const reduceToTags = require('./commitsToTags').default
-const gitLog = require('@pvm/core/lib/git/log').default
+const gitLog = require('../../../packages/pvm/lib/git/log').default
 
 async function gitTags(repoDir, onlyReleases = true) {
   const spawnOpts = { cwd: repoDir }

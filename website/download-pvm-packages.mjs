@@ -1,8 +1,8 @@
 import fs from "fs";
 import path from "path";
 import fetch from "node-fetch";
-import { pkgset } from "@pvm/pvm/lib/pkgset/pkgset";
-import drainItems from "@pvm/core/lib/iter/drain-items.js";
+import { pkgset } from "../packages/pvm/mechanics/pkgset/pkgset";
+import drainItems from "../packages/pvm/lib/iter/drain-items";
 import {fileURLToPath} from 'url';
 
 const __filename = fileURLToPath(import.meta.url);

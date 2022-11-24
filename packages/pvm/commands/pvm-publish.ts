@@ -3,15 +3,18 @@
 import { publish } from '../mechanics/publish'
 import { flagsBuilder } from '../mechanics/publish/flags'
 import type { Flags } from '../mechanics/publish/flags'
+import type { Container } from '../lib/di'
 
-export const command = 'publish'
-export const description = 'Publish packages to npm registry'
-export const builder = flagsBuilder
+export default (di: Container) => ({
+  command: 'publish',
+  description: 'Publish packages to npm registry',
+  builder: flagsBuilder,
 
-export const handler = async function(flags: Flags): Promise<void> {
-  const publishStats = await publish(flags)
+  handler: async function(flags: Flags): Promise<void> {
+    const publishStats = await publish(di, flags)
 
-  if (publishStats.error?.length) {
-    process.exitCode = 1
-  }
-}
+    if (publishStats.error?.length) {
+      process.exitCode = 1
+    }
+  },
+})

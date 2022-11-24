@@ -1,30 +1,31 @@
 #!/usr/bin/env node
 
 import { log } from '../lib/logger'
-import { getConfig } from '../lib/config/index'
 import { wdShell } from '../lib/shell'
 import { getNewTag } from '../mechanics/add-tag/get-new-tag'
 import { initVcsPlatform } from '../mechanics/vcs'
+import type { Container } from '../lib/di'
+import { CONFIG_TOKEN } from '../tokens'
 
-export const command = 'add-tag'
-export const description = 'Creates a new release tag via GitLab API based on commits made after the last release tag'
-export const builder = {}
-export const handler = main
-
-async function createTag(tag, ref) {
-  const vcsPlatform = await initVcsPlatform({ vcsMode: 'platform' })
+async function createTag(di: Container, tag, ref) {
+  const vcsPlatform = await initVcsPlatform(di, { vcsMode: 'platform' })
 
   log(`creating tag ${tag} for ${ref} ref by platform api`)
   return vcsPlatform.addTag(tag, ref)
 }
 
-async function main() {
-  const config = await getConfig()
-  const targetRef = wdShell(config.cwd, 'git rev-parse HEAD')
-  const newTag = await getNewTag(config, targetRef)
-  if (newTag) {
-    return createTag(newTag, targetRef)
-  } else {
-    log('new tag not calculated (see logs below)')
-  }
-}
+export default (di: Container) => ({
+  command: 'add-tag',
+  description: 'Creates a new release tag via GitLab API based on commits made after the last release tag',
+  builder: {},
+  handler: async () => {
+    const config = di.get(CONFIG_TOKEN)
+    const targetRef = wdShell(config.cwd, 'git rev-parse HEAD')
+    const newTag = await getNewTag(di, targetRef)
+    if (newTag) {
+      return createTag(di, newTag, targetRef)
+    } else {
+      log('new tag not calculated (see logs below)')
+    }
+  },
+})

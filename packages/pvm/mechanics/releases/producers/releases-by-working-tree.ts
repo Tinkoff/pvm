@@ -1,5 +1,4 @@
 import { lastReleaseTagIgnoreEnv } from '../../../lib/git/last-release-tag'
-import { getConfig } from '../../../lib/config'
 import { loggerFor } from '../../../lib/logger'
 import { gitAuthorDate, isShallowRepository, revParse } from '../../../lib/git/commands'
 import gitCommits from '../../../lib/git/commits'
@@ -16,6 +15,8 @@ import { lookBackForReleaseTag, ReleasePosition } from '../rline'
 import type { PkgReleaseEntry, ReleaseData, ReleaseDataExt } from '../../../mechanics/releases/types'
 import type { Pkg } from '../../../lib/pkg'
 import { env } from '../../../lib/env'
+import type { Container } from '../../../lib/di'
+import { CONFIG_TOKEN, CWD_TOKEN } from '../../../tokens'
 
 export interface MakeReleasesFromWTOpts {
   stopAtRef?: string,
@@ -35,9 +36,10 @@ function * releasedPackages(currentPackages: Iterable<Pkg>, prevPackages: Immuta
 
 const logger = loggerFor('pvm:releases')
 
-async function makeReleasesFromWorkingTree(cwd: string, opts: MakeReleasesFromWTOpts = {}): Promise<ReleaseData[]> {
+async function makeReleasesFromWorkingTree(di: Container, opts: MakeReleasesFromWTOpts = {}): Promise<ReleaseData[]> {
   const { stopAtRef = void 0, startFrom = 'HEAD' } = opts
-  const config = await getConfig(cwd)
+  const cwd = di.get(CWD_TOKEN)
+  const config = di.get(CONFIG_TOKEN)
 
   let currentRef = startFrom
   const result: ReleaseDataExt[] = []
@@ -91,7 +93,7 @@ async function makeReleasesFromWorkingTree(cwd: string, opts: MakeReleasesFromWT
         config,
       })
 
-      const updateState = await makeUpdateState(changedContext)
+      const updateState = await makeUpdateState(di, changedContext)
 
       prevPackages = new ImmutablePkgSet(pkgsetFromRef(config, fromRef))
 
@@ -158,25 +160,4 @@ async function makeReleasesFromWorkingTree(cwd: string, opts: MakeReleasesFromWT
 
 export {
   makeReleasesFromWorkingTree,
-}
-
-async function testMain() {
-  const fs = require('fs')
-  const cwd = process.cwd()
-
-  const reseaseList = await makeReleasesFromWorkingTree(cwd, {
-    stopAtRef: env.STOP_AT,
-  })
-
-  console.log(`produced ${reseaseList.length} releases`)
-
-  fs.writeFileSync('releases.json', JSON.stringify(reseaseList))
-  console.info('release list saved to releases.json')
-}
-
-if (require.main === module) {
-  testMain().catch(e => {
-    console.error(e)
-    process.exit(1)
-  })
 }

@@ -3,9 +3,10 @@ import { wdShell } from '../../../lib/shell'
 import { pkgsetFromRef } from '../pkgset-from-ref'
 import { loggerFor } from '../../../lib/logger'
 import type { Pkg } from '../../../lib/pkg'
-import { getConfig } from '../../../lib/config'
 import { describeStrategy } from '../utils/describe-strategy'
 import { ImmutablePkgSet } from '../../../lib/pkg-set'
+import type { Container } from '@tinkoff/dippy'
+import { CONFIG_TOKEN, CWD_TOKEN } from '../../../tokens'
 const logger = loggerFor('pvm:pkgset-released')
 
 export interface PkgsetReleasedOpts {
@@ -13,9 +14,9 @@ export interface PkgsetReleasedOpts {
   cwd?: string,
 }
 
-async function * pkgsetReleased(opts: PkgsetReleasedOpts = {}): AsyncIterableIterator<Pkg> {
-  const { ref = 'HEAD', cwd = process.cwd() } = opts
-  const config = await getConfig(cwd)
+async function * pkgsetReleased(di: Container, opts: PkgsetReleasedOpts = {}): AsyncIterableIterator<Pkg> {
+  const { ref = 'HEAD', cwd = di.get(CWD_TOKEN) } = opts
+  const config = di.get(CONFIG_TOKEN)
 
   const lastReleaseTag = getLastReleaseTag(config, ref)
   if (!lastReleaseTag) {

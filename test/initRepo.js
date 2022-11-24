@@ -22,6 +22,8 @@ const {
   taggedCacheManager,
   CacheTag,
 } = require('../packages/pvm/lib/memoize')
+const { Pvm } = require('@pvm/pvm')
+const { DI_TOKEN } = require('@pvm/pvm/tokens')
 
 const isPkgTag = pkgTagRe.test.bind(pkgTagRe)
 
@@ -91,7 +93,10 @@ const initRepo = async (name, config, repoOpts = {}) => {
   gitShell('"mkdir" -p .git/gl')
 
   const repoData = dataFor(fullRepoDir)
-  let repoConfig = await getConfig(projectRoot)
+  const repoApp = new Pvm({
+    cwd: projectRoot,
+  })
+  let repoConfig = repoApp.getConfig()
 
   const result = {
     dir: projectRoot,
@@ -99,6 +104,9 @@ const initRepo = async (name, config, repoOpts = {}) => {
     data: repoData,
     get config() {
       return repoConfig
+    },
+    get di() {
+      return repoApp.get(DI_TOKEN)
     },
     async updateConfig(config) {
       await writeConfig({ dir: this.cwd }, config, repoOpts.configFormat)

@@ -3,16 +3,17 @@ import changed from './changed'
 import { lastReleaseTag } from '../../../lib/git/last-release-tag'
 import { wdShell } from '../../../lib/shell'
 import { log } from '../../../lib/logger'
-import { getConfig } from '../../../lib/config'
 import type { Pkg } from '../../../lib/pkg'
+import type { Container } from '../../../lib/di'
+import { CONFIG_TOKEN } from '../../../tokens'
 
 type PkgsetChangedAtReleaseOpts = PkgsetChangedOpts & Partial<{
   ref: string,
 }>
 
-async function * pkgset(opts: PkgsetChangedAtReleaseOpts = {}): AsyncIterableIterator<Pkg> {
+async function * pkgset(di: Container, opts: PkgsetChangedAtReleaseOpts = {}): AsyncIterableIterator<Pkg> {
   const { ref = 'HEAD', cwd = process.cwd() } = opts
-  const config = await getConfig(cwd)
+  const config = di.get(CONFIG_TOKEN)
 
   const revSha = wdShell(cwd, `git rev-parse ${ref}`)
 
@@ -24,7 +25,7 @@ async function * pkgset(opts: PkgsetChangedAtReleaseOpts = {}): AsyncIterableIte
     fromRev = `${revSha}^`
   }
 
-  yield * changed({
+  yield * changed(di, {
     ...opts,
     from: fromRev,
     to: ref,

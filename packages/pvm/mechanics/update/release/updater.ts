@@ -8,7 +8,6 @@ import { makeTagForPkg } from '../../../lib/tag-meta'
 import { enpl } from '../../../lib/text/plural'
 import { loggerFor } from '../../../lib/logger'
 import { wdShell } from '../../../lib/shell'
-import { getConfig } from '../../../lib/config'
 import { releaseMark } from '../../../lib/consts'
 import { getHostApi } from '../../../lib/plugins'
 import { getStagedFiles, revParse } from '../../../lib/git/commands'
@@ -29,6 +28,8 @@ import type { VcsPlatform, Vcs } from '../../vcs'
 
 import type{ ReleaseData } from '../../releases/types'
 import type{ Config } from '../../../types'
+import type { Container } from '../../../lib/di'
+import { CONFIG_TOKEN, CWD_TOKEN } from '../../../tokens'
 
 const logger = loggerFor('pvm:update')
 
@@ -39,7 +40,7 @@ export interface ReleaseOpts extends CliUpdateOpts {
   vcsMode?: 'vcs' | 'platform',
 }
 
-export async function release(updateState: UpdateState, vcsPlatform: Vcs, initialOpts: ReleaseOpts = {}): Promise<void> {
+export async function release(di: Container, updateState: UpdateState, vcsPlatform: Vcs, initialOpts: ReleaseOpts = {}): Promise<void> {
   const { targetRef } = updateState.changedContext
   const { config } = updateState.repo
   const releaseConf = config.release
@@ -68,8 +69,8 @@ export async function release(updateState: UpdateState, vcsPlatform: Vcs, initia
     const releaseContext = await createReleaseContext(updateState)
     if (releaseContext) {
       await runPluginPreReleaseHooks(config.cwd, vcsPlatform, releaseContext)
-      const { storageManager, releaseData } = await prepareStoreManagerAndReleaseData(config, releaseContext, vcsPlatform, opts)
-      await updateReleaseAndChangelogArtifacts(config, storageManager, releaseData)
+      const { storageManager, releaseData } = await prepareStoreManagerAndReleaseData(di, releaseContext, vcsPlatform, opts)
+      await updateReleaseAndChangelogArtifacts(di, storageManager, releaseData)
       saveReleaseDataLocally(config.cwd, opts, releaseData)
       if (!tagOnly) {
         await updatePackages(vcsPlatform, updateState)
@@ -78,7 +79,7 @@ export async function release(updateState: UpdateState, vcsPlatform: Vcs, initia
 
     // Ссылка на релиз либо от коммита который получен в результате пуша наработанных коммитов либо это целевая ссылка
     // если коммитить нечего
-    const releaseRef = (await conditionallyPushChanges(updateState, vcsPlatform, opts)) ?? calculateReleaseRef(config.cwd, targetRef)
+    const releaseRef = (await conditionallyPushChanges(di, updateState, vcsPlatform, opts)) ?? calculateReleaseRef(config.cwd, targetRef)
 
     if (releaseContext) {
       await createRelease(vcsPlatform, releaseRef, updateState, releaseContext)
@@ -134,13 +135,13 @@ async function runPluginPreReleaseHooks(cwd: string, vcsPlatform: VcsPlatform, r
   await hostApi.preReleaseHook(vcsPlatform, releaseContext)
 }
 
-async function prepareStoreManagerAndReleaseData(config: Config, releaseContext: ReleaseContext, vcsPlatform: VcsPlatform, { dryRun, local, tagOnly }: ReleaseOpts): Promise<{
+async function prepareStoreManagerAndReleaseData(di: Container, releaseContext: ReleaseContext, vcsPlatform: VcsPlatform, { dryRun, local, tagOnly }: ReleaseOpts): Promise<{
   releaseData?: ReleaseData,
   storageManager: StorageManager,
 }> {
   const storageManager = new StorageManager({
-    config,
-    vcs: tagOnly || dryRun ? await initVcs({ vcsType: 'fs', cwd: config.cwd, localMode: local, dryRun: dryRun }) : vcsPlatform,
+    config: di.get(CONFIG_TOKEN),
+    vcs: tagOnly || dryRun ? await initVcs(di, { vcsType: 'fs', cwd: di.get(CWD_TOKEN), localMode: local, dryRun: dryRun }) : vcsPlatform,
   })
 
   const releaseData = await releaseDataMaker.fromReleaseContext(releaseContext)
@@ -151,7 +152,7 @@ async function prepareStoreManagerAndReleaseData(config: Config, releaseContext:
   }
 }
 
-async function updateReleaseAndChangelogArtifacts(config: Config, storageManager: StorageManager, releaseData?: ReleaseData): Promise<void> {
+async function updateReleaseAndChangelogArtifacts(di: Container, storageManager: StorageManager, releaseData?: ReleaseData): Promise<void> {
   // 1. Download ReleaseList artifact
   // 2. Update ReleaseList and apply limits
   // 3. Upload ReleaseList artifact
@@ -161,6 +162,7 @@ async function updateReleaseAndChangelogArtifacts(config: Config, storageManager
   // 5. CHANGELOG. incremental: NOOP, single-pass: Render ReleaseList
   // 6. UPDATE only: upload ReleaseList, Changelogs artifacts
 
+  const config = di.get(CONFIG_TOKEN)
   const releaseListStorage = await storageManager.initFor(StorageManager.ArtifactsStorages.ReleaseList)
 
   if (config.release_list.enabled && releaseData) {
@@ -177,7 +179,7 @@ async function updateReleaseAndChangelogArtifacts(config: Config, storageManager
   if ((changelogConfig.enabled || changelogConfig.for_packages.enabled) && releaseData) {
     await changelogsStorage.download()
 
-    await makeChangelog(config, releaseData)
+    await makeChangelog(di, releaseData)
 
     await changelogsStorage.upload()
   }
@@ -202,11 +204,11 @@ function calculateReleaseRef(cwd: string, targetRef: string): string {
   return revParse(targetRef, cwd)
 }
 
-async function conditionallyPushChanges(updateState: UpdateState, vcsPlatform: VcsPlatform, { local, tagOnly, vcsMode }: ReleaseOpts): Promise<string | undefined> {
+async function conditionallyPushChanges(di: Container, updateState: UpdateState, vcsPlatform: VcsPlatform, { local, tagOnly, vcsMode }: ReleaseOpts): Promise<string | undefined> {
   const { targetRef } = updateState.changedContext
 
   if (!local) {
-    await checkBranchActual(vcsPlatform, targetRef)
+    await checkBranchActual(di, vcsPlatform, targetRef)
   }
 
   if (vcsPlatform.isSomethingForCommit()) {
@@ -222,7 +224,7 @@ async function conditionallyPushChanges(updateState: UpdateState, vcsPlatform: V
         throw e
       }
 
-      return await pushChanges(vcsPlatform, updateState)
+      return await pushChanges(di, vcsPlatform, updateState)
     }
   } else {
     vcsPlatform.resetCommitContext()
@@ -230,8 +232,8 @@ async function conditionallyPushChanges(updateState: UpdateState, vcsPlatform: V
   }
 }
 
-async function checkBranchActual(vcs: VcsPlatform, targetRef: string): Promise<void> {
-  const config = await getConfig(vcs.cwd)
+async function checkBranchActual(di: Container, vcs: VcsPlatform, targetRef: string): Promise<void> {
+  const config = di.get(CONFIG_TOKEN)
   const releaseOpts = config.release
 
   const maybeCurrentBranch = vcs.getCurrentBranch()
@@ -246,8 +248,8 @@ async function checkBranchActual(vcs: VcsPlatform, targetRef: string): Promise<v
 }
 
 // метод делает коммит с обновлением версий
-async function pushChanges(vcs: VcsPlatform, updateState: UpdateState): Promise<string | undefined> {
-  const templateEnv = await getTemplateEnv()
+async function pushChanges(di: Container, vcs: VcsPlatform, updateState: UpdateState): Promise<string | undefined> {
+  const templateEnv = await getTemplateEnv(di)
 
   let commitMessage = templateEnv.render('release-commit', {
     packages: updateState.getReleasePackages(),

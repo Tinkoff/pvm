@@ -5,7 +5,6 @@ import frontMatter from 'front-matter'
 import resolveFrom from 'resolve-from'
 import { requireDefault } from '../../lib/interop'
 import { loggerFor } from '../../lib/logger'
-import { getConfig } from '../../lib/config'
 import { getHostApi } from '../../lib/plugins'
 
 import pkgsetAll from '../pkgset/strategies/all'
@@ -23,6 +22,8 @@ import type { Config } from '../../types'
 import type { Renderer, IncrementalRenderer } from './types'
 import type { ReleaseData } from '../releases/types'
 import { cwdToGitRelativity } from '../../lib/git/worktree'
+import type { Container } from '../../lib/di'
+import { CONFIG_TOKEN } from '../../tokens'
 
 const logger = loggerFor('pvm:changelog')
 
@@ -31,8 +32,8 @@ export enum RenderTarget {
   markPr,
 }
 
-export async function getRendererPure(cwd: string, rendererTarget: RenderTarget = RenderTarget.changelog): Promise<Renderer | IncrementalRenderer> {
-  const config = await getConfig(cwd)
+export async function getRendererPure(di: Container, rendererTarget: RenderTarget = RenderTarget.changelog): Promise<Renderer | IncrementalRenderer> {
+  const config = di.get(CONFIG_TOKEN)
   await provideBuiltinRenderers(config.cwd)
 
   const { renderer } = rendererTarget === RenderTarget.changelog ? config.changelog : config.mark_pr
@@ -99,17 +100,17 @@ function readChangelog(changelogPath: string): ChangelogContents {
   return frontMatter(content)
 }
 
-export async function renderReleaseContext(releaseContext: ReleaseContext, renderTarget: RenderTarget, forPkg: Pkg | void = void 0): Promise<string> {
-  const { cwd } = releaseContext.updateState.repo
-  const renderer = await getRenderer(cwd, renderTarget)
+export async function renderReleaseContext(di: Container, releaseContext: ReleaseContext, renderTarget: RenderTarget, forPkg: Pkg | void = void 0): Promise<string> {
+  const renderer = await getRenderer(di, renderTarget)
   const releaseData = await releaseDataMaker.fromReleaseContext(releaseContext)
 
   return renderer.render(releaseData ? [releaseData] : [], forPkg?.name)
 }
 
-async function getReleasesRenderer(config: Config, releaseData?: ReleaseData): Promise<(contents: ChangelogContents, forPkg?: Pkg) => Promise<string>> {
+async function getReleasesRenderer(di: Container, releaseData?: ReleaseData): Promise<(contents: ChangelogContents, forPkg?: Pkg) => Promise<string>> {
+  const config = di.get(CONFIG_TOKEN)
   return async (contents: ChangelogContents, forPkg: Pkg | undefined = void 0): Promise<string> => {
-    const renderer = await getRenderer(config.cwd)
+    const renderer = await getRenderer(di)
     const conf = forPkg ? config.changelog.for_packages : config.changelog
     const isIncremental = 'append' in renderer
 
@@ -142,7 +143,7 @@ async function getReleasesRenderer(config: Config, releaseData?: ReleaseData): P
     }
 
     if ((needToRenderReleaseList || !contents.frontmatter) && conf.front_matter) {
-      const template = await lazyCompileTemplate(conf.front_matter)
+      const template = await lazyCompileTemplate(di, conf.front_matter)
       contents.frontmatter = template.render({
         pkg: forPkg,
       })
@@ -184,24 +185,26 @@ function isPkgNew(config: Config, pkg: Pkg): boolean {
   return false
 }
 
-async function mainChangelog(config: Config, releaseData?: ReleaseData): Promise<string> {
-  const renderReleases = await getReleasesRenderer(config, releaseData)
+async function mainChangelog(di: Container, releaseData?: ReleaseData): Promise<string> {
+  const renderReleases = await getReleasesRenderer(di, releaseData)
+  const config = di.get(CONFIG_TOKEN)
 
   const contents = readChangelog(path.join(config.cwd, config.changelog.path))
 
   return renderReleases(contents)
 }
 
-async function packagesChangelog(config: Config, releaseData?: ReleaseData): Promise<void> {
+async function packagesChangelog(di: Container, releaseData?: ReleaseData): Promise<void> {
   const pkgsetOpts = {
     includeRoot: false,
   }
 
-  const renderReleases = await getReleasesRenderer(config, releaseData)
+  const renderReleases = await getReleasesRenderer(di, releaseData)
 
-  for await (const pkg of pkgsetAll(pkgsetOpts)) {
+  for await (const pkg of pkgsetAll(di, pkgsetOpts)) {
     logger.debug(`update changelog for ${pkg.name}`)
 
+    const config = di.get(CONFIG_TOKEN)
     const changelogAbsPath = pkgChangelogPath(config, pkg)
 
     const contents = readChangelog(changelogAbsPath)
@@ -214,16 +217,17 @@ async function packagesChangelog(config: Config, releaseData?: ReleaseData): Pro
   }
 }
 
-async function makeChangelog(config: Config, releaseData?: ReleaseData): Promise<void> {
+async function makeChangelog(di: Container, releaseData?: ReleaseData): Promise<void> {
+  const config = di.get(CONFIG_TOKEN)
   const conf = config.changelog
   mkdirp(path.dirname(conf.path))
-  const result = await mainChangelog(config, releaseData)
+  const result = await mainChangelog(di, releaseData)
   if (!config.executionContext.dryRun) {
     fs.writeFileSync(conf.path, result)
   }
 
   if (conf.for_packages.enabled) {
-    await packagesChangelog(config, releaseData)
+    await packagesChangelog(di, releaseData)
   }
 }
 

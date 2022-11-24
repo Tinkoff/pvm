@@ -9,6 +9,7 @@ import fromGlobPatterns from '../pkgset/from-glob-patterns'
 import type { Pkg } from '../../lib/pkg'
 import { concatPackages } from '../../lib/pkg'
 import { Repository } from '../repository'
+import type { Container } from '../../lib/di'
 
 // connected with type yargs.commands['pvm-publish].options.list.choices in ../cli/commands/pvm-packages.ts
 type PackagesType = 'about-to-update' | 'update' | 'changed' | 'changed-since-release' | 'affected' | 'released' | 'updated' | 'all'
@@ -19,10 +20,10 @@ interface GetPackagesOptions {
   cwd?: string,
 }
 
-export async function getPackages(type: PackagesType = 'all', opts: GetPackagesOptions = {}): Promise<Pkg[]> {
+export async function getPackages(di: Container, type: PackagesType = 'all', opts: GetPackagesOptions = {}): Promise<Pkg[]> {
   let packages
   const { ignoreDangerouslyOpts = false, cwd = process.cwd() } = opts
-  const repo = await Repository.init(cwd)
+  const repo = await Repository.init(di)
 
   let always_changed_workspaces: string[] = []
   let extraPackages: Iterable<Pkg> = []
@@ -39,22 +40,22 @@ export async function getPackages(type: PackagesType = 'all', opts: GetPackagesO
     case 'about-to-update':
     case 'update':
       // getUpdateState сам подключает always_changed_workspaces
-      packages = Array.from((await getUpdateState({ readonly: true, cwd })).getReleasePackages().keys())
+      packages = Array.from((await getUpdateState(di, { readonly: true, cwd })).getReleasePackages().keys())
       break
     case 'changed':
-      packages = await drainItems(pkgsetChanged({ includeUncommited: true, cwd }))
+      packages = await drainItems(pkgsetChanged(di, { includeUncommited: true, cwd }))
       packages = concatPackages(packages, extraPackages)
       break
     case 'affected':
-      packages = await drainItems(pkgsetAffected({ includeUncommited: true, cwd }))
+      packages = await drainItems(pkgsetAffected(di, { includeUncommited: true, cwd }))
       break
     case 'changed-since-release':
-      packages = await drainItems(pkgsetSinceRelease({ cwd }))
+      packages = await drainItems(pkgsetSinceRelease(di, { cwd }))
       packages = concatPackages(packages, extraPackages)
       break
     case 'released':
     case 'updated':
-      packages = await drainItems(pkgsetReleased({ cwd }))
+      packages = await drainItems(pkgsetReleased(di, { cwd }))
       break
     default:
       // 'all'

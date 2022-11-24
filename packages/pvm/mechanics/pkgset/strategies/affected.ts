@@ -2,7 +2,6 @@ import chalk from 'chalk'
 import micromatch from 'micromatch'
 import glob from 'fast-glob'
 
-import { getConfig } from '../../../lib/config'
 import { Repository } from '../../repository'
 import { PkgSet } from '../../../lib/pkg-set'
 
@@ -16,6 +15,8 @@ import fromGlobPatterns from '../from-glob-patterns'
 import { describeStrategy } from '../utils/describe-strategy'
 
 import type { Pkg } from '../../../lib/pkg'
+import type { Container } from '../../../lib/di'
+import { CONFIG_TOKEN } from '../../../tokens'
 
 export type PkgsetChangedOpts = ChangedFilesOpts & FromChangedFilesOpts & {
   ignoreDangerouslyOpts?: boolean,
@@ -26,12 +27,12 @@ const globOpts = {
   ignore: ['**/node_modules/**'],
 }
 
-async function * pkgset(opts: PkgsetChangedOpts = {}): AsyncIterableIterator<Pkg> {
+async function * pkgset(di: Container, opts: PkgsetChangedOpts = {}): AsyncIterableIterator<Pkg> {
   const resultChanged = changedFiles(opts)
   let forceAllPackages = false
   const { ignoreDangerouslyOpts = false, cwd = process.cwd() } = opts
-  const config = await getConfig(cwd)
-  const repo = await Repository.init(cwd, { ref: resultChanged.targetLoadRef })
+  const config = di.get(CONFIG_TOKEN)
+  const repo = await Repository.init(di, { ref: resultChanged.targetLoadRef })
 
   const affectedConfig: { if_changed: string[], then_affected: string[] | '*' }[] = config.pkgset?.affected_files ?? []
   const resultPatterns: Set<string> = new Set()

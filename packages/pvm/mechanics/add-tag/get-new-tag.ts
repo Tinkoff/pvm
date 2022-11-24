@@ -4,9 +4,11 @@ import { wdShell } from '../../lib/shell'
 import { getUpdateState } from '../update'
 import { createReleaseContext } from '../update/release/release-context'
 
-import type { Config } from '../../types'
+import type { Container } from '../../lib/di'
+import { CONFIG_TOKEN } from '../../tokens'
 
-export async function getNewTag(config: Config, targetRef = 'HEAD'): Promise<string | null> {
+export async function getNewTag(di: Container, targetRef = 'HEAD'): Promise<string | null> {
+  const config = di.get(CONFIG_TOKEN)
   const lastRelease = lastReleaseTag(config, targetRef)
 
   const lastRevision = lastRelease ? wdShell(config.cwd, `git rev-list -1 ${lastRelease}`) : null
@@ -17,7 +19,7 @@ export async function getNewTag(config: Config, targetRef = 'HEAD'): Promise<str
     return null
   }
 
-  const updateState = await getUpdateState({
+  const updateState = await getUpdateState(di, {
     cwd: config.cwd,
     includeRoot: true,
     readonly: true,

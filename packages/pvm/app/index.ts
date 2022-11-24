@@ -92,9 +92,7 @@ export class Pvm {
    * Return next release tag name based on previous releases
    */
   public getNewTag(targetRef: string): Promise<string | null> {
-    const config = this.container.get(CONFIG_TOKEN)
-
-    return getNewTag(config, targetRef)
+    return getNewTag(this.container, targetRef)
   }
 
   /**
@@ -113,7 +111,7 @@ export class Pvm {
   public getFiles(filesGlob: string | string[], opts: Record<string, any> = {}): Promise<string[]> {
     opts.cwd = opts.cwd ?? this.cwd
 
-    return getFiles(filesGlob, opts)
+    return getFiles(this.container, filesGlob, opts)
   }
 
   public getNotificator(): Notificator {
@@ -123,41 +121,40 @@ export class Pvm {
   public getPkgSet(strategy: string, opts: Record<string, any>): ReturnType<typeof pkgset> {
     opts.cwd = opts.cwd ?? this.cwd
 
-    return pkgset(strategy, opts)
+    return pkgset(this.container, strategy, opts)
   }
 
-  public getPackages(type: Parameters<typeof getPackages>[0] = 'all', opts: Parameters<typeof getPackages>[1] = {}): ReturnType<typeof getPackages> {
+  public getPackages(type: Parameters<typeof getPackages>[1] = 'all', opts: Parameters<typeof getPackages>[2] = {}): ReturnType<typeof getPackages> {
     opts.cwd = opts.cwd ?? this.cwd
 
-    return getPackages(type, opts)
+    return getPackages(this.container, type, opts)
   }
 
-  public getCurrentRelease(opts: Parameters<typeof getCurrentRelease>[0] = {}): ReturnType<typeof getCurrentRelease> {
+  public getCurrentRelease(opts: Parameters<typeof getCurrentRelease>[1] = {}): ReturnType<typeof getCurrentRelease> {
     opts.cwd = opts.cwd ?? this.cwd
 
-    return getCurrentRelease(opts)
+    return getCurrentRelease(this.container, opts)
   }
 
   public getRepository(ref?: string): Repository {
     return new Repository(
-      this.cwd,
-      this.container.get(CONFIG_TOKEN),
+      this.container,
       ref
     )
   }
 
-  public getUpdateState(opts: Parameters<typeof getUpdateState>[0] = {}): ReturnType<typeof getUpdateState> {
+  public getUpdateState(opts: Parameters<typeof getUpdateState>[1] = {}): ReturnType<typeof getUpdateState> {
     opts.cwd = opts.cwd ?? this.cwd
 
-    return getUpdateState(opts)
+    return getUpdateState(this.container, opts)
   }
 
-  public downloadArtifacts(args: Parameters<typeof download>[0]): ReturnType<typeof download> {
-    return download(args)
+  public downloadArtifacts(args: Parameters<typeof download>[1]): ReturnType<typeof download> {
+    return download(this.container, args)
   }
 
-  public uploadArtifacts(args: Parameters<typeof upload>[0]): ReturnType<typeof upload> {
-    return upload(args)
+  public uploadArtifacts(args: Parameters<typeof upload>[1]): ReturnType<typeof upload> {
+    return upload(this.container, args)
   }
 
   protected initConfigAndPlugins(config: RecursivePartial<Config> | string | null | undefined, plugins: PluginConfig[] = []) {
@@ -193,7 +190,7 @@ export class Pvm {
     }
 
     if (defaultConfig.plugins_v2) {
-      nextConfigExtensions = this.registerPlugins(defaultConfig.plugins_v2, path.dirname(require.resolve('../../pvm-defaults')))
+      nextConfigExtensions = this.registerPlugins(defaultConfig.plugins_v2, path.dirname(require.resolve('../pvm-defaults')))
       // Config extensions from default config plugins
       nextConfig = mergeDefaults(nextConfig, this.mergeConfigExtensions(nextConfigExtensions))
     }

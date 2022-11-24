@@ -5,8 +5,8 @@ import { loadPkg } from '../../lib/pkg'
 import { UpdateState } from '../../mechanics/update/update-state'
 import { Repository } from '../../mechanics/repository'
 
-async function makeUpdateState(cwd: string, changedContext: ChangedContext, updateContext: UpdateContext): Promise<UpdateState> {
-  const repo = await Repository.init(cwd)
+async function makeUpdateState(di, changedContext: ChangedContext, updateContext: UpdateContext): Promise<UpdateState> {
+  const repo = await Repository.init(di)
   return new UpdateState(repo, changedContext, updateContext)
 }
 
@@ -43,7 +43,7 @@ describe('pvm-update/pkg-release-type', () => {
       hints: {},
       readHintsFile: false,
     }
-    const updateState = await makeUpdateState(repo.dir, changedContext, updateContext)
+    const updateState = await makeUpdateState(repo.di, changedContext, updateContext)
     await markReleaseType(aPkg, updateState)
 
     expect(updateState.getLikelyReleaseTypeFor(aPkg)).toEqual(null)

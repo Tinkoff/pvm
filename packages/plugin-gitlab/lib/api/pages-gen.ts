@@ -1,7 +1,7 @@
 import { URL } from 'url'
 import glapi from './index'
 import { pagingMeta } from '@pvm/pvm'
-import type { HttpReqOptions, HttpResponseSuccess } from '@pvm/pvm'
+import type { HttpReqOptions, HttpResponseSuccess, Config } from '@pvm/pvm'
 import type { UriSlug } from './api-helpers'
 import { encodeSlug } from './api-helpers'
 
@@ -11,7 +11,7 @@ export interface QueryArgs {
 }
 
 // https://docs.gitlab.com/ee/api/#pagination
-async function * httpPagesGen<T = any>(
+async function * httpPagesGen<T = any>(config: Config,
   href: string, queryArgs: QueryArgs = {}, fetchOpts: HttpReqOptions = {}
 ): AsyncIterableIterator<HttpResponseSuccess<Array<T>>> {
   let page = queryArgs.page || 1
@@ -25,7 +25,7 @@ async function * httpPagesGen<T = any>(
 
   do {
     url.searchParams.set('page', String(page))
-    const response = await glapi<Array<T>>(
+    const response = await glapi<Array<T>>(config,
       `${url.pathname}${url.search}`,
       fetchOpts
     )
@@ -36,8 +36,8 @@ async function * httpPagesGen<T = any>(
 }
 
 // https://docs.gitlab.com/ee/api/#pagination
-async function * pagesGen<T = any>(url, queryArgs: QueryArgs = {}, fetchOpts: HttpReqOptions = {}): AsyncIterableIterator<T> {
-  for await (const response of httpPagesGen<T>(url, queryArgs, fetchOpts)) {
+async function * pagesGen<T = any>(config: Config, url, queryArgs: QueryArgs = {}, fetchOpts: HttpReqOptions = {}): AsyncIterableIterator<T> {
+  for await (const response of httpPagesGen<T>(config, url, queryArgs, fetchOpts)) {
     const data = response.json
     if (data) {
       const metaTarget = Array.isArray(data) ? data[0] : data
@@ -52,10 +52,10 @@ async function * pagesGen<T = any>(url, queryArgs: QueryArgs = {}, fetchOpts: Ht
   }
 }
 
-async function * projectPagesGen<T = any>(
+async function * projectPagesGen<T = any>(config: Config,
   projectId: UriSlug, url: string, queryArgs: QueryArgs = {}, fetchOpts: HttpReqOptions = {}
 ): AsyncIterableIterator<T> {
-  yield * pagesGen<T>(`/projects/${encodeSlug(projectId)}${url}`, queryArgs, fetchOpts)
+  yield * pagesGen<T>(config, `/projects/${encodeSlug(projectId)}${url}`, queryArgs, fetchOpts)
 }
 
 export {

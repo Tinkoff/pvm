@@ -12,7 +12,6 @@ import { createReleaseContext } from './release/release-context'
 import { Repository } from '../repository'
 import { UpdateReasonType, UpdateState } from './update-state'
 import { vcsInitForUpdate } from './vcs-init'
-import getConfig from '../../lib/config/get-config'
 import getTemplateEnv from '../template/env'
 import { Notificator } from '../notifications'
 
@@ -20,8 +19,10 @@ import type { Pkg } from '../../lib/pkg'
 import type { ReleaseContext, ForceReleaseState, UpdateMethod, CliUpdateOpts } from './types'
 import type { PvmReleaseType } from '../../types'
 import type { ChangedContext } from './changed-context'
+import type { Container } from '../../lib/di'
 
 import { env } from '../../lib/env'
+import { CONFIG_TOKEN, CWD_TOKEN } from '../../tokens'
 
 async function markReleaseTypes(updateState: UpdateState, forceReleaseState: ForceReleaseState): Promise<void> {
   let packagesForMark = updateState.changedContext.packages
@@ -59,8 +60,8 @@ export interface MakeUpdateStateOptions {
   readonly?: boolean,
 }
 
-async function makeUpdateState(changedContext: ChangedContext, opts: MakeUpdateStateOptions = {}): Promise<UpdateState> {
-  const repo = await Repository.init(changedContext.changedFiles.cwd, {
+async function makeUpdateState(di: Container, changedContext: ChangedContext, opts: MakeUpdateStateOptions = {}): Promise<UpdateState> {
+  const repo = await Repository.init(di, {
     ref: changedContext.targetLoadRef,
   })
 
@@ -114,16 +115,16 @@ export interface GetUpdateStateOpts extends SinceLastReleaseOpts {
   targetRef?: string,
 }
 
-async function getUpdateState(opts: GetUpdateStateOpts = {}): Promise<UpdateState> {
-  const cwd = opts.cwd || process.cwd() // @TODO: задепрекейтить process.cwd() здесь
+async function getUpdateState(di: Container, opts: GetUpdateStateOpts = {}): Promise<UpdateState> {
+  const cwd = opts.cwd || di.get(CWD_TOKEN)// @TODO: задепрекейтить process.cwd() здесь
   const { targetRef = 'HEAD' } = opts
 
-  const changedContext = await sinceLastRelease(targetRef, {
+  const changedContext = await sinceLastRelease(di, targetRef, {
     ...opts,
     cwd,
   })
 
-  return await makeUpdateState(changedContext, { readonly: opts.readonly })
+  return await makeUpdateState(di, changedContext, { readonly: opts.readonly })
 }
 
 function printPackagesLimited(pkgList: Iterable<Pkg>, maxLength = 45): string {
@@ -202,28 +203,28 @@ interface MakeReleaseContextOpts {
   cwd?: string,
 }
 
-async function makeReleaseContext(targetRef: string | undefined = void 0, opts: MakeReleaseContextOpts = {}): Promise<ReleaseContext | null> {
-  return createReleaseContext(await getUpdateState({
+async function makeReleaseContext(di: Container, targetRef: string | undefined = void 0, opts: MakeReleaseContextOpts = {}): Promise<ReleaseContext | null> {
+  return createReleaseContext(await getUpdateState(di, {
     ...opts,
     targetRef,
   }))
 }
 
-async function updateWithVcsRetry<R>(updateMethod: UpdateMethod<R>, opts: CliUpdateOpts | undefined = void 0): Promise<R> {
-  const config = await getConfig(opts?.cwd)
+async function updateWithVcsRetry<R>(di: Container, updateMethod: UpdateMethod<R>, opts: CliUpdateOpts | undefined = void 0): Promise<R> {
+  const config = di.get(CONFIG_TOKEN)
   const { commit_via_platform, retry_via_platform_if_failed_via_vcs = true } = config.update
   const dryRun = opts?.dryRun || false
   try {
-    return await update(updateMethod, opts)
+    return await update(di, updateMethod, opts)
   } catch (e) {
     if (e.context === 'push' && !commit_via_platform && retry_via_platform_if_failed_via_vcs) {
       logger.warn(`PVM has failed to push a release commit via git:\n${e.message}\n Retrying release attempt using platform api now!`)
-      const templateEnv = await getTemplateEnv()
+      const templateEnv = await getTemplateEnv(di)
       const notifyMessage = templateEnv.render('failed_vcs_push', {
         CI_PIPELINE_URL: env.CI_PIPELINE_URL,
       })
       if (!dryRun) {
-        const messenger = await Notificator.create(config.cwd)
+        const messenger = new Notificator(di.get(CONFIG_TOKEN))
         await messenger.sendMessage({
           content: notifyMessage,
           attachments: [
@@ -238,7 +239,7 @@ async function updateWithVcsRetry<R>(updateMethod: UpdateMethod<R>, opts: CliUpd
       }
       // попытка номер два, запушить через платформу
       // @ts-ignore @TODO: упростить метод update с точки зрения типов, убрать генерик на опции
-      return await update(updateMethod, {
+      return await update(di, updateMethod, {
         ...opts,
         vcsMode: 'platform',
       })
@@ -248,15 +249,15 @@ async function updateWithVcsRetry<R>(updateMethod: UpdateMethod<R>, opts: CliUpd
   }
 }
 
-async function update<R>(updateMethod: UpdateMethod<R>, opts: CliUpdateOpts = {}): Promise<R> {
+async function update<R>(di, updateMethod: UpdateMethod<R>, opts: CliUpdateOpts = {}): Promise<R> {
   // @ts-ignore
   if (opts && opts.dryRun) {
     log(chalk`{yellowBright DRY RUN}`)
   }
 
-  const config = await getConfig(opts?.cwd)
+  const config = di.get(CONFIG_TOKEN)
 
-  const vcs = await vcsInitForUpdate({
+  const vcs = await vcsInitForUpdate(di, {
     ...opts,
     cwd: config.cwd,
   })
@@ -265,12 +266,12 @@ async function update<R>(updateMethod: UpdateMethod<R>, opts: CliUpdateOpts = {}
     await updateMethod.prepare(config, vcs)
   }
 
-  const updateState = await getUpdateState({ cwd: config.cwd })
-  return updateMethod.run(updateState, vcs, opts)
+  const updateState = await getUpdateState(di, { cwd: config.cwd })
+  return updateMethod.run(di, updateState, vcs, opts)
 }
 
-function release(): ReturnType<typeof makeRelease.run> {
-  return updateWithVcsRetry(makeRelease, void 0)
+function release(di: Container): ReturnType<typeof makeRelease.run> {
+  return updateWithVcsRetry(di, makeRelease, void 0)
 }
 
 export {

@@ -1,4 +1,3 @@
-import { getConfig } from '../../lib/config'
 import { inspectArgs } from '../../lib/inspect-args'
 import { logger } from '../../lib/logger'
 import { wdShell } from '../../lib/shell'
@@ -15,7 +14,8 @@ import type {
 } from './types'
 import { env } from '../../lib/env'
 import { getApp } from '../../lib/config/get-config'
-import { PLATFORM_TOKEN } from '../../tokens'
+import { CONFIG_TOKEN, CWD_TOKEN, PLATFORM_TOKEN } from '../../tokens'
+import type { Container } from '../../lib/di'
 
 const VcsMap = {
   git: initGitVcs,
@@ -26,8 +26,9 @@ function detectVcsType() {
   return env.PVM_VCS_TYPE || 'git'
 }
 
-async function loadBuiltinVcs(cwd: string, customVcsType?: string): Promise<void> {
-  const config = await getConfig(cwd)
+async function loadBuiltinVcs(di: Container, customVcsType?: string): Promise<void> {
+  const config = di.get(CONFIG_TOKEN)
+  const cwd = di.get(CWD_TOKEN)
   const vcsType = customVcsType || (config.vcs.builtin_type === 'auto' ? detectVcsType() : config.vcs.builtin_type)
 
   if (!VcsMap[vcsType]) {
@@ -308,9 +309,9 @@ interface InitVcsOpts {
 
 const vcsInstances = new Map<string, VcsPlatform>()
 
-async function initVcsPlatform(opts: InitVcsOpts = {}): Promise<VcsPlatform> {
+async function initVcsPlatform(di: Container, opts: InitVcsOpts = {}): Promise<VcsPlatform> {
   const { cwd = process.cwd(), dryRun, vcsType, localMode = global.argv?.local || false, vcsMode } = opts
-  await loadBuiltinVcs(cwd, vcsType)
+  await loadBuiltinVcs(di, vcsType)
   const useLocalMode = localMode || env.PVM_EXTERNAL_DRY_RUN
 
   // платформа может понадобится и в локальном режиме
@@ -334,20 +335,8 @@ async function initVcsPlatform(opts: InitVcsOpts = {}): Promise<VcsPlatform> {
   return vcs
 }
 
-async function lazyInitVcs(cwd: string, opts: Omit<InitVcsOpts, 'cwd'> = {}): Promise<VcsPlatform> {
-  const vcs = vcsInstances.get(cachedRealPath(cwd))
-  if (!vcs) {
-    return await initVcsPlatform({
-      cwd,
-      ...opts,
-    })
-  }
-  return vcs
-}
-
 export {
   initVcsPlatform,
-  lazyInitVcs,
   initVcsPlatform as default,
   VcsPlatform as Vcs, // для обратной совместимости
 }

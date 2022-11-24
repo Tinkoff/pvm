@@ -2,7 +2,6 @@
 import * as TOML from '@iarna/toml'
 
 import { wdShell } from '../lib/shell'
-import { getConfig } from '../lib/config'
 import { logger } from '../lib/logger'
 import { lastReleaseTag } from '../lib/git/last-release-tag'
 import { releaseCommitsAsString } from '../lib/git/release-commits'
@@ -10,6 +9,8 @@ import sinceLastRelease from '../mechanics/update/strategies/since-last-release'
 import { Repository } from '../mechanics/repository'
 
 import type { Argv } from 'yargs'
+import type { Container } from '@tinkoff/dippy'
+import { CONFIG_TOKEN } from '../tokens'
 
 function pprint(val): void {
   if (val === void 0) {
@@ -24,9 +25,9 @@ function pprint(val): void {
   console.log(pval)
 }
 
-function asyncPrint(fn) {
+function asyncPrint(di, fn) {
   return (...args) => {
-    return Promise.resolve(fn(...args))
+    return Promise.resolve(fn(di, ...args))
       .then(result => {
         pprint(result)
       })
@@ -37,13 +38,13 @@ function asyncPrint(fn) {
   }
 }
 
-async function resolveLastReleaseTag(): Promise<string> {
-  const config = await getConfig()
+async function resolveLastReleaseTag(di: Container): Promise<string> {
+  const config = di.get(CONFIG_TOKEN)
   return lastReleaseTag(config)
 }
 
-async function printChangelog(flags) {
-  const config = await getConfig()
+async function printChangelog(di: Container, flags) {
+  const config = di.get(CONFIG_TOKEN)
   const release = flags.release || 'HEAD'
   let targetRef = release
   const latestReleaseTag = lastReleaseTag(config, release)
@@ -53,45 +54,47 @@ async function printChangelog(flags) {
     targetRef = `${release}^`
   }
 
-  const repo = new Repository(cwd, config)
+  const repo = new Repository(di)
   const hostApi = await repo.getHostApi()
 
-  const changedContext = await sinceLastRelease(targetRef, {
+  const changedContext = await sinceLastRelease(di, targetRef, {
     cwd,
   })
 
   return hostApi.commitsToNotes(changedContext.commits)
 }
 
-async function releaseCommitsCommand(args): Promise<string | void> {
-  const config = await getConfig()
+async function releaseCommitsCommand(di: Container, args): Promise<string | void> {
+  const config = di.get(CONFIG_TOKEN)
   return releaseCommitsAsString(config, {
     target: args.release || 'HEAD',
     format: args.format,
   })
 }
 
-async function showConfig(): Promise<string> {
-  const config = await getConfig(process.cwd())
+async function showConfig(di: Container): Promise<string> {
+  const config = di.get(CONFIG_TOKEN)
   return TOML.stringify(config as { [key: string]: any })
 }
 
-export const command = 'show <command>'
-export const description = 'show various information for repository'
-export const builder = (yargs: Argv) => {
-  return yargs
-    .command(['last-release-tag', 'lrt'], `show name of latest release tag`, {}, asyncPrint(resolveLastReleaseTag))
-    .command('changelog', 'show changelog for last/given release', {}, asyncPrint(printChangelog))
-    .command(['release-commits', 'rc'], 'show commit titles for last/given release', {
-      release: {
-        desc: 'Specify ref of release for release-commits command. Defaults to HEAD',
-      },
-      format: {
-        desc: 'Specify pretty print format for release-commits command',
-        default: '%s',
-      },
-    }, asyncPrint(releaseCommitsCommand))
-    .command('config', 'show current config', {}, asyncPrint(showConfig))
-}
+export default (di: Container) => ({
+  command: 'show <command>',
+  description: 'show various information for repository',
+  builder: (yargs: Argv) => {
+    return yargs
+      .command(['last-release-tag', 'lrt'], `show name of latest release tag`, {}, asyncPrint(di, resolveLastReleaseTag))
+      .command('changelog', 'show changelog for last/given release', {}, asyncPrint(di, printChangelog))
+      .command(['release-commits', 'rc'], 'show commit titles for last/given release', {
+        release: {
+          desc: 'Specify ref of release for release-commits command. Defaults to HEAD',
+        },
+        format: {
+          desc: 'Specify pretty print format for release-commits command',
+          default: '%s',
+        },
+      }, asyncPrint(di, releaseCommitsCommand))
+      .command('config', 'show current config', {}, asyncPrint(di, showConfig))
+  },
 
-export const handler = function() {}
+  handler: function() {},
+})

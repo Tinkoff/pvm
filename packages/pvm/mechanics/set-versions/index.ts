@@ -7,8 +7,9 @@ import micromatch from 'micromatch'
 import type { ReleaseType } from 'semver'
 import semver from 'semver'
 import type { PvmReleaseType } from '../../types'
+import type { Container } from '../../lib/di'
 
-export async function setVersions(opts: {
+export async function setVersions(di: Container, opts: {
   versionOrReleaseType: PvmReleaseType | string,
   filterPath: string[],
   strategy: string,
@@ -31,10 +32,10 @@ export async function setVersions(opts: {
   if (filterPath.length) {
     log(`filtering packages by path by ${opts.filterPath.join(', ')} glob patterns`)
   }
-  const repo = await Repository.init(process.cwd())
+  const repo = await Repository.init(di)
   const newVersions = new Map<Pkg, string>()
 
-  for await (const pkg of pkgsetFromFlags(opts)) {
+  for await (const pkg of pkgsetFromFlags(di, opts)) {
     if (filterPath.length && !micromatch.any(pkg.path, opts.filterPath, {})) {
       continue
     }

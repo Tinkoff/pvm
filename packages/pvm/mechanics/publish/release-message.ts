@@ -1,6 +1,5 @@
 import type { ReleasedProps, Message } from '../../types'
 
-import { getConfig } from '../../lib/config/index'
 import path from 'path'
 import fs from 'fs'
 import { httpreq } from '../../lib/httpreq'
@@ -8,6 +7,8 @@ import { mkdirp } from '../../lib/fs'
 import childProcess from 'child_process'
 import type { HostApi } from '../../lib/plugins'
 import { logger } from './logger'
+import type { Container } from '../../lib/di'
+import { CONFIG_TOKEN } from '../../tokens'
 
 interface NotifyOpts {
   notifyScript?: string,
@@ -15,8 +16,8 @@ interface NotifyOpts {
   hostApi?: HostApi,
 }
 
-export async function releaseMessage(releasedProps: ReleasedProps, opts: NotifyOpts = {}): Promise<Message> {
-  const config = await getConfig()
+export async function releaseMessage(di: Container, releasedProps: ReleasedProps, opts: NotifyOpts = {}): Promise<Message> {
+  const config = di.get(CONFIG_TOKEN)
   const { strategy, hostApi } = opts
   const defaultScriptName = strategy === 'stale' ? 'stale' : 'release'
   let defaultScriptPath

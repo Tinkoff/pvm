@@ -4,14 +4,14 @@ import type { FromChangedFilesOpts } from '../from-changed-files'
 import { pkgsetFromChangedFiles } from '../from-changed-files'
 import type { Pkg } from '../../../lib/pkg'
 import { describeStrategy } from '../utils/describe-strategy'
-import { getConfig } from '../../../lib/config'
 import chalk from 'chalk'
+import type { Container } from '../../../lib/di'
+import { CONFIG_TOKEN } from '../../../tokens'
 
 export type PkgsetChangedOpts = ChangedFilesOpts & FromChangedFilesOpts
 
-async function * pkgset(opts: PkgsetChangedOpts = {}): AsyncIterableIterator<Pkg> {
-  const config = await getConfig(opts.cwd)
-  yield * pkgsetFromChangedFiles(config, changedFiles(opts), opts)
+async function * pkgset(di: Container, opts: PkgsetChangedOpts = {}): AsyncIterableIterator<Pkg> {
+  yield * pkgsetFromChangedFiles(di.get(CONFIG_TOKEN), changedFiles(opts), opts)
 }
 
 describeStrategy(pkgset, 'changed', chalk`Prints packages which have been changed between two revisions.

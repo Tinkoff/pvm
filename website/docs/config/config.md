@@ -3,7 +3,7 @@ id: configuration
 title: Configuration
 ---
 
-## [Config schema](api/interfaces/pvm_types.Config.md)
+## [Config schema](api/interfaces/pvm_pvm.Config.md)
 
 
 ## Configuration sources

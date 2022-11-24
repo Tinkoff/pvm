@@ -2,12 +2,10 @@ import { MessengerClients } from './messenger-clients'
 import type { AbstractMessengerClient } from './abstract-messenger-client'
 import type { Message, MessengerClientConfig, Config } from '../../types'
 
-import { getConfig } from '../../lib/config'
 import { logger } from './logger'
 import resolveFrom from 'resolve-from'
 import { requireDefault } from '../../lib/interop'
 import defaultsDeep from 'lodash.defaultsdeep'
-import { getHostApi } from '../../lib/plugins'
 
 export class Notificator {
   private messengers: MessengerClients
@@ -34,12 +32,6 @@ export class Notificator {
         name: username,
       },
     })
-  }
-
-  static async create(cwd: string = process.cwd()): Promise<Notificator> {
-    // initializing plugins
-    await getHostApi(cwd)
-    return new Notificator(await getConfig(cwd))
   }
 
   async sendMessage(message: Message, opts: { target?: string } = {}): Promise<void> {

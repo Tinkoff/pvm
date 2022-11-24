@@ -2,7 +2,7 @@ import glapi from '../index'
 import type { UriSlug } from '../api-helpers'
 import { encodeSlug } from '../api-helpers'
 import type { Group, PublicPerson } from '../../../types/api/people'
-import type { HttpResponseSuccess } from '@pvm/pvm'
+import type { HttpResponseSuccess, Config } from '@pvm/pvm'
 import pMap from 'p-map'
 import { logger } from '@pvm/pvm'
 
@@ -23,8 +23,8 @@ export interface ProjectApprovals {
   merge_requests_author_approval: boolean,
 }
 
-async function projectApprovals(projectId: UriSlug): Promise<ProjectApprovals> {
-  const { json } = await glapi(`/projects/${encodeSlug(projectId)}/approvals`)
+async function projectApprovals(config: Config, projectId: UriSlug): Promise<ProjectApprovals> {
+  const { json } = await glapi(config, `/projects/${encodeSlug(projectId)}/approvals`)
   return json
 }
 
@@ -44,16 +44,16 @@ export interface MergeRequestApprovals {
   approver_groups: GroupWrapper[],
 }
 
-async function mergeRequestApprovals(projectId: UriSlug, mrIid: number): Promise<MergeRequestApprovals> {
-  const { json } = await glapi(`/projects/${encodeSlug(projectId)}/merge_requests/${mrIid}/approvals`)
+async function mergeRequestApprovals(config: Config, projectId: UriSlug, mrIid: number): Promise<MergeRequestApprovals> {
+  const { json } = await glapi(config, `/projects/${encodeSlug(projectId)}/merge_requests/${mrIid}/approvals`)
   return json
 }
 
 // feature not stable, see https://gitlab.com/gitlab-org/gitlab-ee/issues/12055
 // @TODO: Deprecated in 12.0 in favor of Approval Rules API.
-async function setApprovalsRequired(projectId: UriSlug, iid: number, count: number): Promise<HttpResponseSuccess<MergeRequestApprovals>> {
+async function setApprovalsRequired(config: Config, projectId: UriSlug, iid: number, count: number): Promise<HttpResponseSuccess<MergeRequestApprovals>> {
   // https://docs.gitlab.com/ee/api/merge_request_approvals.html#change-approval-configuration
-  return glapi<MergeRequestApprovals>(`/projects/${encodeSlug(projectId)}/merge_requests/${iid}/approvals`, {
+  return glapi<MergeRequestApprovals>(config, `/projects/${encodeSlug(projectId)}/merge_requests/${iid}/approvals`, {
     method: 'POST',
     body: {
       approvals_required: count,
@@ -61,9 +61,9 @@ async function setApprovalsRequired(projectId: UriSlug, iid: number, count: numb
   })
 }
 
-async function setApprovers(projectId: UriSlug, iid: number, approvers: string[]): Promise<HttpResponseSuccess> {
+async function setApprovers(config: Config, projectId: UriSlug, iid: number, approvers: string[]): Promise<HttpResponseSuccess> {
   let approver_ids = await pMap(approvers, async username => {
-    const { json: list } = await glapi(`/users?username=${encodeURIComponent(username)}`)
+    const { json: list } = await glapi(config, `/users?username=${encodeURIComponent(username)}`)
     if (list.length === 1) {
       return list[0].id
     } else if (list.length === 0) {
@@ -81,7 +81,7 @@ async function setApprovers(projectId: UriSlug, iid: number, approvers: string[]
   // so we do request to do a empty approvers first
   // @TODO: This API endpoint has been deprecated. Please use Approval Rule API instead. Introduced in GitLab Starter 10.6.
   // https://docs.gitlab.com/ee/api/merge_request_approvals.html#change-allowed-approvers-for-merge-request
-  await glapi(`/projects/${encodeSlug(projectId)}/merge_requests/${iid}/approvers`, {
+  await glapi(config, `/projects/${encodeSlug(projectId)}/merge_requests/${iid}/approvers`, {
     method: 'PUT',
     body: {
       approver_ids: [],
@@ -89,7 +89,7 @@ async function setApprovers(projectId: UriSlug, iid: number, approvers: string[]
     },
   })
 
-  return glapi(`/projects/${encodeSlug(projectId)}/merge_requests/${iid}/approvers`, {
+  return glapi(config, `/projects/${encodeSlug(projectId)}/merge_requests/${iid}/approvers`, {
     method: 'PUT',
     body: {
       approver_ids,

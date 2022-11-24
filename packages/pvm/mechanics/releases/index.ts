@@ -1,6 +1,5 @@
 import { prevReleaseTag, lastReleaseTag } from '../../lib/git/last-release-tag'
 import { pkgsetFromRef } from '../pkgset/pkgset-from-ref'
-import { getConfig } from '../../lib/config'
 import revParse from '../../lib/git/rev-parse'
 import gitCommits from '../../lib/git/commits'
 import { logger } from '../../lib/logger'
@@ -8,6 +7,8 @@ import { wdShell } from '../../lib/shell'
 
 import type { Config } from '../../types'
 import type { PkgIdentity } from '../../mechanics/releases/types'
+import type { Container } from '../../lib/di'
+import { CONFIG_TOKEN, CWD_TOKEN } from '../../tokens'
 
 function changedPackagesFromRef(config: Config, ref: string): PkgIdentity[] {
   logger.silly(`calculate changed packages for ${ref}`)
@@ -54,10 +55,10 @@ export interface GetCurrentReleaseOpts {
 // 1. commits in target release
 // 2. packages[name, version] in target release
 // 3. release name
-export async function getCurrentRelease(opts: GetCurrentReleaseOpts = {}) {
-  const { ref = 'HEAD', cwd = process.cwd() } = opts
+export async function getCurrentRelease(di: Container, opts: GetCurrentReleaseOpts = {}) {
+  const { ref = 'HEAD', cwd = di.get(CWD_TOKEN) } = opts
 
-  const config = await getConfig(cwd)
+  const config = di.get(CONFIG_TOKEN)
 
   const releaseTagName = lastReleaseTag(config, ref)
 
@@ -76,10 +77,4 @@ export async function getCurrentRelease(opts: GetCurrentReleaseOpts = {}) {
     packages,
     name: releaseTagName,
   }
-}
-
-if (require.main === module) {
-  getCurrentRelease().then(releaseInfo => {
-    console.log(require('util').inspect(releaseInfo, false, 4, true))
-  })
 }

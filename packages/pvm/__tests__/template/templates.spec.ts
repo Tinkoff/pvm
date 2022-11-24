@@ -1,4 +1,5 @@
 import getEnv from '../../mechanics/template/env'
+import initRepo from '../../../../test/initRepo'
 
 const template = `\
 {%- macro showPkg(pkg) -%}
@@ -12,7 +13,8 @@ const template = `\
 
 describe('templates', () => {
   it('шаблонизация списков через cut', async () => {
-    const env = await getEnv()
+    const repo = await initRepo('simple-one')
+    const env = await getEnv(repo.di)
 
     const ctx = {
       success: [
@@ -44,7 +46,8 @@ describe('templates', () => {
   })
 
   it('шаблонизация списков через cut, 1 пакет', async () => {
-    const env = await getEnv()
+    const repo = await initRepo('simple-one')
+    const env = await getEnv(repo.di)
 
     const ctx = {
       success: [

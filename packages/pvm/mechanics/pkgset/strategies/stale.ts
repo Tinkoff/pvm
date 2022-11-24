@@ -5,18 +5,19 @@ import { logger } from '../../../lib/logger'
 import { getWorkspacesSync } from '../../../lib/workspaces'
 import type { Pkg } from '../../../lib/pkg'
 import { loadPkg } from '../../../lib/pkg'
-import { getConfig } from '../../../lib/config'
 import { wdShell } from '../../../lib/shell'
+import type { Container } from '../../../lib/di'
 import { describeStrategy } from '../utils/describe-strategy'
+import { CONFIG_TOKEN } from '../../../tokens'
 
 export type PkgsetStaleOpts = Partial<{
   cwd: string,
   registry: string,
 }>
 
-async function * pkgset(opts: PkgsetStaleOpts = {}): AsyncIterableIterator<Pkg> {
+async function * pkgset(di: Container, opts: PkgsetStaleOpts = {}): AsyncIterableIterator<Pkg> {
   const pkgPaths = getWorkspacesSync(opts.cwd)
-  const config = await getConfig(opts.cwd)
+  const config = di.get(CONFIG_TOKEN)
 
   for (const pkgPath of pkgPaths) {
     const pkg = loadPkg(config, pkgPath)!

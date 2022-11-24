@@ -3,7 +3,6 @@ import { Lexer } from 'marked'
 import * as TOML from '@iarna/toml'
 import {
   cwdShell, getContents, PlatformResult,
-  getConfig,
   PlatformInterfaceWithFileCommitApi,
   env,
   log,
@@ -72,13 +71,13 @@ export class GitlabPlatform extends PlatformInterfaceWithFileCommitApi<MergeRequ
   setMrLabels(labels: string[]): Promise<unknown> {
     const iid = this.requireMr().iid
 
-    return updateMr(gitlabEnv.projectId, iid, {
+    return updateMr(this.config, gitlabEnv.projectId, iid, {
       labels: labels.join(','),
     })
   }
 
   getProjectLabels(): AsyncIterable<{ name: string }> {
-    return getLabels(gitlabEnv.projectId)
+    return getLabels(this.config, gitlabEnv.projectId)
   }
 
   async createProjectLabel(label: string, color: string): Promise<unknown> {
@@ -93,13 +92,13 @@ export class GitlabPlatform extends PlatformInterfaceWithFileCommitApi<MergeRequ
     id: string | number,
   }> | void> {
     const iid = this.requireMr().iid
-    return await findNote(iid, kind)
+    return await findNote(this.config, iid, kind)
   }
 
   async createMrNote(body: string): Promise<void> {
     const iid = this.requireMr().iid
 
-    await glapi(`/projects/${gitlabEnv.projectSlug}/merge_requests/${iid}/notes`, {
+    await glapi(this.config, `/projects/${gitlabEnv.projectSlug}/merge_requests/${iid}/notes`, {
       method: 'POST',
       body: {
         body,
@@ -110,7 +109,7 @@ export class GitlabPlatform extends PlatformInterfaceWithFileCommitApi<MergeRequ
   async updateMrNote(commentId: number, body: string): Promise<void> {
     const iid = this.requireMr().iid
 
-    await glapi(`/projects/${gitlabEnv.projectSlug}/merge_requests/${iid}/notes/${commentId}`, {
+    await glapi(this.config, `/projects/${gitlabEnv.projectSlug}/merge_requests/${iid}/notes/${commentId}`, {
       method: 'PUT',
       body: {
         body,
@@ -120,7 +119,7 @@ export class GitlabPlatform extends PlatformInterfaceWithFileCommitApi<MergeRequ
 
   async getRelease(tagName: string): Promise<GetReleaseResult> {
     try {
-      const { json } = await getTag(gitlabEnv.projectId, tagName)
+      const { json } = await getTag(this.config, gitlabEnv.projectId, tagName)
       const { release } = json
       if (release) {
         return [PlatformResult.OK, {
@@ -138,11 +137,11 @@ export class GitlabPlatform extends PlatformInterfaceWithFileCommitApi<MergeRequ
   }
 
   releasesIterator() {
-    return releasesIterator(gitlabEnv.projectId)
+    return releasesIterator(this.config, gitlabEnv.projectId)
   }
 
   releaseTagsIterator() {
-    return releaseTags(gitlabEnv.projectId)
+    return releaseTags(this.config, gitlabEnv.projectId)
   }
 
   requireMr(): MergeRequest {
@@ -154,11 +153,11 @@ export class GitlabPlatform extends PlatformInterfaceWithFileCommitApi<MergeRequ
   }
 
   async beginMrAttribution() {
-    this.currentMr = await findOpenSingleMr(this.getCurrentBranch())
+    this.currentMr = await findOpenSingleMr(this.config, this.getCurrentBranch())
   }
 
   async addTagAndRelease(ref: string, tag_name: string, data): Promise<AlterReleaseResult> {
-    const res = await addTagAndRelease(gitlabEnv.projectId, ref, {
+    const res = await addTagAndRelease(this.config, gitlabEnv.projectId, ref, {
       ...data, // name and description
       tag_name,
     })
@@ -169,7 +168,7 @@ export class GitlabPlatform extends PlatformInterfaceWithFileCommitApi<MergeRequ
   }
 
   async createRelease(tag_name: string, data): Promise<AlterReleaseResult> {
-    const res = await createRelease(gitlabEnv.projectId, {
+    const res = await createRelease(this.config, gitlabEnv.projectId, {
       ...data, // name and description
       tag_name,
     })
@@ -180,14 +179,14 @@ export class GitlabPlatform extends PlatformInterfaceWithFileCommitApi<MergeRequ
   }
 
   async editRelease(tag_name, data): Promise<AlterReleaseResult> {
-    return await updateRelease(gitlabEnv.projectId, {
+    return await updateRelease(this.config, gitlabEnv.projectId, {
       ...data,
       tag_name,
     })
   }
 
   async upsertRelease(tagName: string, data): Promise<AlterReleaseResult> {
-    const res = await upsertRelease(gitlabEnv.projectId, {
+    const res = await upsertRelease(this.config, gitlabEnv.projectId, {
       ...data,
       tag_name: tagName,
     })
@@ -198,7 +197,7 @@ export class GitlabPlatform extends PlatformInterfaceWithFileCommitApi<MergeRequ
   }
 
   syncAttachment(kind: string, attachment: Buffer, opts: SyncAttachmentOpts = {}) {
-    return syncAttachment(this.requireMr().iid, kind, attachment, opts)
+    return syncAttachment(this.config, this.requireMr().iid, kind, attachment, opts)
   }
 
   beginCommit(): CommitContext {
@@ -274,7 +273,7 @@ export class GitlabPlatform extends PlatformInterfaceWithFileCommitApi<MergeRequ
     }
     commitContext.mods = Object.create(null)
 
-    const { json } = await glapi(`/projects/${gitlabEnv.projectSlug}/repository/commits`, {
+    const { json } = await glapi(this.config, `/projects/${gitlabEnv.projectSlug}/repository/commits`, {
       body: commitContext,
       method: 'POST',
     })
@@ -283,7 +282,7 @@ export class GitlabPlatform extends PlatformInterfaceWithFileCommitApi<MergeRequ
   }
 
   async fetchLatestSha(refName: string): Promise<string> {
-    const { json: commits } = await glapi(
+    const { json: commits } = await glapi(this.config,
       `/projects/${gitlabEnv.projectSlug}/repository/commits?per_page=1&ref_name=${encodeURIComponent(refName)}`
     )
     return commits.length ? commits[0].id : '0000000000000000000000000000000000000000'
@@ -297,13 +296,13 @@ export class GitlabPlatform extends PlatformInterfaceWithFileCommitApi<MergeRequ
     if (opts.annotation) {
       payload.message = opts.annotation
     }
-    const { json } = await createTag(gitlabEnv.projectId, payload)
+    const { json } = await createTag(this.config, gitlabEnv.projectId, payload)
 
     return json
   }
 
   async getCommitLink(commit: string) {
-    return `${gitlabEnv.getProjectUrl(await getConfig())}/commit/${commit}`
+    return `${gitlabEnv.getProjectUrl(this.config)}/commit/${commit}`
   }
 
   getCurrentBranch(): string | undefined {
@@ -322,14 +321,14 @@ export class GitlabPlatform extends PlatformInterfaceWithFileCommitApi<MergeRequ
     // first try to find open mr for branch. Then commit will be not needed.
     let processedMr
     try {
-      processedMr = await findOpenSingleMr(currentBranch)
+      processedMr = await findOpenSingleMr(this.config, currentBranch)
     } catch (e) {
       log('Opened mr not found. Moving on to search in merged merge requests')
       log(e)
     }
     // if not, then search by commit in all merged merge requests
     if (!processedMr) {
-      const { json: mrs }: { json: Array<MergeRequest> } = await glapi(`/projects/${gitlabEnv.projectId}/repository/commits/${commit}/merge_requests`)
+      const { json: mrs }: { json: Array<MergeRequest> } = await glapi(this.config, `/projects/${gitlabEnv.projectId}/repository/commits/${commit}/merge_requests`)
 
       processedMr = mrs.find(mr => mr.state === 'merged' && mr.target_branch === currentBranch)
 

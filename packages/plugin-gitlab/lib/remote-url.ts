@@ -25,12 +25,3 @@ export function getGitlabHostUrl(config: Config): string {
 
   return config.gitlab.default_url
 }
-
-if (require.main === module) {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { getConfig } = require('@pvm/pvm')
-
-  getConfig().then(config => {
-    console.log(getGitlabHostUrl(config))
-  })
-}

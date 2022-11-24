@@ -1,16 +1,17 @@
 import nunjucks from 'nunjucks'
 import requireSetupScript from './require-setup-script'
-import { getConfig } from '../../lib/config'
 import { pullOutLinks, dottifyList } from '../../lib/text/markdown'
 import { issueToLink, issueToMdLink } from '../../lib/text/jira'
 import { stripServiceLabels } from '../../lib/text/commits'
 import { stripPkgNamespace } from '../../lib/tag-meta'
+import type { Container } from '../../lib/di'
+import { CONFIG_TOKEN } from '../../tokens'
 
 let env
 
-async function getEnv(cwd: string = process.cwd()): Promise<nunjucks.Environment> {
+async function getEnv(di: Container): Promise<nunjucks.Environment> {
   if (!env) {
-    const config = await getConfig(cwd)
+    const config = di.get(CONFIG_TOKEN)
     const ConfigLoader = class {
       public getSource(name) {
         return {

@@ -18,7 +18,6 @@ import type { VcsPlatform } from '../../mechanics/vcs'
 import type { ReleaseContext } from '../../mechanics/update/types'
 import type { ReleaseData, ReleaseDataExt } from '../../mechanics/releases/types'
 import type { VcsRelease } from '../../mechanics/vcs/types'
-
 import type { UpdateState } from '../../mechanics/update/update-state'
 
 type PipelineFn<R = any> = (...args: any[]) => Promise<R>

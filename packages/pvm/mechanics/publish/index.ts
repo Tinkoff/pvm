@@ -14,7 +14,6 @@ import runShell from '../../lib/shell/run'
 import execShell from '../../lib/shell/exec'
 import { shell } from '../../lib/shell'
 import type { Config, PkgFailStats, PkgSuccessStats, PkgSkippedStats, PublishedStats } from '../../types'
-import { getConfig } from '../../lib/config'
 import drainItems from '../../lib/iter/drain-items'
 import { lastReleaseTag } from '../../lib/git/last-release-tag'
 import { getReleaseCommits } from '../../lib/git/release-commits'
@@ -49,6 +48,8 @@ import type { Pkg } from '../../lib/pkg'
 import { getPassedRegistry, getPkgRegistry } from './registry'
 import type { AbstractPublishApplier } from './publish-applier/abstract'
 import { env } from '../../lib/env'
+import type { Container } from '../../lib/di'
+import { CONFIG_TOKEN, CWD_TOKEN } from '../../tokens'
 
 const defaultConcurrency = 1
 
@@ -58,10 +59,10 @@ const {
   PVM_FORCE_TEST_PUBLISH,
 } = env
 
-export async function publish(flags: Flags): Promise<PublishedStats> {
+export async function publish(di: Container, flags: Flags): Promise<PublishedStats> {
   const skipRealPublishing = isSkipRealPublishing(flags)
-  const cwd = process.cwd()
-  let config = await getConfig(cwd)
+  const cwd = di.get(CWD_TOKEN)
+  let config = di.get(CONFIG_TOKEN)
   const ref = revParse('HEAD', cwd)
 
   flags = applyFlagsDefaultsForUnification(flags)
@@ -93,7 +94,7 @@ export async function publish(flags: Flags): Promise<PublishedStats> {
   // например в тестовых целях в мерж-реквесте запускают публикацию всех зарелиженных пакетов
   // но при этом в мерж-реквесте один из пакетов удаляют, соответственно, он будет присутствовать в pkgset,
   // но в актуальном worktree его уже не будет
-  const pkgsetPackages = (await drainItems(pkgset(flags.strategy, {
+  const pkgsetPackages = (await drainItems(pkgset(di, flags.strategy, {
     ...parseSubArgs(flags.strategyOption),
     registry: passedRegistry,
   })))
@@ -102,7 +103,7 @@ export async function publish(flags: Flags): Promise<PublishedStats> {
    * Костыль для сохранения консистентности по ref в возвращаемом pkgset и в Repository при вызове pkgsetAll
    * https://github.com/Tinkoff/pvm/issues/2
    */
-  const repo = new Repository(cwd, config, pkgsetPackages[0]?.ref)
+  const repo = new Repository(di, pkgsetPackages[0]?.ref)
 
   const packagesForPublish = pkgsetPackages.filter(pkg => repo.pkgset.has(pkg) && (!flags.filter.length || matchAny(pkg, flags.filter)))
 
@@ -148,7 +149,7 @@ export async function publish(flags: Flags): Promise<PublishedStats> {
   if (flags.notify) {
     try {
       const prevReleaseTag = lastReleaseTag(config)
-      const message = await releaseMessage({
+      const message = await releaseMessage(di, {
         targetType: 'slack', // for now only slack is supported
         tag: flags.canary ? [prevReleaseTag, `canary:${flags.tag}`].filter(Boolean).join('-') : prevReleaseTag,
         commits: flags.canary ? await commits(cwd, prevReleaseTag, ref) : await getReleaseCommits(config),
@@ -166,7 +167,7 @@ export async function publish(flags: Flags): Promise<PublishedStats> {
       }
 
       if (!skipRealPublishing) {
-        const notificator = await Notificator.create(config.cwd)
+        const notificator = new Notificator(config)
         await notificator.sendMessage(message)
       } else {
         logger.info('Notify message:')
@@ -256,7 +257,7 @@ async function publishPackage(inputPkg: Pkg, publishApplier: AbstractPublishAppl
   const passedRegistry = getPassedRegistry(flags, config)
   const registry = getPkgRegistry(inputPkg, flags)
 
-  const { publishEnv } = await setupPublishNpmRCAndEnvVariables(repo.cwd, {
+  const { publishEnv } = await setupPublishNpmRCAndEnvVariables(repo.config, {
     baseRegistry: passedRegistry,
     logger,
   })

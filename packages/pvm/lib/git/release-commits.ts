@@ -1,11 +1,8 @@
 import type { Config, Commit } from '../../types'
-import { getConfig } from '../config'
 import { prevReleaseTag } from './last-release-tag'
 import { releaseMark } from '../consts'
 import { wdShell } from '../shell'
 import getCommits from './commits'
-
-import { logger } from '../logger'
 
 interface ReleaseCommitsOpts {
   target?: string,
@@ -65,29 +62,4 @@ export async function getReleaseCommits(config: Config, target = 'HEAD'): Promis
       _: [`--grep=${releaseMark}`, `--grep=${pvmNoShowPattern}`, '--invert-grep'],
     })
   }
-}
-
-async function testMain() {
-  const config = await getConfig(process.cwd())
-  const commits = await getReleaseCommits(config)
-  if (commits) {
-    // console.info(require('util').inspect(commits, false, 2, true))
-    if (commits.length) {
-      console.info(commits.map(c => c.subject).join('\n'))
-    } else {
-      console.info('-- no commits --')
-    }
-  } else {
-    console.info(' -- no release refs --')
-  }
-  // console.info('---')
-  // console.info(releaseCommitsAsString(config))
-}
-
-if (require.main === module) {
-  testMain()
-    .catch(e => {
-      logger.fatal(e)
-      process.exitCode = 1
-    })
 }

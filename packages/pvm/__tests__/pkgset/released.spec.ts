@@ -10,14 +10,14 @@ describe('pkgset/released', () => {
 
     await repo.tag('release-initial')
     const versions = JSON.parse(repo.readFile('versions.json')) as Record<string, string>
-    const currentPackages = await drainItems(all({ cwd: repo.dir })) // важная строчка, ей забиваем кеш изначально чтобы позже проверить на корректную инвалидацию
+    const currentPackages = await drainItems(all(repo.di, { cwd: repo.dir })) // важная строчка, ей забиваем кеш изначально чтобы позже проверить на корректную инвалидацию
     expect(currentPackages).toHaveLength(3)
 
     const newVersions = Object.fromEntries(Object.entries(versions).map(([pkg, version]) => [pkg, semver.inc(version, 'minor')]))
     await repo.writeFile('versions.json', JSON.stringify(newVersions), 'release new versions')
     await repo.tag('release-second')
 
-    const newPackages = await drainItems(released({ cwd: repo.dir }))
+    const newPackages = await drainItems(released(repo.di, { cwd: repo.dir }))
 
     expect(newPackages).toHaveLength(3)
   })

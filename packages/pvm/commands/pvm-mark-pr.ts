@@ -3,7 +3,6 @@ import { getHostApi } from '../lib/plugins'
 import { getUpdateState } from '../mechanics/update'
 import type { Vcs } from '../mechanics/vcs/index'
 import { initVcsPlatform } from '../mechanics/vcs'
-import { getConfig } from '../lib/config'
 import * as mdTable from '../mechanics/update/update-methods/md-table'
 import * as graphDot from '../mechanics/update/update-methods/dot'
 import { analyzeUpdate as analyzeUpdatedPackages } from '../mechanics/update/update-methods/analyze'
@@ -14,12 +13,10 @@ import { VcsOnlyStenographer } from '../mechanics/vcs/vcs-only-stenographer'
 
 import type { UpdateState } from '../mechanics/update/update-state'
 import type { Pkg } from '../lib/pkg'
+import type { Container } from '../lib/di'
+import { CONFIG_TOKEN } from '../tokens'
 
-export const command = 'mark-pr'
-export const description = `Marks merge or pull request by project labels, packages about to update, etc`
-export const handler = main
-
-async function analyzeUpdate(vcs: Vcs, updateState: UpdateState): Promise<any> {
+async function analyzeUpdate(_di: Container, vcs: Vcs, updateState: UpdateState): Promise<any> {
   const { warnings } = analyzeUpdatedPackages(updateState)
 
   if (warnings.length !== 0) {
@@ -35,16 +32,16 @@ ${warningsAsList}
   }
 }
 
-async function packagesAsLabels(vcs: Vcs, updateState: UpdateState): Promise<unknown> {
+async function packagesAsLabels(_di: Container, vcs: Vcs, updateState: UpdateState): Promise<unknown> {
   return vcs.ensureMrLabels(Array.from(updateState.getReleasePackages().keys()).map((pkg: Pkg) => pkg.shortName))
 }
 
-async function packagesTable(vcs: Vcs, updateState: UpdateState): Promise<unknown> {
+async function packagesTable(_di: Container, vcs: Vcs, updateState: UpdateState): Promise<unknown> {
   const md = await mdTable.run(updateState)
   return vcs.syncText('packages-for-release', md || 'no packages for release')
 }
 
-async function packagesGraph(vcs: Vcs, updateState: UpdateState): Promise<unknown> {
+async function packagesGraph(_di: Container, vcs: Vcs, updateState: UpdateState): Promise<unknown> {
   if (!updateState.isSomethingForRelease) {
     return vcs.syncText('packages-graph', 'no packages for release')
   }
@@ -55,9 +52,9 @@ async function packagesGraph(vcs: Vcs, updateState: UpdateState): Promise<unknow
   })
 }
 
-async function attachChangelog(vcs: Vcs, updateState: UpdateState): Promise<unknown> {
+async function attachChangelog(di: Container, vcs: Vcs, updateState: UpdateState): Promise<unknown> {
   const releaseContext = await createReleaseContext(updateState)
-  const changelog = releaseContext ? await renderReleaseContext(releaseContext, RenderTarget.markPr) : ''
+  const changelog = releaseContext ? await renderReleaseContext(di, releaseContext, RenderTarget.markPr) : ''
   return vcs.syncText('changelog-for-pr', changelog)
 }
 
@@ -70,7 +67,7 @@ async function attachMigrationProcess(vcs: Vcs): Promise<void> {
 }
 
 interface Marker {
-  fn(vcs: Vcs, updateState: UpdateState): Promise<unknown>,
+  fn(di: Container, vcs: Vcs, updateState: UpdateState): Promise<unknown>,
   confKey: string,
 }
 
@@ -97,21 +94,25 @@ const markers: Marker[] = [
   },
 ]
 
-async function main(): Promise<void> {
-  const conf = (await getConfig()).mark_pr
-  const hostApi = await getHostApi()
-  const vcs = await initVcsPlatform()
-  await vcs.beginMrAttribution()
+export default (di: Container) => ({
+  command: 'mark-pr',
+  description: `Marks merge or pull request by project labels, packages about to update, etc`,
+  handler: async function main(): Promise<void> {
+    const conf = di.get(CONFIG_TOKEN).mark_pr
+    const hostApi = await getHostApi()
+    const vcs = await initVcsPlatform(di)
+    await vcs.beginMrAttribution()
 
-  await attachMigrationProcess(vcs)
+    await attachMigrationProcess(vcs)
 
-  const updateState = await getUpdateState()
+    const updateState = await getUpdateState(di)
 
-  for (const marker of markers) {
-    if (conf[marker.confKey]) {
-      await marker.fn(vcs, updateState)
+    for (const marker of markers) {
+      if (conf[marker.confKey]) {
+        await marker.fn(di, vcs, updateState)
+      }
     }
-  }
 
-  await hostApi.plEachSeries('mark-pr', vcs, updateState)
-}
+    await hostApi.plEachSeries('mark-pr', vcs, updateState)
+  },
+})

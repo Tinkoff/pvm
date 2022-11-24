@@ -2,7 +2,6 @@ import fs from 'fs'
 import path from 'path'
 
 import { loggerFor } from '../../../lib/logger'
-import { getConfig } from '../../../lib/config'
 import { wdShell, shell as __dangerous_shell } from '../../../lib/shell'
 import { lastReleaseTag } from '../../../lib/git/last-release-tag'
 import { changedFiles } from '../../pkgset/changed-files'
@@ -13,6 +12,8 @@ import { ChangedContext } from '../changed-context'
 import type { IncludeRootOption } from '../../pkgset/types'
 import type { Config } from '../../../types'
 import initVcsPlatform from '../../../mechanics/vcs'
+import type { Container } from '../../../lib/di'
+import { CONFIG_TOKEN } from '../../../tokens'
 
 const logger = loggerFor('pvm:changed-files')
 const GIT_DEEPEN_VALUE = 50
@@ -55,9 +56,9 @@ function ensureCommitsDepth(cwd: string, from: string, to: string): void {
 }
 
 // вычисляет последний релиз, и на основе него получаем коммиты и список пакетов на новый релиз
-async function sinceLastRelease(targetRef: string, opts: SinceLastReleaseOpts): Promise<ChangedContext> {
-  const config = await getConfig(opts.cwd)
-  const vcsPlatform = await initVcsPlatform({
+async function sinceLastRelease(di: Container, targetRef: string, opts: SinceLastReleaseOpts): Promise<ChangedContext> {
+  const config = di.get(CONFIG_TOKEN)
+  const vcsPlatform = await initVcsPlatform(di, {
     cwd: opts.cwd,
   })
   const updConfig = config.update

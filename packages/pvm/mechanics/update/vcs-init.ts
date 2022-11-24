@@ -1,6 +1,7 @@
 import type { VcsPlatform } from '../vcs'
-import getConfig from '../../lib/config/get-config'
 import { initVcsPlatform } from '../vcs'
+import type { Container } from '../../lib/di'
+import { CONFIG_TOKEN } from '../../tokens'
 
 export interface VcsInitForUpdateOpts {
   dryRun?: boolean,
@@ -23,20 +24,20 @@ function normalizedObjectHash(rec: Record<string, any>): string {
   }))
 }
 
-export async function vcsInitForUpdate(opts: VcsInitForUpdateOpts = {}): Promise<VcsPlatform> {
+export async function vcsInitForUpdate(di: Container, opts: VcsInitForUpdateOpts = {}): Promise<VcsPlatform> {
   const cacheKey = normalizedObjectHash(opts)
 
   if (vcsInstances.has(cacheKey)) {
     return vcsInstances.get(cacheKey)!
   }
   const { dryRun = false, local = false, vcsMode: vcsModeFromOpts } = opts
-  const config = await getConfig(opts.cwd)
+  const config = di.get(CONFIG_TOKEN)
   const { commit_via_platform } = config.update
 
   const vcsMode = vcsModeFromOpts ?? commit_via_platform ? 'platform' : 'vcs'
 
   // initialize vcsPlatform at early stage
-  const vcs = await initVcsPlatform({
+  const vcs = await initVcsPlatform(di, {
     dryRun,
     localMode: local,
     vcsMode,

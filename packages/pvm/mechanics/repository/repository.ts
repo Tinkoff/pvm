@@ -1,5 +1,4 @@
 import semver from 'semver'
-import { getConfig } from '../../lib/config'
 import { lazyCallee } from '../../lib/class-helpers'
 import { pkgsetAll } from '../pkgset/pkgset-all'
 import { loadPkg } from '../../lib/pkg'
@@ -18,6 +17,8 @@ import type { Pkg, AppliedPkg } from '../../lib/pkg'
 import { wdShell } from '../../lib/shell'
 import revParse from '../../lib/git/rev-parse'
 import { initVcsPlatform } from '../vcs'
+import type { Container } from '@tinkoff/dippy'
+import { CONFIG_TOKEN, CWD_TOKEN } from '../../tokens'
 
 interface RepositoryInitOpts {
   ref?: string | void,
@@ -38,19 +39,20 @@ interface ApplyVersionOpts {
 export class Repository {
   cwd: string
   config: Config
+  di: Container
   ref: string | undefined
 
-  constructor(cwd: string, config: Config, ref: string | void) {
-    this.cwd = cwd
-    this.config = config
+  constructor(di: Container, ref: string | void) {
+    this.di = di
+    this.config = di.get(CONFIG_TOKEN)
+    this.cwd = di.get(CWD_TOKEN)
     if (ref) {
       this.ref = ref
     }
   }
 
-  static async init(repositoryPath: string, opts: RepositoryInitOpts = {}): Promise<Repository> {
-    const config = await getConfig(repositoryPath)
-    const repo = new Repository(repositoryPath, config, opts.ref)
+  static async init(di: Container, opts: RepositoryInitOpts = {}): Promise<Repository> {
+    const repo = new Repository(di, opts.ref)
 
     if (!opts.skipValidatingConfig) {
       repo.validateConfig()
@@ -158,7 +160,7 @@ export class Repository {
       }
     }
 
-    const vcsPlatform = await initVcsPlatform({ cwd: this.cwd })
+    const vcsPlatform = await initVcsPlatform(this.di, { cwd: this.cwd })
     const updateHints = (await vcsPlatform.getUpdateHintsByCommit(revParse('HEAD', this.cwd))) ?? {}
 
     validateUpdateHints(this.config, updateHints)
