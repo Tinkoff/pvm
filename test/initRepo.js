@@ -1,7 +1,7 @@
 const path = require('path')
 const fs = require('fs')
 const fse = require('fs-extra')
-const { getConfig, clearConfigCacheFor } = require('../packages/pvm/lib/config')
+const { getConfig, clearConfigCacheFor } = require('@pvm/pvm/app/config')
 const { lastReleaseTag } = require('../packages/pvm/lib/git/last-release-tag')
 const { httpreq } = require('../packages/pvm/lib/httpreq')
 const { shell: __unsafe_shell } = require('../packages/pvm/lib/shell')

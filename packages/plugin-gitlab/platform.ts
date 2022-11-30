@@ -5,7 +5,7 @@ import {
   cwdShell, getContents, PlatformResult,
   PlatformInterfaceWithFileCommitApi,
   env,
-  log, CONFIG_TOKEN, GLOBAL_FLAGS_TOKEN,
+  log, CONFIG_TOKEN, GLOBAL_FLAGS_TOKEN, CWD_TOKEN,
 } from '@pvm/pvm'
 import type {
   AddTagOptions,
@@ -66,11 +66,14 @@ export class GitlabPlatform extends PlatformInterfaceWithFileCommitApi<MergeRequ
   public currentMr: MergeRequest | null = null;
   protected config: Config;
   protected di: Container
+  protected cwd: string
 
   constructor({ di }: { di: Container }) {
     super()
+
     this.config = di.get(CONFIG_TOKEN)
     this.dryRun = di.get(GLOBAL_FLAGS_TOKEN).getFlag('dryRun')
+    this.cwd = di.get(CWD_TOKEN)
     this.di = di
   }
 
@@ -272,7 +275,7 @@ export class GitlabPlatform extends PlatformInterfaceWithFileCommitApi<MergeRequ
       currContent = commitContext.mods[file_path].content || ''
     } else {
       // @TODO: передавать cwd явно
-      currContent = getContents(process.cwd(), file_path) || ''
+      currContent = getContents(this.cwd, file_path) || ''
     }
 
     await this.updateFile(commitContext, file_path, currContent + content)

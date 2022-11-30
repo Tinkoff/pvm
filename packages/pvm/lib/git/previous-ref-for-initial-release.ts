@@ -1,4 +1,4 @@
-import { wdShell } from '../shell'
+import { wdShell } from '../shell/index'
 import type { Config } from '../../types'
 
 function getPreviousRefForFirstRelease(config: Config, targetRef: string): string {

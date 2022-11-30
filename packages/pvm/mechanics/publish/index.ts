@@ -155,7 +155,7 @@ export async function publish(di: Container, flags: Flags): Promise<PublishedSta
         pvmConfig: config,
         registry: passedRegistry,
       }, {
-        notifyScript: flags.notifyScript,
+        notificationName: flags.notificationName,
         strategy: flags.strategy,
       })
 

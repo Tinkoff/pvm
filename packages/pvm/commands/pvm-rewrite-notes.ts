@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
 import { log } from '../lib/logger'
-import getPreviousRefForFirstRelease from '../lib/behaviors/previous-ref-for-initial-release'
+import getPreviousRefForFirstRelease from '../lib/git/previous-ref-for-initial-release'
 import type { PlatformReleaseTag } from '../types'
 import type { Container } from '../lib/di'
-import { CONFIG_TOKEN, VCS_PLATFORM_TOKEN } from '../tokens'
+import { CONFIG_TOKEN, PLATFORM_TOKEN, VCS_PLATFORM_TOKEN } from '../tokens'
 
 export default (di: Container) => ({
   command: 'rewrite-notes',
@@ -27,10 +27,11 @@ export default (di: Container) => ({
 
   handler: async function pvmRewriteNotes(flags) {
     const vcs = di.get(VCS_PLATFORM_TOKEN)
+    const platform = di.get(PLATFORM_TOKEN)
     let nextReleaseTag: PlatformReleaseTag | null = null
 
     // идем от самого свежего к первому
-    for await (const releaseTag of vcs.releaseTagsIterator()) {
+    for await (const releaseTag of platform.releaseTagsIterator()) {
       if (nextReleaseTag && (!flags.onlyFor || flags.onlyFor === nextReleaseTag.name)) {
         if (flags.stopAt === nextReleaseTag.name) {
           log(`You asked me stop at ${flags.stopAt}. Stopping now`)

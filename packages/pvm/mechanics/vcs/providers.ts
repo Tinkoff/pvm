@@ -44,7 +44,6 @@ export default [
       releaseType,
       preReleaseHooks,
       attributeReleaseData,
-      notifyScriptsPath,
       config,
     }) {
       return {
@@ -71,9 +70,6 @@ export default [
           }
           return releaseData
         },
-        async notifyScriptsPath(): Promise<string> {
-          return notifyScriptsPath()
-        },
       }
     },
     deps: {
@@ -82,7 +78,6 @@ export default [
       releaseType: { token: RELEASE_TYPE_TOKEN, optional: true },
       preReleaseHooks: { token: PRE_RELEASE_HOOK_TOKEN, optional: true },
       attributeReleaseData: { token: ATTRIBUTE_RELEASE_DATA_HOOK_TOKEN, optional: true },
-      notifyScriptsPath: NOTIFY_SCRIPTS_PATH_TOKEN,
       config: CONFIG_TOKEN,
     },
   }),

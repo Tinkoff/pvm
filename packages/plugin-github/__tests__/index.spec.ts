@@ -3,6 +3,7 @@ import initRepo from '../../../test/initRepo'
 import { env } from '@pvm/pvm'
 import { randomUUID } from 'crypto'
 import { Octokit } from 'octokit'
+import { GlobalFlags } from '@pvm/pvm/lib/cli/global-flags'
 
 const GITHUB_TEST_OWNER = 'pvm-test-bot'
 const API_ATTEMPTS_TIME_LIMIT = 15e3
@@ -311,6 +312,7 @@ async function prepareRepository() {
         auth_strategy: 'authToken',
       },
     },
+    globalFlags: new GlobalFlags(),
   })
   const headCommit = (await repo.execScript('git rev-parse HEAD')).stdout.trim()
 

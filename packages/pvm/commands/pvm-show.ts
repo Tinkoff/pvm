@@ -8,7 +8,7 @@ import { releaseCommitsAsString } from '../lib/git/release-commits'
 import sinceLastRelease from '../mechanics/update/strategies/since-last-release'
 
 import type { Argv } from 'yargs'
-import type { Container } from '@tinkoff/dippy'
+import type { Container } from '../lib/di'
 import { CONFIG_TOKEN, HOST_API_TOKEN } from '../tokens'
 
 function pprint(val): void {

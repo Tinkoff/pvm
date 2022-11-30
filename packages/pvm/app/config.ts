@@ -5,17 +5,13 @@ import * as TOML from '@iarna/toml'
 import { cosmiconfigSync, defaultLoaders } from 'cosmiconfig'
 import json5 from 'json5'
 
-import { logger } from '../logger'
-import { wdShell } from '../shell'
-import { isPlainObject } from '../utils'
+import { logger } from '../lib/logger'
+import { wdShell } from '../lib/shell/index'
+import { isPlainObject } from '../lib/utils'
 
-import type { Config, RecursivePartial } from '../../types'
-import { cwdToGitRelativity } from '../git/worktree'
-import { defaultConfig as rawDefaults } from '../../pvm-defaults'
-
-export interface GetConfigOpts {
-  config?: string,
-}
+import type { Config, RecursivePartial } from '../types'
+import { cwdToGitRelativity } from '../lib/git/worktree'
+import { defaultConfig as rawDefaults } from '../pvm-defaults'
 
 const allLoaders = {
   ...defaultLoaders,
@@ -126,7 +122,7 @@ export function validateAgainstSchema(config: Config): void {
   let compiledSchema = compiledSchemaMap.get(config.cwd)
   if (!compiledSchema) {
     const ajv = new Ajv()
-    const schema = TOML.parse(require('../../types/config-schema.json'))
+    const schema = TOML.parse(require('../types/config-schema.json'))
     compiledSchema = ajv.compile(schema)
     compiledSchemaMap.set(config.cwd, compiledSchema)
   }

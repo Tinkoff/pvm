@@ -1,6 +1,6 @@
 import pprint from '../../pkgset/pprint'
 import type { UpdateState } from '../update-state'
-import type { UpdateMethod, CliUpdateOpts } from '../types/index'
+import type { UpdateMethod, CliUpdateOpts } from '../types'
 import type { Container } from '../../../lib/di'
 
 async function * iterableToAsyncIterable<T>(it: Iterable<T>): AsyncIterableIterator<T> {

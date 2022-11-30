@@ -8,7 +8,7 @@ import {
   migrateDeprecated,
   readEnv,
   validateAgainstSchema,
-} from '../lib/config'
+} from './config'
 import { defaultConfig } from '../pvm-defaults'
 import { logger, loggerFor } from '../lib/logger'
 import chalk from 'chalk'

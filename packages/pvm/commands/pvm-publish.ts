@@ -8,7 +8,7 @@ import type { Container } from '../lib/di'
 export default (di: Container) => ({
   command: 'publish',
   description: 'Publish packages to npm registry',
-  builder: flagsBuilder,
+  builder: flagsBuilder(di),
 
   handler: async function(flags: Flags): Promise<void> {
     const publishStats = await publish(di, flags)

@@ -5,7 +5,7 @@ import { loggerFor } from '../../../lib/logger'
 import type { Pkg } from '../../../lib/pkg'
 import { describeStrategy } from '../utils/describe-strategy'
 import { ImmutablePkgSet } from '../../../lib/pkg-set'
-import type { Container } from '@tinkoff/dippy'
+import type { Container } from '../../../lib/di'
 import { CONFIG_TOKEN, CWD_TOKEN } from '../../../tokens'
 const logger = loggerFor('pvm:pkgset-released')
 

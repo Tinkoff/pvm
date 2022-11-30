@@ -16,6 +16,7 @@ import type { IssueComment, PullRequest } from './types'
 import hostedGitInfo from 'hosted-git-info'
 import { log } from './logger'
 import { dryRun } from '@pvm/pvm/lib/utils'
+import type { GlobalFlags } from '@pvm/pvm/lib/cli/global-flags'
 
 export const AuthenticationStrategy = {
   'authApp': createAppAuth,
@@ -93,7 +94,7 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
     return resultRepo
   }
 
-  constructor({ config }: { config: Config }) {
+  constructor({ config, globalFlags }: { config: Config, globalFlags: GlobalFlags }) {
     super()
     this.config = config
     this.githubClient = new Octokit({
@@ -103,6 +104,8 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
       baseUrl: config.github.api_url,
     })
 
+    this.dryRun = globalFlags.getFlag('dryRun')
+    this.localMode = globalFlags.getFlag('localMode')
     this.githubRepoPath = GithubPlatform.getRepoUrlParts(this.config.cwd)
 
     this.setupClientHooks()

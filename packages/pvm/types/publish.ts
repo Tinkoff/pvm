@@ -1,5 +1,5 @@
 import type { Commit } from './git'
-import type { Config } from '../types'
+import type { Config, Message } from '../types'
 
 export interface PkgSuccessStats {
   pkg: string,
@@ -48,3 +48,5 @@ export interface UpdateHints {
     'release-type': PvmReleaseType | 'as-dep',
   }>,
 }
+
+export type ReleaseMessageGenerator = (releasedProps: ReleasedProps) => Promise<Message>

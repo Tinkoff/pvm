@@ -27,7 +27,7 @@ import type { VcsPlatform } from '../../vcs'
 import type{ ReleaseData } from '../../releases/types'
 import type{ Config } from '../../../types'
 import type { Container } from '../../../lib/di'
-import { CONFIG_TOKEN, HOST_API_TOKEN } from '../../../tokens'
+import { CONFIG_TOKEN, HOST_API_TOKEN, PLATFORM_TOKEN, VCS_PLATFORM_TOKEN } from '../../../tokens'
 
 const logger = loggerFor('pvm:update')
 
@@ -200,7 +200,7 @@ async function conditionallyPushChanges(di: Container, updateState: UpdateState,
   const { targetRef } = updateState.changedContext
 
   if (!local) {
-    await checkBranchActual(di, vcsPlatform, targetRef)
+    await checkBranchActual(di, targetRef)
   }
 
   if (vcsPlatform.isSomethingForCommit()) {
@@ -224,11 +224,13 @@ async function conditionallyPushChanges(di: Container, updateState: UpdateState,
   }
 }
 
-async function checkBranchActual(di: Container, vcs: VcsPlatform, targetRef: string): Promise<void> {
+async function checkBranchActual(di: Container, targetRef: string): Promise<void> {
   const config = di.get(CONFIG_TOKEN)
+  const vcs = di.get(VCS_PLATFORM_TOKEN)
+  const platform = di.get(PLATFORM_TOKEN)
   const releaseOpts = config.release
 
-  const maybeCurrentBranch = vcs.getCurrentBranch()
+  const maybeCurrentBranch = platform.getCurrentBranch()
   if (releaseOpts.ensure_branch_up_to_date && maybeCurrentBranch) {
     // before pushing changes, check for upstream branch is still actual
     debug(`checking ${maybeCurrentBranch} is still actual`)
@@ -242,6 +244,7 @@ async function checkBranchActual(di: Container, vcs: VcsPlatform, targetRef: str
 // метод делает коммит с обновлением версий
 async function pushChanges(di: Container, vcs: VcsPlatform, updateState: UpdateState): Promise<string | undefined> {
   const templateEnv = await getTemplateEnv(di)
+  const platform = di.get(PLATFORM_TOKEN)
 
   let commitMessage = templateEnv.render('release-commit', {
     packages: updateState.getReleasePackages(),
@@ -251,7 +254,7 @@ async function pushChanges(di: Container, vcs: VcsPlatform, updateState: UpdateS
   commitMessage += `\n\n${releaseMark}`
 
   const updCommit = await vcs.commit(commitMessage, {
-    branch: vcs.getCurrentBranch(),
+    branch: platform.getCurrentBranch(),
   })
 
   if (updCommit) {

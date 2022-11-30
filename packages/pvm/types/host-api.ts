@@ -13,5 +13,4 @@ export interface HostApi {
   releaseType(pkg: Pkg, changedContext: ChangedContext): Promise<PvmReleaseType | undefined>,
   preReleaseHook(vcs: VcsPlatform, releaseContext: ReleaseContext): Promise<void[]>,
   attributeReleaseData(releaseData: ReleaseData, updateState: UpdateState | null): Promise<ReleaseDataExt>,
-  notifyScriptsPath(): Promise<string>,
 }

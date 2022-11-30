@@ -6,7 +6,7 @@ import getFiles from '../mechanics/files/files'
 
 // eslint-disable-next-line node/no-extraneous-import
 import type Yargs from 'yargs'
-import type { Container } from '@tinkoff/dippy'
+import type { Container } from '../lib/di'
 
 export default (di: Container) => ({
   command: 'files',

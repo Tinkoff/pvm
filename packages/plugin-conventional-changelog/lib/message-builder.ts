@@ -3,7 +3,7 @@ import { isGenericTagUsed, issueToMdLink, defaultMessageBodyWrapper } from '@pvm
 import { parseCommit } from './common'
 
 import type { Commit as ConventionalCommit } from 'conventional-commits-parser'
-import type { ReleasedProps, Message } from '@pvm/pvm'
+import type { ReleasedProps, Message, Config, PlatformInterface } from '@pvm/pvm'
 
 function cutText(text: string, maxLen: number): string {
   return text.length <= maxLen ? text : text.substr(0, maxLen)
@@ -11,6 +11,8 @@ function cutText(text: string, maxLen: number): string {
 
 interface MessageBuilderOpts {
   attachPackages?: boolean,
+  platform: PlatformInterface<any>,
+  config: Config,
 }
 
 interface BodyWrapperParams {
@@ -24,16 +26,16 @@ interface BuildMessageOpts {
   attachPackages?: boolean,
   bodyWrapper?: BodyWrapper,
   conventionalCommits?: ConventionalCommit[],
+  platform: PlatformInterface<any>,
+  config: Config,
 }
 
-async function buildMessage(releaseProps: ReleasedProps, opts: BuildMessageOpts = {}): Promise<Omit<Message, 'channel'>> {
-  const { tag, commits, pvmConfig, packagesStats } = releaseProps
-  const { cwd } = pvmConfig
-
-  const { bodyWrapper = (x) => x, attachPackages = false, conventionalCommits = [] } = opts
+async function buildMessage(releaseProps: ReleasedProps, opts: BuildMessageOpts): Promise<Omit<Message, 'channel'>> {
+  const { tag, commits, packagesStats } = releaseProps
+  const { bodyWrapper = (x) => x, attachPackages = false, conventionalCommits = [], config, platform } = opts
 
   // tag.slice(19) works like this: `release-09.07.2019-Slayback ` → `Slayback`
-  const releaseName = isGenericTagUsed(pvmConfig) ? tag.slice(19) : tag
+  const releaseName = isGenericTagUsed(config) ? tag.slice(19) : tag
 
   const commitsByType: Map<
   string,
@@ -128,20 +130,17 @@ async function buildMessage(releaseProps: ReleasedProps, opts: BuildMessageOpts 
     ],
   ])
 
-  const vcs = await initVcsPlatform({
-    cwd,
-  })
   // eslint-disable-next-line max-statements
   for (const [i, commit] of (commits || []).entries()) {
     const conventionalCommit = conventionalCommits[i]
-    const commitLink = await vcs.getCommitLink(commit.commit.long)
-    const needAddIssueLink = pvmConfig.jira.url && conventionalCommit && conventionalCommit.references.length
+    const commitLink = await platform.getCommitLink(commit.commit.long)
+    const needAddIssueLink = config.jira.url && conventionalCommit && conventionalCommit.references.length
     const hasExtraInfo = commitLink || needAddIssueLink
 
     let message = commit.subject
 
-    if (pvmConfig.jira.url) {
-      message = issueToMdLink(pvmConfig.jira.url, message)
+    if (config.jira.url) {
+      message = issueToMdLink(config.jira.url, message)
     }
 
     if (hasExtraInfo) {
@@ -163,7 +162,7 @@ async function buildMessage(releaseProps: ReleasedProps, opts: BuildMessageOpts 
       conventionalCommit.references.forEach((ref, pI) => {
         const refsSeparator = pI > 0 ? ', ' : ''
 
-        message += `${refsSeparator}[${ref.issue}](${pvmConfig.jira.url}/browse/${ref.issue})`
+        message += `${refsSeparator}[${ref.issue}](${config.jira.url}/browse/${ref.issue})`
       })
     }
 
@@ -196,7 +195,7 @@ async function buildMessage(releaseProps: ReleasedProps, opts: BuildMessageOpts 
           text = n.text ? `(${conventionalCommit.scope}): ` : conventionalCommit.scope
         }
         if (n.text) {
-          text += pvmConfig.jira.url ? issueToMdLink(pvmConfig.jira.url, n.text) : n.text
+          text += config.jira.url ? issueToMdLink(config.jira.url, n.text) : n.text
         }
         if (text) {
           commitsByType.get('notes')!.commits.push(`${text}`)
@@ -217,7 +216,7 @@ async function buildMessage(releaseProps: ReleasedProps, opts: BuildMessageOpts 
     }
   })
 
-  const { releaseLink } = pvmConfig.templating.vars
+  const { releaseLink } = config.templating.vars
 
   const attachments: Message['attachments'] = []
 
@@ -242,10 +241,10 @@ async function buildMessage(releaseProps: ReleasedProps, opts: BuildMessageOpts 
 
 export async function releaseMessage(
   releaseProps: ReleasedProps,
-  opts: MessageBuilderOpts = {}
+  opts: MessageBuilderOpts
 ): Promise<Omit<Message, 'channel'>> {
-  const { pvmConfig, packagesStats } = releaseProps
-  const { attachPackages = isGenericTagUsed(pvmConfig) } = opts
+  const { packagesStats } = releaseProps
+  const { platform, config, attachPackages = isGenericTagUsed(config) } = opts
   const conventionalCommits = convertCommitsToConvFormat(releaseProps.commits)
 
   return buildMessage(releaseProps, {
@@ -259,6 +258,8 @@ export async function releaseMessage(
     },
     attachPackages,
     conventionalCommits,
+    platform,
+    config,
   })
 }
 

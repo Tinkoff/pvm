@@ -1,14 +1,14 @@
-import { initVcsPlatform } from '../vcs'
+import { VCS_PLATFORM_FACTORY_TOKEN } from '../../../tokens'
 
 describe('vcs', () => {
   it('should rollback commits', async () => {
     // @ts-ignore
     const repo = await initRepo('monorepo-new')
+    const vcsFactory = repo.di.get(VCS_PLATFORM_FACTORY_TOKEN)
 
-    const vcs = await initVcsPlatform(repo.di, {
+    const vcs = vcsFactory({
       localMode: true,
       vcsMode: 'vcs',
-      cwd: repo.dir,
     })
     const commitContext = await vcs.beginCommit()
 

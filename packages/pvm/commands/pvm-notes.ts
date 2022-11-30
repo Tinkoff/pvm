@@ -4,7 +4,7 @@
 
 import { log } from '../lib/logger'
 import { lastReleaseTag } from '../lib/git/last-release-tag'
-import getPreviousRefForFirstRelease from '../lib/behaviors/previous-ref-for-initial-release'
+import getPreviousRefForFirstRelease from '../lib/git/previous-ref-for-initial-release'
 import { env } from '../lib/env'
 import type { Container } from '../lib/di'
 import { CONFIG_TOKEN, VCS_PLATFORM_TOKEN } from '../tokens'

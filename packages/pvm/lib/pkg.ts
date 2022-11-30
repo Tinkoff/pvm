@@ -3,7 +3,7 @@ import fs from 'fs'
 import fastDeepEqual from 'fast-deep-equal'
 
 import { isSemverTagUsed, pkgTagMask, splitTag, stripPkgNamespace, isStubVersion, extractVersionFromSemverTag } from './tag-meta'
-import { defaultConfig } from './config'
+import { defaultConfig } from '../app/config'
 import { wdShell } from './shell'
 import isMonorepo from './is-monorepo'
 import { cachedRealPath } from './fs'

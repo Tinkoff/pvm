@@ -3,7 +3,7 @@ import { log } from '../lib/logger'
 // eslint-disable-next-line node/no-extraneous-import
 import type { Argv } from 'yargs'
 import type { Container } from '../lib/di'
-import { VCS_PLATFORM_FACTORY_TOKEN, VCS_PLATFORM_TOKEN } from '../tokens'
+import { PLATFORM_TOKEN, VCS_PLATFORM_FACTORY_TOKEN, VCS_PLATFORM_TOKEN } from '../tokens'
 
 function cliSubargsToMap(args: string[]): Map<string, string | true> {
   const map = new Map<string, string | true>()
@@ -31,7 +31,8 @@ export default (di: Container) => ({
         {},
         async function isBranchActual(): Promise<void> {
           const vcs = await di.get(VCS_PLATFORM_TOKEN)
-          const currentBranch = vcs.getCurrentBranch()
+          const platform = await di.get(PLATFORM_TOKEN)
+          const currentBranch = platform.getCurrentBranch()
           if (currentBranch) {
             const matches = await vcs.isRefMatchesRemoteBranch('HEAD', currentBranch)
 

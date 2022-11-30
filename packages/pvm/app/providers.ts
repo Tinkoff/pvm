@@ -6,6 +6,7 @@ import { GlobalFlags } from '../lib/cli/global-flags'
 
 import vcsProviders from '../mechanics/vcs/providers'
 import changelogProviders from '../mechanics/changelog/providers'
+import publishProviders from '../mechanics/publish/providers'
 
 export default [
   provide({
@@ -24,4 +25,5 @@ export default [
   }),
   ...vcsProviders,
   ...changelogProviders,
+  ...publishProviders,
 ]

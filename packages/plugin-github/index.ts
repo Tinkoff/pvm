@@ -1,4 +1,4 @@
-import { CONFIG_TOKEN, PLATFORM_TOKEN, declarePlugin, provide } from '@pvm/pvm'
+import { CONFIG_TOKEN, PLATFORM_TOKEN, declarePlugin, provide, GLOBAL_FLAGS_TOKEN } from '@pvm/pvm'
 import { GithubPlatform } from './platform'
 
 export default declarePlugin({
@@ -10,6 +10,7 @@ export default declarePlugin({
           useClass: GithubPlatform,
           deps: {
             config: CONFIG_TOKEN,
+            globalFlags: GLOBAL_FLAGS_TOKEN,
           },
         }),
       ],

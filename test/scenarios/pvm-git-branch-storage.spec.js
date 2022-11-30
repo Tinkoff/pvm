@@ -1,4 +1,4 @@
-const { getConfig } = require('@pvm/pvm/lib/config')
+const { getConfig } = require('@pvm/pvm/app/config')
 const { GitBranchStorage } = require('@pvm/pvm/mechanics/artifacts/backend/git-branch-storage')
 
 describe('pvm-git-branch-storage', () => {

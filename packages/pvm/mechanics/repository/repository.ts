@@ -15,7 +15,7 @@ import type { Pkg, AppliedPkg } from '../../lib/pkg'
 
 import { wdShell } from '../../lib/shell'
 import revParse from '../../lib/git/rev-parse'
-import type { Container } from '@tinkoff/dippy'
+import type { Container } from '../../lib/di'
 import { CONFIG_TOKEN, CWD_TOKEN, HOST_API_TOKEN, VCS_PLATFORM_TOKEN } from '../../tokens'
 
 interface RepositoryInitOpts {

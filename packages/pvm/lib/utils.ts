@@ -104,3 +104,13 @@ export function dryRun(_target: any, propName: string, descriptor: TypedProperty
     }
   }
 }
+
+export function localMode(_target: any, _propName: string, descriptor: TypedPropertyDescriptor<any>): void {
+  const method = descriptor.value!
+
+  descriptor.value = function(...args) {
+    if (!this.localMode) {
+      return method.call(this, ...args)
+    }
+  }
+}

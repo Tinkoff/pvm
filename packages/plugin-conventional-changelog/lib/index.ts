@@ -1,4 +1,3 @@
-import path from 'path'
 import conventionalCommitsFilter from 'conventional-commits-filter'
 import conventionalChangelogPresetLoader from 'conventional-changelog-preset-loader'
 import conventionalChangelogWriter from 'conventional-changelog-writer'
@@ -8,15 +7,22 @@ import through from 'through2'
 import resolvePreset from './preset-resolver'
 import { parseCommit } from './common'
 import type { Commit } from 'conventional-commits-parser'
-import { createToken, declarePlugin, provide } from '@pvm/pvm'
+import type { ReleasedProps } from '@pvm/pvm'
+import {
+  CONFIG_TOKEN,
+  createToken,
+  declarePlugin, PLATFORM_TOKEN,
+  provide,
+  RELEASE_NOTIFICATIONS_MAP_TOKEN,
+} from '@pvm/pvm'
 
 import {
   COMMITS_TO_NOTES_TOKEN,
-  NOTIFY_SCRIPTS_PATH_TOKEN,
   RELEASE_TYPE_BUILDER_TOKEN,
   RELEASE_TYPE_BY_COMMITS_TOKEN,
 } from '@pvm/pvm/tokens'
 import type { PvmReleaseType } from '@pvm/pvm/types/publish'
+import { releaseMessage } from './message-builder'
 
 export enum conventionalChangelogReleaseTypes {'major', 'minor', 'patch'}
 
@@ -139,8 +145,23 @@ export default declarePlugin({
           },
         }),
         provide({
-          provide: NOTIFY_SCRIPTS_PATH_TOKEN,
-          useValue: () => Promise.resolve(path.join(__dirname, 'notify-scripts')),
+          provide: RELEASE_NOTIFICATIONS_MAP_TOKEN,
+          useFactory: ({ platform, config }) => ({
+            release: (releaseProps: ReleasedProps) => releaseMessage(releaseProps, {
+              attachPackages: false,
+              platform,
+              config,
+            }),
+            releaseWithPackages: (releaseProps: ReleasedProps) => releaseMessage(releaseProps, {
+              attachPackages: true,
+              platform,
+              config,
+            }),
+          }),
+          deps: {
+            platform: PLATFORM_TOKEN,
+            config: CONFIG_TOKEN,
+          },
         }),
         provide({
           provide: COMMITS_TO_NOTES_TOKEN,

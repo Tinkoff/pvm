@@ -1,7 +1,8 @@
 import yargs from 'yargs'
 
-import { enpl } from "../../lib/text/plural"
-import { revParse } from "../../lib/git/commands"
+import { enpl } from '../../lib/text/plural'
+import { revParse } from '../../lib/git/commands'
+import { RELEASE_NOTIFICATIONS_MAP_TOKEN } from '../../tokens'
 
 const defaultConcurrency = 1
 
@@ -31,7 +32,7 @@ const messageChannelFlag = {
   },
 }
 
-export const flagsBuilder = {
+export const flagsBuilder = (di) => ({
   filter: {
     alias: 'f',
     type: 'array' as const,
@@ -103,30 +104,13 @@ export const flagsBuilder = {
       return !canary || !!messageChannel
     } as unknown as boolean,
   },
-  notifyScript: {
+  notificationName: {
     alias: 'i',
     desc:
       `
-      The script that will be executed to create the notification text after successfull packages publishing.
-      By default, the internal script "@pvm/lib-core/messages/notify-scripts/release.js" is used.
-
-      Could be absolute file path, or file path relative to config, or http/https URL to script in the network.
-
-      The script is obliged to send the message through function process.send.
-      The message should have the following format: { type: 'message', message: <message payload>. }.
-
-      Also script will receive the object describing the publication in the form:
-      {
-         tag: 'release-tag',
-         commits: <undefined or array of structures described here: https://github.com/bendrucker/git-log-parser#logparseconfig-options---streamcommits>,
-         packagesStats: {
-           success: [{pkg: string, registryVersion: string, publishedVersion: string}, ...]
-           skipped: [{pkg: string, publishVersion: string, reason: string}, ...]
-           error: [{pkg: string, publishVersion: string, reason: string}, ...]
-        },
-      }
-
-      Information about the published status of the packages. For more information about this field, see the documentation site.
+      Direct name of notification builder that will be used to build result publish message. Names are
+      mapped to values from RELEASE_NOTIFICATIONS_MAP_TOKEN providers. Current builders are:
+      ${Object.keys(di.get(RELEASE_NOTIFICATIONS_MAP_TOKEN)!.reduce((acc, m) => Object.assign(acc, m), {})).map(k => ` - ${k}`).join(`\n`)}
     `,
     default: undefined as unknown as string,
   },
@@ -137,9 +121,9 @@ export const flagsBuilder = {
   },
   ...messageChannelFlag,
   ...canaryFlag,
-} as const
+} as const)
 
-type FlagsBuilder = typeof flagsBuilder
+type FlagsBuilder = ReturnType<typeof flagsBuilder>
 export type Flags = {
   [P in keyof FlagsBuilder]: FlagsBuilder[P]['default']
 }

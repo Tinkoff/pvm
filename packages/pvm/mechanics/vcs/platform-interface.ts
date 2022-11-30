@@ -15,6 +15,7 @@ export abstract class PlatformInterface<MergeRequest> {
   name: string
   currentMr: MergeRequest | null;
   dryRun: boolean
+  localMode: boolean
   abstract requireMr(): MergeRequest;
   abstract getCommitLink(commit: string): Promise<string | null>;
   /** Создает и тег и релиз, если тег уже есть то выбрасывается исключение */

@@ -2,7 +2,7 @@
 import { Repository } from '../mechanics/repository'
 import { logger } from '../lib/logger'
 import { lint } from '../mechanics/repository/linter'
-import type { Container } from '@tinkoff/dippy'
+import type { Container } from '../lib/di'
 
 export default (di: Container) => ({
   command: 'lint',
