@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 import chalk from 'chalk'
-import initVcs from '../../mechanics/vcs'
 import { log } from '../../lib/logger'
 import { makeChangelog } from '../../mechanics/changelog'
 import { StorageManager } from '../../mechanics/artifacts/storage-manager'
@@ -28,16 +27,10 @@ export default (di: Container) => ({
   },
   handler: async function main(flags: Record<string, any>): Promise<void> {
     log(chalk`{yellow Generating changelog}`)
-    const cwd = process.cwd()
     const config = di.get(CONFIG_TOKEN)
-    const vcs = await initVcs(di, {
-      vcsType: 'fs',
-      cwd,
-    })
 
     const storageManager = new StorageManager({
-      config,
-      vcs,
+      di,
     })
 
     const releaseListStorage = await storageManager.initFor(StorageManager.ArtifactsStorages.ReleaseList)

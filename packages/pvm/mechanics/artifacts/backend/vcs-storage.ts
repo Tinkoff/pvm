@@ -1,14 +1,7 @@
 
-import type { VcsPlatform } from '../../vcs'
 import type { StorageImpl } from '../storage.h'
 
 export class VcsStorage implements StorageImpl {
-  vcs: VcsPlatform
-
-  constructor(vcs: VcsPlatform) {
-    this.vcs = vcs
-  }
-
   async init(): Promise<void> {
     // pass
   }
@@ -21,7 +14,6 @@ export class VcsStorage implements StorageImpl {
     // noop
   }
 
-  async uploadPath(localPath: string, _remoteDest: string): Promise<void> {
-    await this.vcs.addPath(localPath)
+  async uploadPath(): Promise<void> {
   }
 }

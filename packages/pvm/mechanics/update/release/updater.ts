@@ -9,13 +9,11 @@ import { enpl } from '../../../lib/text/plural'
 import { loggerFor } from '../../../lib/logger'
 import { wdShell } from '../../../lib/shell'
 import { releaseMark } from '../../../lib/consts'
-import { getHostApi } from '../../../lib/plugins'
 import { getStagedFiles, revParse } from '../../../lib/git/commands'
 import { versioningFile } from '../../../lib/dedicated-versions-file'
 import { releaseDataMaker } from '../../releases/release-data'
 import { fsAppendReleaseData } from '../../releases/release-list'
 import { StorageManager } from '../../artifacts/storage-manager'
-import initVcs from '../../../mechanics/vcs'
 
 import getTemplateEnv from '../../template/env'
 import { makeChangelog } from '../../changelog'
@@ -24,12 +22,12 @@ import { createReleaseContext } from './release-context'
 
 import type { ReleaseContext, CliUpdateOpts } from '../types'
 import type { UpdateState } from '../update-state'
-import type { VcsPlatform, Vcs } from '../../vcs'
+import type { VcsPlatform } from '../../vcs'
 
 import type{ ReleaseData } from '../../releases/types'
 import type{ Config } from '../../../types'
 import type { Container } from '../../../lib/di'
-import { CONFIG_TOKEN, CWD_TOKEN } from '../../../tokens'
+import { CONFIG_TOKEN, HOST_API_TOKEN } from '../../../tokens'
 
 const logger = loggerFor('pvm:update')
 
@@ -40,7 +38,7 @@ export interface ReleaseOpts extends CliUpdateOpts {
   vcsMode?: 'vcs' | 'platform',
 }
 
-export async function release(di: Container, updateState: UpdateState, vcsPlatform: Vcs, initialOpts: ReleaseOpts = {}): Promise<void> {
+export async function release(di: Container, updateState: UpdateState, vcsPlatform: VcsPlatform, initialOpts: ReleaseOpts = {}): Promise<void> {
   const { targetRef } = updateState.changedContext
   const { config } = updateState.repo
   const releaseConf = config.release
@@ -68,8 +66,8 @@ export async function release(di: Container, updateState: UpdateState, vcsPlatfo
 
     const releaseContext = await createReleaseContext(updateState)
     if (releaseContext) {
-      await runPluginPreReleaseHooks(config.cwd, vcsPlatform, releaseContext)
-      const { storageManager, releaseData } = await prepareStoreManagerAndReleaseData(di, releaseContext, vcsPlatform, opts)
+      await di.get(HOST_API_TOKEN).preReleaseHook(vcsPlatform, releaseContext)
+      const { storageManager, releaseData } = await prepareStoreManagerAndReleaseData(di, releaseContext)
       await updateReleaseAndChangelogArtifacts(di, storageManager, releaseData)
       saveReleaseDataLocally(config.cwd, opts, releaseData)
       if (!tagOnly) {
@@ -130,18 +128,12 @@ async function removeWorkspaceReleaseFiles(updateState: UpdateState, vcsPlatform
   }
 }
 
-async function runPluginPreReleaseHooks(cwd: string, vcsPlatform: VcsPlatform, releaseContext: ReleaseContext): Promise<void> {
-  const hostApi = await getHostApi(cwd)
-  await hostApi.preReleaseHook(vcsPlatform, releaseContext)
-}
-
-async function prepareStoreManagerAndReleaseData(di: Container, releaseContext: ReleaseContext, vcsPlatform: VcsPlatform, { dryRun, local, tagOnly }: ReleaseOpts): Promise<{
+async function prepareStoreManagerAndReleaseData(di: Container, releaseContext: ReleaseContext): Promise<{
   releaseData?: ReleaseData,
   storageManager: StorageManager,
 }> {
   const storageManager = new StorageManager({
-    config: di.get(CONFIG_TOKEN),
-    vcs: tagOnly || dryRun ? await initVcs(di, { vcsType: 'fs', cwd: di.get(CWD_TOKEN), localMode: local, dryRun: dryRun }) : vcsPlatform,
+    di,
   })
 
   const releaseData = await releaseDataMaker.fromReleaseContext(releaseContext)

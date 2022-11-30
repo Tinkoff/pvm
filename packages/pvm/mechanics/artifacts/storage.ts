@@ -6,8 +6,9 @@ import { loggerFor } from '../../lib/logger'
 
 import type { Config, StorageDef } from '../../types'
 
-import type { VcsPlatform } from '../vcs'
 import type { StorageImpl } from './storage.h'
+import type { Container } from '../../lib/di'
+import { CONFIG_TOKEN } from '../../tokens'
 
 const finalizedMap = new WeakMap<StorageImpl, boolean>()
 const storagesPool = new Map<string, StorageImpl>()
@@ -15,8 +16,7 @@ const storagesPool = new Map<string, StorageImpl>()
 const logger = loggerFor('pvm:artifacts')
 
 export interface InitStorageDeps {
-  vcs: VcsPlatform,
-  config: Config,
+  di: Container,
 }
 
 export interface StorageOpts {
@@ -91,12 +91,9 @@ export class Storage {
 
 function createStorageImpl(deps: InitStorageDeps, storageDef: StorageDef): StorageImpl {
   if (storageDef.type === 'repo') {
-    return new VcsStorage(deps.vcs)
+    return new VcsStorage()
   } else if (storageDef.type === 'branch') {
-    return new GitBranchStorage({
-      cwd: deps.config.cwd,
-      branch: storageDef.branch,
-    })
+    return new GitBranchStorage({ di: deps.di, branch: storageDef.branch })
   } else if (storageDef.type === 'external') {
     return new ExternalStorage()
   }
@@ -120,7 +117,7 @@ export async function instatiateStorage<S extends typeof Storage>(StorageKlass: 
   const storage = await lazyInitStorageImpl(deps, storageDef)
   return new StorageKlass(storage, {
     type: storageDef.type,
-    config: deps.config,
+    config: deps.di.get(CONFIG_TOKEN),
     destPrefix: storageDef.type !== 'external' ? storageDef.dest : undefined,
   }) as unknown as InstanceType<S>
 }

@@ -6,11 +6,10 @@ import { logger } from '../lib/logger'
 import { lastReleaseTag } from '../lib/git/last-release-tag'
 import { releaseCommitsAsString } from '../lib/git/release-commits'
 import sinceLastRelease from '../mechanics/update/strategies/since-last-release'
-import { Repository } from '../mechanics/repository'
 
 import type { Argv } from 'yargs'
 import type { Container } from '@tinkoff/dippy'
-import { CONFIG_TOKEN } from '../tokens'
+import { CONFIG_TOKEN, HOST_API_TOKEN } from '../tokens'
 
 function pprint(val): void {
   if (val === void 0) {
@@ -54,8 +53,7 @@ async function printChangelog(di: Container, flags) {
     targetRef = `${release}^`
   }
 
-  const repo = new Repository(di)
-  const hostApi = await repo.getHostApi()
+  const hostApi = di.get(HOST_API_TOKEN)
 
   const changedContext = await sinceLastRelease(di, targetRef, {
     cwd,

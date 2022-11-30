@@ -1,9 +1,14 @@
 import { bootstrap } from 'global-agent'
+import { declarePlugin } from '@pvm/pvm'
 
-async function plugin(_api): Promise<void> {
-  bootstrap({
-    environmentVariableNamespace: '',
-  })
-}
+export default declarePlugin({
+  factory: () => {
+    bootstrap({
+      environmentVariableNamespace: '',
+    })
 
-export default plugin
+    return {
+      providers: [],
+    }
+  },
+})

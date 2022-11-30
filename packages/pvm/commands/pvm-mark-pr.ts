@@ -1,8 +1,6 @@
 #!/usr/bin/env node
-import { getHostApi } from '../lib/plugins'
 import { getUpdateState } from '../mechanics/update'
-import type { Vcs } from '../mechanics/vcs/index'
-import { initVcsPlatform } from '../mechanics/vcs'
+import type { VcsPlatform } from '../mechanics/vcs/index'
 import * as mdTable from '../mechanics/update/update-methods/md-table'
 import * as graphDot from '../mechanics/update/update-methods/dot'
 import { analyzeUpdate as analyzeUpdatedPackages } from '../mechanics/update/update-methods/analyze'
@@ -14,9 +12,9 @@ import { VcsOnlyStenographer } from '../mechanics/vcs/vcs-only-stenographer'
 import type { UpdateState } from '../mechanics/update/update-state'
 import type { Pkg } from '../lib/pkg'
 import type { Container } from '../lib/di'
-import { CONFIG_TOKEN } from '../tokens'
+import { CONFIG_TOKEN, MARK_PR_HOOK_TOKEN, VCS_PLATFORM_TOKEN } from '../tokens'
 
-async function analyzeUpdate(_di: Container, vcs: Vcs, updateState: UpdateState): Promise<any> {
+async function analyzeUpdate(_di: Container, vcs: VcsPlatform, updateState: UpdateState): Promise<any> {
   const { warnings } = analyzeUpdatedPackages(updateState)
 
   if (warnings.length !== 0) {
@@ -32,16 +30,16 @@ ${warningsAsList}
   }
 }
 
-async function packagesAsLabels(_di: Container, vcs: Vcs, updateState: UpdateState): Promise<unknown> {
+async function packagesAsLabels(_di: Container, vcs: VcsPlatform, updateState: UpdateState): Promise<unknown> {
   return vcs.ensureMrLabels(Array.from(updateState.getReleasePackages().keys()).map((pkg: Pkg) => pkg.shortName))
 }
 
-async function packagesTable(_di: Container, vcs: Vcs, updateState: UpdateState): Promise<unknown> {
-  const md = await mdTable.run(updateState)
+async function packagesTable(di: Container, vcs: VcsPlatform, updateState: UpdateState): Promise<unknown> {
+  const md = await mdTable.run(di, updateState)
   return vcs.syncText('packages-for-release', md || 'no packages for release')
 }
 
-async function packagesGraph(_di: Container, vcs: Vcs, updateState: UpdateState): Promise<unknown> {
+async function packagesGraph(_di: Container, vcs: VcsPlatform, updateState: UpdateState): Promise<unknown> {
   if (!updateState.isSomethingForRelease) {
     return vcs.syncText('packages-graph', 'no packages for release')
   }
@@ -52,13 +50,13 @@ async function packagesGraph(_di: Container, vcs: Vcs, updateState: UpdateState)
   })
 }
 
-async function attachChangelog(di: Container, vcs: Vcs, updateState: UpdateState): Promise<unknown> {
+async function attachChangelog(di: Container, vcs: VcsPlatform, updateState: UpdateState): Promise<unknown> {
   const releaseContext = await createReleaseContext(updateState)
   const changelog = releaseContext ? await renderReleaseContext(di, releaseContext, RenderTarget.markPr) : ''
   return vcs.syncText('changelog-for-pr', changelog)
 }
 
-async function attachMigrationProcess(vcs: Vcs): Promise<void> {
+async function attachMigrationProcess(vcs: VcsPlatform): Promise<void> {
   const vcsStenographist = new VcsOnlyStenographer(vcs.cwd)
 
   if (!vcsStenographist.isEmpty) {
@@ -67,7 +65,7 @@ async function attachMigrationProcess(vcs: Vcs): Promise<void> {
 }
 
 interface Marker {
-  fn(di: Container, vcs: Vcs, updateState: UpdateState): Promise<unknown>,
+  fn(di: Container, vcs: VcsPlatform, updateState: UpdateState): Promise<unknown>,
   confKey: string,
 }
 
@@ -99,8 +97,7 @@ export default (di: Container) => ({
   description: `Marks merge or pull request by project labels, packages about to update, etc`,
   handler: async function main(): Promise<void> {
     const conf = di.get(CONFIG_TOKEN).mark_pr
-    const hostApi = await getHostApi()
-    const vcs = await initVcsPlatform(di)
+    const vcs = di.get(VCS_PLATFORM_TOKEN)
     await vcs.beginMrAttribution()
 
     await attachMigrationProcess(vcs)
@@ -113,6 +110,6 @@ export default (di: Container) => ({
       }
     }
 
-    await hostApi.plEachSeries('mark-pr', vcs, updateState)
+    await di.get(MARK_PR_HOOK_TOKEN)?.forEach(hook => hook(vcs, updateState))
   },
 })

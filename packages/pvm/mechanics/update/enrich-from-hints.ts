@@ -1,16 +1,19 @@
 import { log, logger } from '../../lib/logger'
 import { matchAny } from '../../lib/pkg-match'
 import gitLog from '../../lib/git/log'
-import { getHostApi } from '../../lib/plugins'
 import { processAffectedByDependants } from './dependants-updater'
 import { PkgSet } from '../../lib/pkg-set'
 
+import type { Container } from '../../lib/di'
 import type { Pkg } from '../../lib/pkg'
 import type { UpdateState } from './update-state'
 import type { Repository } from '../repository'
 import type { ForceReleaseState } from './types'
+import { CWD_TOKEN, HOST_API_TOKEN } from '../../tokens'
 
-async function releaseNotesByFile(cwd: string, filePath: string, defaultMessage: string): Promise<string> {
+async function releaseNotesByFile(di: Container, filePath: string, defaultMessage: string): Promise<string> {
+  const cwd = di.get(CWD_TOKEN)
+  const hostApi = di.get(HOST_API_TOKEN)
   const latestCommits = await gitLog({
     _: [filePath],
     'no-merges': true,
@@ -19,14 +22,12 @@ async function releaseNotesByFile(cwd: string, filePath: string, defaultMessage:
   if (latestCommits.length === 0) {
     return defaultMessage
   }
-  const hostApi = await getHostApi(cwd)
   return hostApi.commitsToNotes(latestCommits)
 }
 
 // could add new packages from hints['force-release'] directive
-async function processForceRelease(updateState: UpdateState): Promise<ForceReleaseState> {
+async function processForceRelease(di: Container, updateState: UpdateState): Promise<ForceReleaseState> {
   const packages = new PkgSet()
-  const { cwd } = updateState.repo
   const { hints } = updateState.updateContext
   const { changedContext } = updateState
 
@@ -35,7 +36,7 @@ async function processForceRelease(updateState: UpdateState): Promise<ForceRelea
     const { packages: packagesMasks = [] } = forceRelease
     logger.debug(`found force-release record, packages mask:`, packagesMasks)
     const defaultReleaseNotes = 'force release by update-hints.toml'
-    const releaseNotes = forceRelease['release-notes'] || (await releaseNotesByFile(cwd, 'update-hints.toml', defaultReleaseNotes))
+    const releaseNotes = forceRelease['release-notes'] || (await releaseNotesByFile(di, 'update-hints.toml', defaultReleaseNotes))
 
     logger.debug('already changed packages:', Array.from(changedContext.packages.keys()))
 

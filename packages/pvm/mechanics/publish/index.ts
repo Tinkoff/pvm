@@ -8,7 +8,6 @@ import pMap from 'p-map'
 import defaults from 'lodash/defaults'
 import mapValues from 'lodash/mapValues'
 
-import { getHostApi } from '../../lib/plugins'
 import { parseSubArgs } from '../../lib/text/sub-args'
 import runShell from '../../lib/shell/run'
 import execShell from '../../lib/shell/exec'
@@ -67,7 +66,6 @@ export async function publish(di: Container, flags: Flags): Promise<PublishedSta
 
   flags = applyFlagsDefaultsForUnification(flags)
   config = applyFlagsToConfig(config, flags)
-  await initPlugins(cwd)
 
   logger.info(`publishing packages..`)
   if (skipRealPublishing) {
@@ -159,7 +157,6 @@ export async function publish(di: Container, flags: Flags): Promise<PublishedSta
       }, {
         notifyScript: flags.notifyScript,
         strategy: flags.strategy,
-        hostApi: await getHostApi(),
       })
 
       if (flags.messageChannel) {
@@ -167,7 +164,7 @@ export async function publish(di: Container, flags: Flags): Promise<PublishedSta
       }
 
       if (!skipRealPublishing) {
-        const notificator = new Notificator(config)
+        const notificator = new Notificator(di)
         await notificator.sendMessage(message)
       } else {
         logger.info('Notify message:')
@@ -411,11 +408,6 @@ function applyFlagsToConfig(config: Config, flags: Flags): Config {
 function applyFlagsDefaultsForUnification(flags: Flags): Flags {
   // унифицируем дефолтные значения для вызовов через node api и cli
   return defaults(flags, mapValues(flagsBuilder, builder => builder.default))
-}
-
-async function initPlugins(cwd): Promise<void> {
-  // для загрузки плагинов
-  await getHostApi(cwd)
 }
 
 let distTagsCommandSupported

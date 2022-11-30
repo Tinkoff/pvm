@@ -1,9 +1,9 @@
 import { projectPagesGen } from '../pages-gen'
-import type { Config } from '@pvm/pvm'
+import type { Container } from '@pvm/pvm'
 
 // https://docs.gitlab.com/ee/api/labels.html#list-labels
-function labels(config: Config, projectId, queryArgs = {}) {
-  return projectPagesGen(config, projectId, `/labels`, queryArgs)
+function labels(di: Container, projectId, queryArgs = {}) {
+  return projectPagesGen(di, projectId, `/labels`, queryArgs)
 }
 
 export default labels

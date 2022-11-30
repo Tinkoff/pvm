@@ -1,4 +1,4 @@
-import type { HttpReqOptions, Config } from '@pvm/pvm'
+import type { HttpReqOptions, Container } from '@pvm/pvm'
 import glapi from './index'
 import { logger } from '@pvm/pvm'
 
@@ -38,9 +38,9 @@ export interface UploadResult {
 }
 
 // https://docs.gitlab.com/ee/api/projects.html#upload-a-file
-async function uploadFile(config: Config, projectId: string | number, data: Buffer, filename: string): Promise<UploadResult> {
+async function uploadFile(di: Container, projectId: string | number, data: Buffer, filename: string): Promise<UploadResult> {
   const opts = uploadOpts(data, filename)
-  const { json } = await glapi(config, `/projects/${toSlug(projectId)}/uploads`, opts)
+  const { json } = await glapi(di, `/projects/${toSlug(projectId)}/uploads`, opts)
   logger.debug('upload file result:\n', JSON.stringify(json, null, 2))
 
   return json

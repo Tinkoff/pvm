@@ -11,9 +11,8 @@ import { ChangedContext } from '../changed-context'
 
 import type { IncludeRootOption } from '../../pkgset/types'
 import type { Config } from '../../../types'
-import initVcsPlatform from '../../../mechanics/vcs'
 import type { Container } from '../../../lib/di'
-import { CONFIG_TOKEN } from '../../../tokens'
+import { CONFIG_TOKEN, VCS_PLATFORM_TOKEN } from '../../../tokens'
 
 const logger = loggerFor('pvm:changed-files')
 const GIT_DEEPEN_VALUE = 50
@@ -58,16 +57,14 @@ function ensureCommitsDepth(cwd: string, from: string, to: string): void {
 // вычисляет последний релиз, и на основе него получаем коммиты и список пакетов на новый релиз
 async function sinceLastRelease(di: Container, targetRef: string, opts: SinceLastReleaseOpts): Promise<ChangedContext> {
   const config = di.get(CONFIG_TOKEN)
-  const vcsPlatform = await initVcsPlatform(di, {
-    cwd: opts.cwd,
-  })
+  const vcsPlatform = di.get(VCS_PLATFORM_TOKEN)
   const updConfig = config.update
+  const cwd = config.cwd
 
   const {
     includeRoot = updConfig.include_root,
     noReleaseRef: noReleaseRefOpt = updConfig.no_release_ref,
     includeUncommited = updConfig.include_uncommited,
-    cwd = process.cwd(), // @TODO: задепрекейтить
   } = opts
 
   const gitShell = (cmd: string) => __dangerous_shell(cmd, { cwd })

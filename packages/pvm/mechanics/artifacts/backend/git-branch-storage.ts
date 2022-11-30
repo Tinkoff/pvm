@@ -2,18 +2,25 @@ import path from 'path'
 import fse from 'fs-extra'
 import tempy from 'tempy'
 import runShell from '../../../lib/shell/run'
-import { initGitVcs, prepareGit } from '../../vcs/git-vcs'
+import { GitVcs, prepareGit } from '../../vcs/git-vcs'
 import { gitFetch, isBranchExists, isRemoteBranchExists, isWorkingDirectoryClean } from '../../../lib/git/commands'
 
 import { loggerFor } from '../../../lib/logger'
 
 import type { StorageImpl } from '../storage.h'
+import type { Config } from '../../../types/config'
+import { RESOLVE_PUSH_REMOTE_TOKEN, CONFIG_TOKEN, GLOBAL_FLAGS_TOKEN, CWD_TOKEN } from '../../../tokens'
+import type { GlobalFlags } from '../../../lib/cli/global-flags'
+import type { Container } from '../../../lib/di'
 
 const logger = loggerFor('pvm:artifacts')
 
 export interface GitBranchStorageOpts {
   branch: string,
   cwd: string,
+  config: Config,
+  resolvePushRemote: typeof RESOLVE_PUSH_REMOTE_TOKEN,
+  globalFlags: GlobalFlags,
 }
 
 export class GitBranchStorage implements StorageImpl {
@@ -21,9 +28,16 @@ export class GitBranchStorage implements StorageImpl {
   cwd: string
   workingDir: string
   gitPrepared = false
+  config: Config
+  resolvePushRemote: typeof RESOLVE_PUSH_REMOTE_TOKEN
+  globalFlags: GlobalFlags
 
-  constructor(opts: GitBranchStorageOpts) {
-    Object.assign(this, opts)
+  constructor({ di, branch }: { di: Container, branch: string }) {
+    this.config = di.get(CONFIG_TOKEN)
+    this.resolvePushRemote = di.get(RESOLVE_PUSH_REMOTE_TOKEN)
+    this.globalFlags = di.get(GLOBAL_FLAGS_TOKEN)
+    this.cwd = di.get(CWD_TOKEN)
+    this.branch = branch
   }
 
   private prepareGit(): void {
@@ -97,7 +111,12 @@ export class GitBranchStorage implements StorageImpl {
   }
 
   async uploadPath(localPath: string, remoteDest: string): Promise<void> {
-    const gitVcs = initGitVcs(this.workingDir)
+    const gitVcs = new GitVcs({
+      cwd: this.workingDir,
+      config: this.config,
+      resolvePushRemote: this.resolvePushRemote,
+      globalFlags: this.globalFlags,
+    })
 
     const commitContext = await gitVcs.beginCommit()
     const sourcePath = path.join(this.cwd, localPath)

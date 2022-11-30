@@ -3,6 +3,7 @@ import type { Argv } from 'yargs'
 import type { Container } from '../../lib/di'
 
 import pvmUpdate from './pvm-update'
+import {GLOBAL_FLAGS_TOKEN} from "../../tokens";
 
 export default (di: Container) => ({
   command: 'local <update>',
@@ -10,8 +11,9 @@ export default (di: Container) => ({
   builder: (yargs: Argv) => {
     return yargs
       .example(`$0 local update`, `Update packages locally and don't create the commit in a remote repository`)
-      .middleware(argv => {
-        argv.local = true
+      .middleware((argv) => {
+        const globalFlags = di.get(GLOBAL_FLAGS_TOKEN)
+        globalFlags.setFlag('localMode', true)
         return argv
       })
       .command(pvmUpdate(di))

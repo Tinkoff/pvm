@@ -1,10 +1,25 @@
-import type { Message } from '@pvm/pvm'
-import { AbstractMessengerClient, httpreq, checkEnv, env, loggerFor, gracefullyTruncateText, requestWithRetries } from '@pvm/pvm'
+import type {
+  Message,
+  MessengerClientConfig,
+} from '@pvm/pvm'
+import {
+  AbstractMessengerClient,
+  httpreq,
+  checkEnv,
+  env,
+  loggerFor,
+  gracefullyTruncateText,
+  requestWithRetries,
+  declarePlugin,
+  provide,
+} from '@pvm/pvm'
+import { CONFIG_TOKEN, CWD_TOKEN, MESSENGER_CLIENT_TOKEN } from '@pvm/pvm/tokens'
+import { Notificator } from '@pvm/pvm/mechanics/notifications/notificator'
 
 const logger = loggerFor('pvm:mattermost')
 const MAX_TEXT_LENGTH = 4000 // ограничение блока текста в mattermost
 
-export class MattermostClient extends AbstractMessengerClient {
+class MattermostClient extends AbstractMessengerClient {
   isReady(): boolean {
     const someEnvsSpecified = Boolean(env.PVM_MATTERMOST_INCOMING_WEBHOOK) || checkEnv(['PVM_MATTERMOST_TOKEN', 'PVM_MATTERMOST_URL'], 'mattermost integration', { logger, silent: true })
 
@@ -146,4 +161,17 @@ export class MattermostClient extends AbstractMessengerClient {
   }
 }
 
-export const MessengerClient = MattermostClient
+export default declarePlugin({
+  factory: (opts: MessengerClientConfig & { name?: string }) => ({
+    providers: [
+      provide({
+        provide: MESSENGER_CLIENT_TOKEN,
+        useFactory: ({ config }) => Notificator.createClient(MattermostClient, config, opts),
+        deps: {
+          config: CONFIG_TOKEN,
+          cwd: CWD_TOKEN,
+        },
+      }),
+    ],
+  }),
+})

@@ -1,9 +1,9 @@
 import { log } from '../lib/logger'
-import { initVcsPlatform } from '../mechanics/vcs'
 
 // eslint-disable-next-line node/no-extraneous-import
 import type { Argv } from 'yargs'
 import type { Container } from '../lib/di'
+import { VCS_PLATFORM_FACTORY_TOKEN, VCS_PLATFORM_TOKEN } from '../tokens'
 
 function cliSubargsToMap(args: string[]): Map<string, string | true> {
   const map = new Map<string, string | true>()
@@ -30,7 +30,7 @@ export default (di: Container) => ({
         `Checks current branch is up to date with origin remote one. Exit with code 0 unless branch is stale`,
         {},
         async function isBranchActual(): Promise<void> {
-          const vcs = await initVcsPlatform(di)
+          const vcs = await di.get(VCS_PLATFORM_TOKEN)
           const currentBranch = vcs.getCurrentBranch()
           if (currentBranch) {
             const matches = await vcs.isRefMatchesRemoteBranch('HEAD', currentBranch)
@@ -70,7 +70,7 @@ export default (di: Container) => ({
           },
         },
         async function push(flags): Promise<void> {
-          const vcs = await initVcsPlatform(di, {
+          const vcs = di.get(VCS_PLATFORM_FACTORY_TOKEN)({
             vcsMode: 'vcs',
           })
 

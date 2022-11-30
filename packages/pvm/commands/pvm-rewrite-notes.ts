@@ -1,12 +1,10 @@
 #!/usr/bin/env node
 
 import { log } from '../lib/logger'
-import initVcs from '../mechanics/vcs'
 import getPreviousRefForFirstRelease from '../lib/behaviors/previous-ref-for-initial-release'
-import { makeReleaseForTag } from '../lib/release-notes'
 import type { PlatformReleaseTag } from '../types'
 import type { Container } from '../lib/di'
-import { CONFIG_TOKEN } from '../tokens'
+import { CONFIG_TOKEN, VCS_PLATFORM_TOKEN } from '../tokens'
 
 export default (di: Container) => ({
   command: 'rewrite-notes',
@@ -28,7 +26,7 @@ export default (di: Container) => ({
   },
 
   handler: async function pvmRewriteNotes(flags) {
-    const vcs = await initVcs(di, { dryRun: flags.dryRun })
+    const vcs = di.get(VCS_PLATFORM_TOKEN)
     let nextReleaseTag: PlatformReleaseTag | null = null
 
     // идем от самого свежего к первому
@@ -38,7 +36,7 @@ export default (di: Container) => ({
           log(`You asked me stop at ${flags.stopAt}. Stopping now`)
           break
         }
-        await makeReleaseForTag(vcs, nextReleaseTag, releaseTag.name)
+        await vcs.makeReleaseForTag(nextReleaseTag, releaseTag.name)
         if (flags.onlyFor === nextReleaseTag.name) {
           break
         }
@@ -50,8 +48,7 @@ export default (di: Container) => ({
     if (!flags.skipFirst && nextReleaseTag &&
       (!flags.onlyFor || flags.onlyFor === nextReleaseTag.name) && flags.stopAt !== nextReleaseTag.name) {
       const config = di.get(CONFIG_TOKEN)
-      await makeReleaseForTag(
-        vcs,
+      await vcs.makeReleaseForTag(
         nextReleaseTag,
         getPreviousRefForFirstRelease(config, nextReleaseTag.name)
       )

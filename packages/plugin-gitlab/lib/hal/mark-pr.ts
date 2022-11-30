@@ -9,10 +9,10 @@ import { uploadFile } from '../api/upload'
 import gitlabEnv from '../env'
 
 import type { MrNote } from '../../types/api/notes'
-import type { HttpResponseSuccess, MetaComment, Config } from '@pvm/pvm'
+import type { HttpResponseSuccess, MetaComment, Container } from '@pvm/pvm'
 
-async function findNote(config: Config, iid: number, kind: string): Promise<MetaComment<MrNote> | void> {
-  const notesIterator = getNotes(config, gitlabEnv.projectId, iid)
+async function findNote(di: Container, iid: number, kind: string): Promise<MetaComment<MrNote> | void> {
+  const notesIterator = getNotes(di, gitlabEnv.projectId, iid)
 
   for await (const note of notesIterator) {
     let parseResult
@@ -35,20 +35,20 @@ async function findNote(config: Config, iid: number, kind: string): Promise<Meta
   }
 }
 
-async function syncText(config: Config, iid: number, kind: string, text: string): Promise<HttpResponseSuccess> {
-  const existsNote = await findNote(config, iid, kind)
+async function syncText(di: Container, iid: number, kind: string, text: string): Promise<HttpResponseSuccess> {
+  const existsNote = await findNote(di, iid, kind)
 
   const noteBody = getNoteBody([['kind', kind], ['ref', gitlabEnv.commitSha]], text)
 
   if (existsNote) {
-    return glapi(config, `/projects/${gitlabEnv.projectSlug}/merge_requests/${iid}/notes/${existsNote.note.id}`, {
+    return glapi(di, `/projects/${gitlabEnv.projectSlug}/merge_requests/${iid}/notes/${existsNote.note.id}`, {
       method: 'PUT',
       body: {
         body: noteBody,
       },
     })
   } else {
-    return glapi(config, `/projects/${gitlabEnv.projectSlug}/merge_requests/${iid}/notes`, {
+    return glapi(di, `/projects/${gitlabEnv.projectSlug}/merge_requests/${iid}/notes`, {
       method: 'POST',
       body: {
         body: noteBody,
@@ -61,8 +61,8 @@ export interface SyncAttachmentOpts {
   filename?: string,
 }
 
-async function syncAttachment(config: Config, iid: number, kind: string, attachment: Buffer, opts: SyncAttachmentOpts = {}): Promise<HttpResponseSuccess> {
-  const existsNote: MetaComment<MrNote> | void = await findNote(config, iid, kind)
+async function syncAttachment(di: Container, iid: number, kind: string, attachment: Buffer, opts: SyncAttachmentOpts = {}): Promise<HttpResponseSuccess> {
+  const existsNote: MetaComment<MrNote> | void = await findNote(di, iid, kind)
   const { filename = 'attachment.file' } = opts
 
   let markdown
@@ -83,12 +83,12 @@ async function syncAttachment(config: Config, iid: number, kind: string, attachm
     }
 
     if (doUpload) {
-      markdown = (await uploadFile(config, gitlabEnv.projectId, attachment, path.basename(filename))).markdown
+      markdown = (await uploadFile(di, gitlabEnv.projectId, attachment, path.basename(filename))).markdown
     } else {
       markdown = content
     }
   } else {
-    markdown = (await uploadFile(config, gitlabEnv.projectId, attachment, path.basename(filename))).markdown
+    markdown = (await uploadFile(di, gitlabEnv.projectId, attachment, path.basename(filename))).markdown
   }
 
   const digest = crypto.createHash('sha1').update(attachment).digest('hex')
@@ -96,14 +96,14 @@ async function syncAttachment(config: Config, iid: number, kind: string, attachm
   const noteBody = getNoteBody([['kind', kind], ['ref', gitlabEnv.commitSha], ['integrity', `sha1-${digest}`]], markdown)
 
   if (existsNote) {
-    return glapi(config, `/projects/${gitlabEnv.projectSlug}/merge_requests/${iid}/notes/${existsNote.note.id}`, {
+    return glapi(di, `/projects/${gitlabEnv.projectSlug}/merge_requests/${iid}/notes/${existsNote.note.id}`, {
       method: 'PUT',
       body: {
         body: noteBody,
       },
     })
   } else {
-    return glapi(config, `/projects/${gitlabEnv.projectSlug}/merge_requests/${iid}/notes`, {
+    return glapi(di, `/projects/${gitlabEnv.projectSlug}/merge_requests/${iid}/notes`, {
       method: 'POST',
       body: {
         body: noteBody,

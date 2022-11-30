@@ -2,14 +2,10 @@ import fs from 'fs'
 import { mkdirp } from '../../lib/fs'
 import path from 'path'
 import frontMatter from 'front-matter'
-import resolveFrom from 'resolve-from'
-import { requireDefault } from '../../lib/interop'
 import { loggerFor } from '../../lib/logger'
-import { getHostApi } from '../../lib/plugins'
 
 import pkgsetAll from '../pkgset/strategies/all'
 import { lazyCompileTemplate } from '../template'
-import provideBuiltinRenderers from './provide-builtin-renderers'
 import { pkgChangelogPath } from './rules'
 import { releaseDataMaker } from '../releases/release-data'
 import { wdmemoize, CacheTag } from '../../lib/memoize'
@@ -23,7 +19,7 @@ import type { Renderer, IncrementalRenderer } from './types'
 import type { ReleaseData } from '../releases/types'
 import { cwdToGitRelativity } from '../../lib/git/worktree'
 import type { Container } from '../../lib/di'
-import { CONFIG_TOKEN } from '../../tokens'
+import { CHANGELOG_RENDERERS_MAP, CONFIG_TOKEN } from '../../tokens'
 
 const logger = loggerFor('pvm:changelog')
 
@@ -34,43 +30,17 @@ export enum RenderTarget {
 
 export async function getRendererPure(di: Container, rendererTarget: RenderTarget = RenderTarget.changelog): Promise<Renderer | IncrementalRenderer> {
   const config = di.get(CONFIG_TOKEN)
-  await provideBuiltinRenderers(config.cwd)
+  const renderersMap = di.get(CHANGELOG_RENDERERS_MAP)
 
   const { renderer } = rendererTarget === RenderTarget.changelog ? config.changelog : config.mark_pr
-  const hostApi = await getHostApi(config.cwd)
 
-  let RendererClass: new() => Renderer | IncrementalRenderer
+  const rendererInstance = renderersMap[renderer.type]
 
-  switch (renderer.type) {
-    case 'builtin.list':
-    case 'builtin.list-with-packages':
-      RendererClass = hostApi.getOr(`changelog.${renderer.type}`, null)
-      break
-    case 'commonjs': {
-      const filePath = resolveFrom(config.cwd, renderer.path)
-      RendererClass = requireDefault(filePath)
-      if (!RendererClass) {
-        throw new Error(`Renderer not found at ${renderer.path}, check your pvm settings.`)
-      }
-      break
-    }
-    case 'by-plugin': {
-      if (!renderer.providesPath.startsWith('changelog.')) {
-        throw new Error(`renderer.providesPath for type "by-plugin" should starts with "changelog." but got "${renderer.providesPath}" instead.`)
-      }
-      RendererClass = hostApi.getOr(renderer.providesPath, null)
-      if (!RendererClass) {
-        throw new Error(`There are no plugins who provides "${renderer.providesPath}" entry.`)
-      }
-      break
-    }
+  if (!rendererInstance) {
+    throw new Error(`Changelog renderer should be defined`)
   }
 
-  if (typeof RendererClass !== 'function') {
-    throw new Error(`Changelog renderer should be class, but got ${typeof RendererClass}. config.changelog.renderer.type is "${config.changelog.renderer.type}"`)
-  }
-
-  return new RendererClass()
+  return rendererInstance
 }
 
 export const getRenderer = wdmemoize(getRendererPure, [CacheTag.pvmConfig])

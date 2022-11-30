@@ -133,6 +133,7 @@ export const defaultConfig: ConfigSchema = {
   },
   plugins_v2: [
     { plugin: require.resolve('./commands') },
+    { plugin: require.resolve('./plugins/common') },
   ],
   templating: {
     use_short_names: false,
@@ -160,8 +161,6 @@ export const defaultConfig: ConfigSchema = {
   dangerously_opts: {},
   notifications: {
     target: 'first_available',
-    clients: [],
     clients_common_config: {},
-    client_configs: {},
   },
 }

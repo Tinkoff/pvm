@@ -1,8 +1,8 @@
 import glapi from '../index'
-import type { Config } from '@pvm/pvm'
+import type { Container } from '@pvm/pvm'
 
-function update(config: Config, projectId, mrIid, attrs = {}) {
-  return glapi(config, `/projects/${encodeURIComponent(projectId)}/merge_requests/${mrIid}`, {
+function update(di: Container, projectId, mrIid, attrs = {}) {
+  return glapi(di, `/projects/${encodeURIComponent(projectId)}/merge_requests/${mrIid}`, {
     method: 'PUT',
     body: attrs,
   })

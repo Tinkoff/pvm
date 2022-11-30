@@ -7,6 +7,7 @@ import '../node-boot'
 
 import type { Argv } from 'yargs'
 import type { CLI_EXTENSION_TOKEN } from '../../tokens'
+import type { GlobalFlags } from './global-flags'
 
 function initCommands(yargs: Argv, commands: Array<typeof CLI_EXTENSION_TOKEN>) {
   commands.forEach(command => {
@@ -20,7 +21,7 @@ function initCommands(yargs: Argv, commands: Array<typeof CLI_EXTENSION_TOKEN>) 
   return yargs
 }
 
-export function runCli(commands: Array<typeof CLI_EXTENSION_TOKEN>, argv: string[]) {
+export function runCli(commands: Array<typeof CLI_EXTENSION_TOKEN>, globalFlags: GlobalFlags, argv: string[]) {
   const yargs = initCommands(Yargs(hideBin(argv)), commands)
     .command('help <subcommand>', 'Get help for subcommand', {}, (argv) => {
       initCommands(Yargs([(argv as Record<string, string>).subcommand, '--help']), commands)
@@ -28,7 +29,9 @@ export function runCli(commands: Array<typeof CLI_EXTENSION_TOKEN>, argv: string
         .showHelp('info')
     })
     .middleware((argv) => {
-      global.argv = argv
+      if (argv.dryRun === true) {
+        globalFlags.setFlag('dryRun', argv.dryRun)
+      }
       return argv
     })
     .demandCommand()

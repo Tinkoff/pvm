@@ -3,13 +3,11 @@
 // команда обновляет release notes для последнего тэга через vcs
 
 import { log } from '../lib/logger'
-import initVcs from '../mechanics/vcs/index'
 import { lastReleaseTag } from '../lib/git/last-release-tag'
 import getPreviousRefForFirstRelease from '../lib/behaviors/previous-ref-for-initial-release'
-import { makeReleaseForTagName } from '../lib/release-notes'
 import { env } from '../lib/env'
 import type { Container } from '../lib/di'
-import { CONFIG_TOKEN } from '../tokens'
+import { CONFIG_TOKEN, VCS_PLATFORM_TOKEN } from '../tokens'
 import type { Config } from '../types/config'
 
 async function findPrevRef(config: Config, targetTag: string) {
@@ -28,7 +26,7 @@ export default (di: Container) => ({
   handler: async function pvmNotes() {
     const config = di.get(CONFIG_TOKEN)
     const targetTagName = env.CI_COMMIT_TAG || lastReleaseTag(config)
-    const vcs = await initVcs(di)
+    const vcs = di.get(VCS_PLATFORM_TOKEN)
 
     if (!targetTagName) {
       throw new Error('at least one tag is required for making the release')
@@ -36,7 +34,7 @@ export default (di: Container) => ({
 
     const prevRef = await findPrevRef(di.get(CONFIG_TOKEN), targetTagName)
     if (prevRef) {
-      await makeReleaseForTagName(vcs, targetTagName, prevRef, {
+      await vcs.makeReleaseForTagName(targetTagName, prevRef, {
         skipIfExists: true,
       })
 

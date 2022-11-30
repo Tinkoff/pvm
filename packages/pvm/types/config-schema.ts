@@ -29,18 +29,11 @@ export interface ChangelogRendererBuiltin {
   show_date: boolean,
 }
 
-export interface ChangelogRendererCommonJs {
-  type: 'commonjs',
-  path: string,
+export interface ChangelogRendererCustom {
+  type: 'custom',
 }
 
-export interface ChangelogRendererByPlugin {
-  type: 'by-plugin',
-  // should start with "changelog."
-  providesPath: string,
-}
-
-export type ChangelogRenderer = ChangelogRendererBuiltin | ChangelogRendererCommonJs | ChangelogRendererByPlugin
+export type ChangelogRenderer = ChangelogRendererBuiltin | ChangelogRendererCustom
 
 export interface ArtifactLimitDef {
   type: 'time' | 'size',
@@ -528,18 +521,10 @@ export interface Config {
      */
     target: 'all' | 'first_available' | Array<MessengerName> | MessengerName,
     /**
-     * Messenger client load configs
-     */
-    clients: Array<MessengerClientLoadConfig>,
-    /**
      * Common config which applied to all messenger clients. For example channel name is same in several messengers and you
      * dont want to duplicate it
      */
     clients_common_config: Partial<MessengerClientConfig>,
-    /**
-     * Default message values, each for specific messenger client. Its priority is higher than clients_common_config.
-     */
-    client_configs: Record<MessengerName, Partial<MessengerClientConfig>>,
   },
   /**
    * Options that need more attention in terms of the consequences of their activation.

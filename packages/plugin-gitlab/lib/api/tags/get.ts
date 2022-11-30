@@ -1,5 +1,5 @@
 import glapi from '../index'
-import type { HttpResponseSuccess, Config } from '@pvm/pvm'
+import type { HttpResponseSuccess, Container } from '@pvm/pvm'
 
 export interface GitlabTagRelease {
   tag_name: string,
@@ -14,8 +14,8 @@ export interface GitlabTagResult {
 }
 
 // https://docs.gitlab.com/ee/api/tags.html#get-a-single-repository-tag
-async function getTag(config: Config, projectId, tagName: string): Promise<HttpResponseSuccess<GitlabTagResult>> {
-  return await glapi<GitlabTagResult>(config, `/projects/${encodeURIComponent(projectId)}/repository/tags/${encodeURIComponent(tagName)}`)
+async function getTag(di: Container, projectId, tagName: string): Promise<HttpResponseSuccess<GitlabTagResult>> {
+  return await glapi<GitlabTagResult>(di, `/projects/${encodeURIComponent(projectId)}/repository/tags/${encodeURIComponent(tagName)}`)
 }
 
 export default getTag

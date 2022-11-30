@@ -8,16 +8,17 @@ import { bindToCwd, shell as __shell } from '../../lib/shell'
 import __runShell from '../../lib/shell/run'
 import __execShell from '../../lib/shell/exec'
 
-import { getConfig } from '../../lib/config'
 import { logger } from '../../lib/logger'
 import { mema } from '../../lib/memoize'
 import revParse from '../../lib/git/rev-parse'
 import { addTag, getCurrentBranchIgnoreEnv, gitFetch } from '../../lib/git/commands'
-import { getHostApi } from '../../lib/plugins'
 import { getGitVersion } from '../../lib/runtime-env/versions'
 
 import type { AbstractVcs, AddTagOptions, CommitResult, PushOptions, CommitOptions } from './types'
 import { env } from '../../lib/env'
+import type { Config } from '../../types/config'
+import type { RESOLVE_PUSH_REMOTE_TOKEN, GLOBAL_FLAGS_TOKEN } from '../../tokens'
+import { dryRun } from '../../lib/utils'
 
 const gitlabPushWithoutKeyDesc = {
   'ru': `Вы пытаетесь отправить изменения через git на gitlab раннере. Однако, по умолчанию из гитлаб раннеров нельзя отправлять изменения через git протокол (см. https://gitlab.com/gitlab-org/gitlab-foss/-/issues/63858).
@@ -114,213 +115,231 @@ function prepareGit(cwd: string): void {
   }
 }
 
-function makeGitVcs(cwd: string): AbstractVcs<GitCommitContext> {
-  let isDryRun = false
+export class GitVcs implements AbstractVcs<GitCommitContext> {
+  dryRun = false
+  private gitPrepared = false
+  protected shell: typeof __shell
+  protected runShell: typeof __runShell
+  protected execShell: typeof __execShell
+  protected cachedShell: typeof __shell
+  protected config: Config
+  protected cwd: string
+  protected resolvePushRemote: typeof RESOLVE_PUSH_REMOTE_TOKEN
 
-  const shell = bindToCwd(cwd, __shell)
-  const runShell = bindToCwd(cwd, __runShell)
-  const execShell = bindToCwd(cwd, __execShell)
-  const cachedShell = mema(shell)
+  // eslint-disable-next-line
+  constructor({ config, cwd, resolvePushRemote, globalFlags }: { config: Config, cwd: string, resolvePushRemote: typeof RESOLVE_PUSH_REMOTE_TOKEN, globalFlags: typeof GLOBAL_FLAGS_TOKEN }) {
+    this.config = config
+    this.cwd = cwd
+    this.resolvePushRemote = resolvePushRemote
+    this.shell = bindToCwd(this.cwd, __shell)
+    this.runShell = bindToCwd(this.cwd, __runShell)
+    this.execShell = bindToCwd(this.cwd, __execShell)
+    this.cachedShell = mema(this.shell)
+    this.dryRun = globalFlags.getFlag('dryRun')
+  }
 
-  let gitPrepared = false
-  function prepareGitMemo(): void {
-    if (!gitPrepared) {
-      prepareGit(cwd)
+  prepareGitMemo(): void {
+    if (!this.gitPrepared) {
+      prepareGit(this.cwd)
     }
 
-    gitPrepared = true
+    this.gitPrepared = true
   }
 
-  const runGit = async (command: string) => {
-    prepareGitMemo()
-    return await runShell(command)
+  async runGit(command: string) {
+    this.prepareGitMemo()
+    return await this.runShell(command)
   }
 
-  const gitVcs: AbstractVcs<GitCommitContext> = {
-    beginCommit(): GitCommitContext {
-      prepareGitMemo()
-      return {
-        initialRev: gitVcs.getHeadRev(),
-        stashRef: shell('git stash create'),
+  beginCommit(): GitCommitContext {
+    this.prepareGitMemo()
+    return {
+      initialRev: this.getHeadRev(),
+      stashRef: this.shell('git stash create'),
+    }
+  }
+
+  async rollbackCommit(commitContext: GitCommitContext): Promise<void> {
+    await this.runGit(`git reset --hard ${commitContext.initialRev}`)
+    if (commitContext.stashRef) {
+      await this.runGit(`git stash apply ${commitContext.stashRef}`)
+    }
+  }
+
+  @dryRun
+  addFiles(_commitContext: GitCommitContext, filePaths: string[]) {
+    if (filePaths.length) {
+      return this.runGit(`git add ${filePaths.map(escapeFilePath).join(' ')}`)
+    }
+    return Promise.resolve()
+  }
+
+  @dryRun
+  updateFile(_, filePath, content): Promise<void> {
+    mkdirp(path.dirname(filePath))
+    fs.writeFileSync(filePath, content)
+
+    return this.runGit(`git add ${filePath}`)
+  }
+
+  @dryRun
+  appendFile(_, filePath, content) {
+    mkdirp(path.dirname(filePath))
+    fs.appendFileSync(filePath, content)
+
+    return this.runGit(`git add ${filePath}`)
+  }
+
+  @dryRun
+  async deleteFile(_, filePath): Promise<void> {
+    if (fs.existsSync(filePath)) {
+      return this.runGit(`git rm ${filePath}`)
+    }
+  }
+
+  getCurrentBranch(): string | void {
+    this.prepareGitMemo()
+    return getCurrentBranchIgnoreEnv(this.cwd)
+  }
+
+  async commit(_, message: string, opts: CommitOptions = {}): Promise<CommitResult> {
+    this.prepareGitMemo()
+
+    const { branch } = opts
+
+    const currentBranch = this.getCurrentBranch()
+    if (branch && currentBranch) {
+      assert.strictEqual(branch, currentBranch)
+    }
+
+    // по крайней мере в git v2.25.0 есть бага: опция allow-empty не работает вместе с dry-run
+    const commitArgs = [`--file=-`]
+    if (opts.allowEmpty) {
+      commitArgs.push('--allow-empty')
+    }
+
+    if (!this.dryRun) {
+      await this.runShell(`git commit ${commitArgs.join(' ')}`, { input: message })
+    }
+
+    return {
+      id: this.shell('git rev-parse HEAD'),
+    }
+  }
+
+  getHeadRev() {
+    this.prepareGitMemo()
+    return this.shell('git rev-parse HEAD')
+  }
+
+  isLastAvailableRef(ref: string): boolean {
+    this.prepareGitMemo()
+    const rev = revParse(ref, this.cwd)
+    return this.cachedShell('git rev-list --max-parents=0 HEAD').indexOf(rev) !== -1
+  }
+
+  async push(opts: PushOptions = {}) {
+    this.prepareGitMemo()
+    const remoteBranch = this.getCurrentBranch() || this.config.git.push.default_branch
+    const remoteRepository =
+      opts.remote ||
+      (this.resolvePushRemote ? await this.resolvePushRemote() : 'origin')
+
+    const pushArgs: string[] = []
+
+    if (this.dryRun || env.PVM_EXTERNAL_DRY_RUN) {
+      pushArgs.push('--dry-run')
+      logger.info('pushing changes in dry run mode')
+    }
+
+    const { pushOptions = new Map() } = opts
+
+    if (opts.skipCi && !pushOptions.has('ci.skip')) {
+      pushOptions.set('ci.skip', true)
+    }
+
+    pushArgs.push(...stringifyPushOptions(pushOptions))
+
+    if (env.PVM_TESTING_ENV) {
+      logger.info('skip pushing in testing env')
+      // @TODO: код ниже ломает тесты в условиях гитлаб раннеров ломая евент-луп
+      return
+    }
+
+    const pushEnv: Record<string, string> = {
+      // eslint-disable-next-line pvm/no-process-env
+      ...process.env,
+      GIT_SSL_NO_VERIFY: '1',
+    }
+
+    // если задана переменная PVM_DIRECT_GIT_PUSH то скрипт не будет выполнятся в любом случае
+    if (!env.PVM_DIRECT_GIT_PUSH && env.CI && this.config.git.push.try_load_ssh_keys) {
+      if (!env.GIT_SSH_PRIV_KEY) {
+        // @TODO: i18n support
+        const locale = Intl.DateTimeFormat().resolvedOptions().locale.split('-')[0].toLowerCase()
+        const messageLocale = locale in gitlabPushWithoutKeyDesc ? locale : '_'
+        logger.warn(gitlabPushWithoutKeyDesc[messageLocale])
       }
-    },
-    async rollbackCommit(commitContext: GitCommitContext): Promise<void> {
-      await runGit(`git reset --hard ${commitContext.initialRev}`)
-      if (commitContext.stashRef) {
-        await runGit(`git stash apply ${commitContext.stashRef}`)
-      }
-    },
-    addFiles(_commitContext: GitCommitContext, filePaths: string[]) {
-      if (filePaths.length) {
-        return runGit(`git add ${filePaths.map(escapeFilePath).join(' ')}`)
-      }
-      return Promise.resolve()
-    },
-    updateFile(_, filePath, content): Promise<void> {
-      mkdirp(path.dirname(filePath))
-      fs.writeFileSync(filePath, content)
-
-      return runGit(`git add ${filePath}`)
-    },
-    appendFile(_, filePath, content) {
-      mkdirp(path.dirname(filePath))
-      fs.appendFileSync(filePath, content)
-
-      return runGit(`git add ${filePath}`)
-    },
-    async deleteFile(_, filePath): Promise<void> {
-      if (fs.existsSync(filePath)) {
-        return runGit(`git rm ${filePath}`)
-      }
-    },
-    getCurrentBranch(): string | void {
-      prepareGitMemo()
-      return getCurrentBranchIgnoreEnv(cwd)
-    },
-    async commit(_, message: string, opts: CommitOptions = {}): Promise<CommitResult> {
-      prepareGitMemo()
-
-      const { branch } = opts
-
-      const currentBranch = gitVcs.getCurrentBranch()
-      if (branch && currentBranch) {
-        assert.strictEqual(branch, currentBranch)
-      }
-
-      // по крайней мере в git v2.25.0 есть бага: опция allow-empty не работает вместе с dry-run
-      const commitArgs = [`--file=-`]
-      if (opts.allowEmpty) {
-        commitArgs.push('--allow-empty')
-      }
-
-      if (!isDryRun) {
-        await runShell(`git commit ${commitArgs.join(' ')}`, { input: message })
-      }
-
-      return {
-        id: shell('git rev-parse HEAD'),
-      }
-    },
-    getHeadRev() {
-      prepareGitMemo()
-      return shell('git rev-parse HEAD')
-    },
-    isLastAvailableRef(ref: string): boolean {
-      prepareGitMemo()
-      const rev = revParse(ref, cwd)
-      return cachedShell('git rev-list --max-parents=0 HEAD').indexOf(rev) !== -1
-    },
-    async push(opts: PushOptions = {}) {
-      prepareGitMemo()
-      const config = await getConfig(cwd)
-      const hostApi = await getHostApi(cwd)
-      const remoteBranch = gitVcs.getCurrentBranch() || config.git.push.default_branch
-      const remoteRepository =
-        opts.remote ||
-        (await hostApi.runOr('git.push_remote', '')) ||
-        'origin'
-
-      const pushArgs: string[] = []
-
-      if (isDryRun || env.PVM_EXTERNAL_DRY_RUN) {
-        pushArgs.push('--dry-run')
-        logger.info('pushing changes in dry run mode')
-      }
-
-      const { pushOptions = new Map() } = opts
-
-      if (opts.skipCi && !pushOptions.has('ci.skip')) {
-        pushOptions.set('ci.skip', true)
-      }
-
-      pushArgs.push(...stringifyPushOptions(pushOptions))
-
-      if (env.PVM_TESTING_ENV) {
-        logger.info('skip pushing in testing env')
-        // @TODO: код ниже ломает тесты в условиях гитлаб раннеров ломая евент-луп
-        return
-      }
-
-      const pushEnv: Record<string, string> = {
-        // eslint-disable-next-line pvm/no-process-env
-        ...process.env,
-        GIT_SSL_NO_VERIFY: '1',
-      }
-
-      // если задана переменная PVM_DIRECT_GIT_PUSH то скрипт не будет выполнятся в любом случае
-      if (!env.PVM_DIRECT_GIT_PUSH && env.CI && config.git.push.try_load_ssh_keys) {
-        if (!env.GIT_SSH_PRIV_KEY) {
-          // @TODO: i18n support
-          const locale = Intl.DateTimeFormat().resolvedOptions().locale.split('-')[0].toLowerCase()
-          const messageLocale = locale in gitlabPushWithoutKeyDesc ? locale : '_'
-          logger.warn(gitlabPushWithoutKeyDesc[messageLocale])
-        }
-        const gitLoadPushCreds = path.resolve(__dirname, './git-load-push-creds.sh')
-        const payloadMark = '@----------ssh-agent-data----------@'
-        const { stdout } = await execShell(gitLoadPushCreds, {
-          printStdout: true,
-          env: {
-            // eslint-disable-next-line pvm/no-process-env
-            ...process.env,
-            PAYLOAD_MARK: payloadMark,
-          },
-        })
-
-        const indexOfPayloadMark = stdout.indexOf(payloadMark)
-        if (indexOfPayloadMark !== -1) {
-          const payload = stdout.substr(indexOfPayloadMark).split(payloadMark)[1]
-          if (payload) {
-            const [SSH_AUTH_SOCK, SSH_AGENT_PID] = payload.trim().split(';')
-            if (SSH_AUTH_SOCK && SSH_AGENT_PID) {
-              logger.info('Successfully get ssh-agent identifiers from git-load-push-creds.sh script')
-              logger.debug(`SSH_AUTH_SOCK="${SSH_AUTH_SOCK}"`)
-              logger.debug(`SSH_AGENT_PID="${SSH_AGENT_PID}"`)
-              pushEnv.SSH_AUTH_SOCK = SSH_AUTH_SOCK
-              pushEnv.SSH_AGENT_PID = SSH_AGENT_PID
-            }
-          }
-        } else {
-          logger.error('No payload mark found produced by execution of git-load-push-creds.sh script')
-        }
-      }
-
-      if (opts.refspec) {
-        await runShell(`git push ${pushArgs.join(' ')} ${remoteRepository} ${opts.refspec}`, {
-          env: pushEnv,
-        })
-      } else {
-        await runShell(`git push ${pushArgs.join(' ')} ${remoteRepository} HEAD:${remoteBranch}`, {
-          env: pushEnv,
-        })
-        if (!opts.noTags) {
-          await runShell(`git push ${pushArgs.join(' ')} --tags ${remoteRepository}`, {
-            env: pushEnv,
-          })
-        }
-      }
-    },
-    async fetchLatestSha(refName: string): Promise<string> {
-      gitFetch(cwd, { repo: 'origin' })
-
-      return shell(`git rev-parse origin/${refName}`)
-    },
-
-    async addTag(tagName, ref, opts: AddTagOptions = {}): Promise<void> {
-      prepareGitMemo()
-      addTag(cwd, {
-        tagName,
-        ref,
-        annotation: opts.annotation,
+      const gitLoadPushCreds = path.resolve(__dirname, './git-load-push-creds.sh')
+      const payloadMark = '@----------ssh-agent-data----------@'
+      const { stdout } = await this.execShell(gitLoadPushCreds, {
+        printStdout: true,
+        env: {
+          // eslint-disable-next-line pvm/no-process-env
+          ...process.env,
+          PAYLOAD_MARK: payloadMark,
+        },
       })
-    },
-    dryRun() {
-      isDryRun = true
-    },
+
+      const indexOfPayloadMark = stdout.indexOf(payloadMark)
+      if (indexOfPayloadMark !== -1) {
+        const payload = stdout.substr(indexOfPayloadMark).split(payloadMark)[1]
+        if (payload) {
+          const [SSH_AUTH_SOCK, SSH_AGENT_PID] = payload.trim().split(';')
+          if (SSH_AUTH_SOCK && SSH_AGENT_PID) {
+            logger.info('Successfully get ssh-agent identifiers from git-load-push-creds.sh script')
+            logger.debug(`SSH_AUTH_SOCK="${SSH_AUTH_SOCK}"`)
+            logger.debug(`SSH_AGENT_PID="${SSH_AGENT_PID}"`)
+            pushEnv.SSH_AUTH_SOCK = SSH_AUTH_SOCK
+            pushEnv.SSH_AGENT_PID = SSH_AGENT_PID
+          }
+        }
+      } else {
+        logger.error('No payload mark found produced by execution of git-load-push-creds.sh script')
+      }
+    }
+
+    if (opts.refspec) {
+      await this.runShell(`git push ${pushArgs.join(' ')} ${remoteRepository} ${opts.refspec}`, {
+        env: pushEnv,
+      })
+    } else {
+      await this.runShell(`git push ${pushArgs.join(' ')} ${remoteRepository} HEAD:${remoteBranch}`, {
+        env: pushEnv,
+      })
+      if (!opts.noTags) {
+        await this.runShell(`git push ${pushArgs.join(' ')} --tags ${remoteRepository}`, {
+          env: pushEnv,
+        })
+      }
+    }
   }
 
-  return gitVcs
+  async fetchLatestSha(refName: string): Promise<string> {
+    gitFetch(this.cwd, { repo: 'origin' })
+
+    return this.shell(`git rev-parse origin/${refName}`)
+  }
+
+  @dryRun
+  async addTag(tagName, ref, opts: AddTagOptions = {}): Promise<void> {
+    this.prepareGitMemo()
+    addTag(this.cwd, {
+      tagName,
+      ref,
+      annotation: opts.annotation,
+    })
+  }
 }
 
 export { prepareGit }
-
-export const initGitVcs = mema(makeGitVcs)

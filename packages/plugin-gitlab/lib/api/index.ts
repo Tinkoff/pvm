@@ -1,20 +1,22 @@
-import type { Config, HttpReqOptions, HttpResponseSuccess } from '@pvm/pvm'
-import { requestWithRetries, httpreq, shell, getHostApi, env } from '@pvm/pvm'
+import type { Container, HttpReqOptions, HttpResponseSuccess } from '@pvm/pvm'
+import { requestWithRetries, httpreq, shell, env, CONFIG_TOKEN } from '@pvm/pvm'
 
 import { getApiUrl } from '../remote-url'
+import { GITLAB_AUTH_FUNCTION_TOKEN } from '../../tokens'
 
 const retryTimeouts = [
   5000, 15000, 60000, 200000, 300000,
 ]
 
-async function glapi<T = any>(config: Config, uri: string, opts: HttpReqOptions = {}): Promise<HttpResponseSuccess<T>> {
+async function glapi<T = any>(di: Container, uri: string, opts: HttpReqOptions = {}): Promise<HttpResponseSuccess<T>> {
   const {
     GL_TOKEN,
     GITLAB_TOKEN,
     GITLAB_AUTH_COMMAND,
   } = env
 
-  const hostApi = await getHostApi()
+  const gitlabAuthFn = di.get(GITLAB_AUTH_FUNCTION_TOKEN)
+  const config = di.get(CONFIG_TOKEN)
 
   let privateToken = GL_TOKEN || GITLAB_TOKEN
   if (!privateToken) {
@@ -23,8 +25,8 @@ async function glapi<T = any>(config: Config, uri: string, opts: HttpReqOptions 
       if (!privateToken) {
         throw new Error(`Command "${GITLAB_AUTH_COMMAND}" doesn't return access token for gitlab`)
       }
-    } else if (hostApi.has('gitlab.auth_token_fn')) {
-      privateToken = await hostApi.run('gitlab.auth_token_fn')
+    } else if (gitlabAuthFn) {
+      privateToken = await gitlabAuthFn()
       if (!privateToken) {
         throw new Error(`Provided plugin for "gitlab.auth_token_fn" does not return valid token`)
       }

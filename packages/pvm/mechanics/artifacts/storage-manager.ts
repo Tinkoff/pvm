@@ -4,6 +4,7 @@ import { ChangelogsStorage } from './frontend/changelogs'
 import { ReleaseListStorage } from './frontend/release-list'
 import { instatiateStorage } from './storage'
 import { loggerFor } from '../../lib/logger'
+import { CONFIG_TOKEN } from '../../tokens'
 
 const logger = loggerFor('pvm:artifacts')
 
@@ -53,7 +54,8 @@ export class StorageManager {
   }
 
   async initFor<S extends ArtifactsStorages>(artifactsStorage: S): Promise<StorageEnumToFrontendClass<S>> {
-    const { config } = this.initStorageDeps
+    const { di } = this.initStorageDeps
+    const config = di.get(CONFIG_TOKEN)
     switch (artifactsStorage) {
       case ArtifactsStorages.ReleaseList: {
         const result = await this.init(ReleaseListStorage, config.release_list.storage)

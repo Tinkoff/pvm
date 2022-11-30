@@ -6,11 +6,15 @@ import type {
   GetReleaseResult, MetaComment, PlatformReleaseTag,
   ReleasePayload,
   VcsRelease,
+  AddTagOptions,
 } from './types'
 import { getNoteBody } from './utils'
+import { dryRun } from '../../lib/utils'
 
 export abstract class PlatformInterface<MergeRequest> {
+  name: string
   currentMr: MergeRequest | null;
+  dryRun: boolean
   abstract requireMr(): MergeRequest;
   abstract getCommitLink(commit: string): Promise<string | null>;
   /** Создает и тег и релиз, если тег уже есть то выбрасывается исключение */
@@ -29,9 +33,9 @@ export abstract class PlatformInterface<MergeRequest> {
   abstract beginMrAttribution(): void;
   // common with AbstractVcs
   abstract fetchLatestSha(refName: string): Promise<string>;
-  abstract getCurrentBranch(cwd: string): string | undefined
+  abstract getCurrentBranch(): string | undefined
   abstract getCommitSha(): string
-  abstract addTag(tag_name: string, ref: string): Promise<unknown>;
+  abstract addTag(tag_name: string, ref: string, opts?: AddTagOptions): Promise<unknown>;
 
   abstract findMrNote(kind: string): Promise<MetaComment<{
     body: string,
@@ -47,6 +51,7 @@ export abstract class PlatformInterface<MergeRequest> {
 
   abstract getUpdateHintsByCommit(commit: string): Promise<Record<string, any> | null>;
 
+  @dryRun
   async syncText(kind: string, text: string): Promise<unknown> {
     const existingNote = await this.findMrNote(kind)
 
@@ -59,6 +64,7 @@ export abstract class PlatformInterface<MergeRequest> {
     }
   }
 
+  @dryRun
   async ensureMrLabels(labels: string[]): Promise<unknown> {
     const labelsByName = Object.create(null)
     for await (const label of this.getProjectLabels()) {

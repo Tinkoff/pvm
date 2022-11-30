@@ -1,9 +1,8 @@
 import chalk from 'chalk'
-import initVcs from '../../../mechanics/vcs'
 import { logger } from '../../../lib/logger'
 import { StorageManager, ArtifactsStorages } from '../storage-manager'
 import type { Container } from '../../../lib/di'
-import { CONFIG_TOKEN, CWD_TOKEN } from '../../../tokens'
+import { CONFIG_TOKEN } from '../../../tokens'
 
 export interface ArtifactsTransferArgs {
   force?: boolean,
@@ -15,16 +14,10 @@ export type TransferDirection = 'upload' | 'download'
 
 async function transfer(di: Container, __args: ArtifactsTransferArgs, direction: TransferDirection): Promise<void> {
   const { kind, quiet = false, force = false } = __args
-  const cwd = di.get(CWD_TOKEN)
   const config = di.get(CONFIG_TOKEN)
-  const vcs = await initVcs(di, {
-    vcsType: 'fs',
-    cwd,
-  })
 
   const storageManager = new StorageManager({
-    config,
-    vcs,
+    di,
   })
 
   const storageType = StorageManager.castStorageType(kind)

@@ -3,15 +3,12 @@
 import { log } from '../lib/logger'
 import { wdShell } from '../lib/shell'
 import { getNewTag } from '../mechanics/add-tag/get-new-tag'
-import { initVcsPlatform } from '../mechanics/vcs'
 import type { Container } from '../lib/di'
-import { CONFIG_TOKEN } from '../tokens'
+import { CONFIG_TOKEN, PLATFORM_TOKEN } from '../tokens'
 
 async function createTag(di: Container, tag, ref) {
-  const vcsPlatform = await initVcsPlatform(di, { vcsMode: 'platform' })
-
   log(`creating tag ${tag} for ${ref} ref by platform api`)
-  return vcsPlatform.addTag(tag, ref)
+  return di.get(PLATFORM_TOKEN).addTag(tag, ref)
 }
 
 export default (di: Container) => ({

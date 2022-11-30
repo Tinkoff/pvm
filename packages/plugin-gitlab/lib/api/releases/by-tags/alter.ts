@@ -1,9 +1,9 @@
 import glapi from '../../index'
 
 import type { AlterReleaseResult, EditReleasePayload, CreateReleasePayload } from '../types'
-import type { Config } from '@pvm/pvm'
+import type { Container } from '@pvm/pvm'
 
-async function addTagAndRelease(config: Config, projectId: string | number, ref: string, data: CreateReleasePayload): Promise<AlterReleaseResult> {
+async function addTagAndRelease(di: Container, projectId: string | number, ref: string, data: CreateReleasePayload): Promise<AlterReleaseResult> {
   const payload: Record<string, string> = {
     ref: ref,
     tag_name: data.tag_name,
@@ -12,12 +12,12 @@ async function addTagAndRelease(config: Config, projectId: string | number, ref:
     payload.message = data.annotation
   }
   const encodedProjectId = encodeURIComponent(projectId)
-  await glapi(config, `/projects/${encodedProjectId}/repository/tags`, {
+  await glapi(di, `/projects/${encodedProjectId}/repository/tags`, {
     method: 'POST',
     body: payload,
   })
 
-  await glapi(config, `/projects/${encodedProjectId}/releases`, {
+  await glapi(di, `/projects/${encodedProjectId}/releases`, {
     method: 'POST',
     body: {
       tag_name: data.tag_name,
@@ -30,8 +30,8 @@ async function addTagAndRelease(config: Config, projectId: string | number, ref:
   }
 }
 
-async function createRelease(config: Config, projectId: string | number, data: EditReleasePayload): Promise<AlterReleaseResult> {
-  await glapi(config, `/projects/${encodeURIComponent(projectId)}/releases`, {
+async function createRelease(di: Container, projectId: string | number, data: EditReleasePayload): Promise<AlterReleaseResult> {
+  await glapi(di, `/projects/${encodeURIComponent(projectId)}/releases`, {
     method: 'POST',
     body: {
       tag_name: data.tag_name,
@@ -45,13 +45,13 @@ async function createRelease(config: Config, projectId: string | number, data: E
 }
 
 // тег должен существовать, если тега нет – метод упадет
-async function upsertRelease(config: Config, projectId: string | number, data: EditReleasePayload): Promise<AlterReleaseResult> {
+async function upsertRelease(di: Container, projectId: string | number, data: EditReleasePayload): Promise<AlterReleaseResult> {
   try {
-    await createRelease(config, projectId, data)
+    await createRelease(di, projectId, data)
   } catch (e) {
     if (e.statusCode === 409) {
       // релиз уже есть, и нам нужно его отредактировать в этом случае
-      return await updateRelease(config, projectId, data)
+      return await updateRelease(di, projectId, data)
     }
     throw e
   }
@@ -63,8 +63,8 @@ async function upsertRelease(config: Config, projectId: string | number, data: E
 
 // we only can update description
 // https://docs.gitlab.com/ee/api/tags.html#update-a-release
-async function updateRelease(config: Config, projectId: string | number, data: EditReleasePayload): Promise<AlterReleaseResult> {
-  await glapi(config, `/projects/${encodeURIComponent(projectId)}/releases`, {
+async function updateRelease(di: Container, projectId: string | number, data: EditReleasePayload): Promise<AlterReleaseResult> {
+  await glapi(di, `/projects/${encodeURIComponent(projectId)}/releases`, {
     method: 'PUT',
     body: {
       tag_name: data.tag_name,

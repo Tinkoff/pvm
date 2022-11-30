@@ -15,6 +15,7 @@ import type { IssueComment, PullRequest } from './types'
 
 import hostedGitInfo from 'hosted-git-info'
 import { log } from './logger'
+import { dryRun } from '@pvm/pvm/lib/utils'
 
 export const AuthenticationStrategy = {
   'authApp': createAppAuth,
@@ -204,6 +205,7 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
     this.currentMr = pr
   }
 
+  @dryRun
   async addTag(ref: string, tag_name: string): Promise<unknown> {
     return await this.githubClient.rest.git.createRef({
       ...this.githubRepoPath,
@@ -212,6 +214,7 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
     })
   }
 
+  @dryRun
   async addTagAndRelease(ref: string, tag_name: string, data: CreateReleasePayload): Promise<AlterReleaseResult> {
     const { data: release } = await this.githubClient.rest.repos.createRelease({
       ...this.githubRepoPath,
@@ -228,6 +231,7 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
     }
   }
 
+  @dryRun
   async createRelease(tag_name: string, data: CreateReleasePayload): Promise<AlterReleaseResult> {
     // createRelease creating the tag if not find one, so perform separate check and fail before if tag not existing
     await this.githubClient.rest.git.getRef({
@@ -249,6 +253,7 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
     }
   }
 
+  @dryRun
   async editRelease(tag: string, data: CreateReleasePayload): Promise<AlterReleaseResult> {
     const { data: { id: release_id } } = await this.githubClient.rest.repos.getReleaseByTag({
       ...this.githubRepoPath,
@@ -266,6 +271,7 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
     }
   }
 
+  @dryRun
   async upsertRelease(tagName: string, data: CreateReleasePayload): Promise<AlterReleaseResult> {
     try {
       const res = await this.createRelease(tagName, data)
@@ -318,6 +324,7 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
     }
   }
 
+  @dryRun
   async createMrNote(noteBody: string): Promise<IssueComment> {
     const { data: issueComment } = await this.githubClient.rest.issues.createComment({
       ...this.githubRepoPath,
@@ -328,6 +335,7 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
     return issueComment
   }
 
+  @dryRun
   async updateMrNote(commentId: number, noteBody: string): Promise<IssueComment> {
     const { data: issueComment } = await this.githubClient.rest.issues.updateComment({
       ...this.githubRepoPath,
@@ -338,6 +346,7 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
     return issueComment
   }
 
+  @dryRun
   async syncAttachment(_kind: string, _attachment: Buffer, _opts: any): Promise<unknown> {
     return Promise.reject(new Error('Attachments for pull requests are not supported at this moment'))
   }
@@ -352,6 +361,7 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
     }
   }
 
+  @dryRun
   async createProjectLabel(label: string, color: string): Promise<unknown> {
     return (await this.githubClient.rest.issues.createLabel({
       ...this.githubRepoPath,
@@ -360,6 +370,7 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
     })).data
   }
 
+  @dryRun
   async setMrLabels(labels: string[]): Promise<unknown> {
     return await this.githubClient.rest.issues.addLabels({
       ...this.githubRepoPath,

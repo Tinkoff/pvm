@@ -1,4 +1,4 @@
-import { initVcsPlatform, isGenericTagUsed, issueToMdLink, defaultMessageBodyWrapper } from '@pvm/pvm'
+import { isGenericTagUsed, issueToMdLink, defaultMessageBodyWrapper } from '@pvm/pvm'
 
 import { parseCommit } from './common'
 

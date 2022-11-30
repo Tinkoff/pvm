@@ -1,5 +1,5 @@
 import type { Config } from '../types'
-import { readEnv, migrateDeprecated } from '../lib/config/get-config'
+import { readEnv, migrateDeprecated } from '../lib/config'
 
 describe('pvm/config', () => {
   it('should correctly read variables from env', () => {

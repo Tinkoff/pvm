@@ -1,16 +1,16 @@
-import sortByRelease from "../../../lib/packages/sort-by-release"
+import sortByRelease from '../../../lib/packages/sort-by-release'
 import { MdUpdatedTable } from '../utils/md-table'
 import type { UpdateState } from '../update-state'
+import { UPDATE_MD_TABLE_EXTEND_TOKEN } from '../../../tokens'
+import type { Container } from '../../../lib/di'
 
-export async function run(updateState: UpdateState): Promise<string | void> {
+export async function run(di: Container, updateState: UpdateState): Promise<string | void> {
   if (updateState.isSomethingForRelease) {
     const updatedPackages = updateState.getReleasePackages()
     const changedPackagesSorted = sortByRelease(updatedPackages.keys(), updateState.getLikelyReleaseTypeFor.bind(updateState))
     const table = new MdUpdatedTable()
 
-    const hostApi = await updateState.repo.getHostApi()
-
-    await hostApi.plEachSeries('md.table', table)
+    await di.get(UPDATE_MD_TABLE_EXTEND_TOKEN)?.forEach(ext => ext(table))
 
     for (const oldPkg of changedPackagesSorted) {
       const newPkg = updatedPackages.get(oldPkg)!

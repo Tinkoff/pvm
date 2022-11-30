@@ -1,5 +1,7 @@
-import { CONFIG_TOKEN, PLATFORM_TOKEN, declarePlugin, provide } from '@pvm/pvm'
+import { PLATFORM_TOKEN, declarePlugin, provide, DI_TOKEN } from '@pvm/pvm'
 import { GitlabPlatform } from './platform'
+
+export * from './tokens'
 
 export default declarePlugin({
   factory: function() {
@@ -9,7 +11,7 @@ export default declarePlugin({
           provide: PLATFORM_TOKEN,
           useClass: GitlabPlatform,
           deps: {
-            config: CONFIG_TOKEN,
+            di: DI_TOKEN,
           },
         }),
       ],

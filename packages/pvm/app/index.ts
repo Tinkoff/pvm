@@ -1,21 +1,17 @@
 import path from 'path'
 import type { PluginConfig, PluginFactory, Config, RecursivePartial, PluginDeclaration } from '../types'
 import { Container, DI_TOKEN, provide } from '../lib/di'
-import { CLI_EXTENSION_TOKEN, CLI_TOKEN, CONFIG_TOKEN, CWD_TOKEN } from '../tokens'
+import { CONFIG_TOKEN, CWD_TOKEN } from '../tokens'
 import {
-  defaultsFromProvider,
   loadRawConfig,
   mergeDefaults,
   migrateDeprecated,
   readEnv,
   validateAgainstSchema,
-} from '../lib/config/get-config'
+} from '../lib/config'
 import { defaultConfig } from '../pvm-defaults'
 import { logger, loggerFor } from '../lib/logger'
-import { verifyRequiredBins } from './required-bin-versions'
 import chalk from 'chalk'
-import { resolvePvmProvider } from '../lib/plugins/provider'
-import { runCli } from '../lib/cli/cli-runner'
 import { getNewTag } from '../mechanics/add-tag/get-new-tag'
 import { loadPkg } from '../lib/pkg'
 import getFiles from '../mechanics/files/files'
@@ -26,6 +22,7 @@ import { getCurrentRelease } from '../mechanics/releases'
 import { Repository } from '../mechanics/repository'
 import { getUpdateState } from '../mechanics/update'
 import { download, upload } from '../mechanics/artifacts/pub/artifacts'
+import { runCli } from './run-cli'
 
 const log = loggerFor('pvm:app')
 
@@ -61,31 +58,14 @@ export class Pvm {
       provide: DI_TOKEN,
     }))
 
-    this.container.register(provide({
-      provide: CLI_TOKEN,
-      useFactory({ cliExtensions }) {
-        return ({ argv }: { argv: string[] }) => runCli(cliExtensions ?? [], argv)
-      },
-      deps: {
-        cliExtensions: { token: CLI_EXTENSION_TOKEN, optional: true, multi: true } as const,
-      },
-    }))
-
     this.initConfigAndPlugins(config, plugins)
   }
 
   /**
    * Runs cli. Used to start pvm as cli app.
    */
-  public runCli(argv: string[] = process.argv): void {
-    verifyRequiredBins().then(() => {
-      this.container.get(CLI_TOKEN)({
-        argv,
-      })
-    }).catch(e => {
-      console.error(e)
-      process.exitCode = 1
-    })
+  static runCli(Class: typeof Pvm, argv: string[] = process.argv): void {
+    return runCli(Class, argv)
   }
 
   /**
@@ -115,7 +95,7 @@ export class Pvm {
   }
 
   public getNotificator(): Notificator {
-    return new Notificator(this.container.get(CONFIG_TOKEN))
+    return new Notificator(this.container)
   }
 
   public getPkgSet(strategy: string, opts: Record<string, any>): ReturnType<typeof pkgset> {
@@ -174,20 +154,6 @@ export class Pvm {
     // Config extensions from user defined plugins
     nextConfigExtensions = this.registerPlugins(nextConfig.plugins_v2 ?? [], this.configDir)
     nextConfig = mergeDefaults(nextConfig, this.mergeConfigExtensions(nextConfigExtensions))
-
-    const provider = resolvePvmProvider(userConfig.filepath ? path.dirname(path.resolve(this.configDir, userConfig.filepath)) : this.configDir)
-    if (provider) {
-      const providerConfig = defaultsFromProvider(provider)
-      if (providerConfig) {
-        // Config extensions from provider itself
-        nextConfig = mergeDefaults(nextConfig, providerConfig)
-        if (providerConfig.plugins_v2) {
-          nextConfigExtensions = this.registerPlugins(providerConfig.plugins_v2, provider.path)
-          // Config extensions from provider plugins
-          nextConfig = mergeDefaults(nextConfig, this.mergeConfigExtensions(nextConfigExtensions))
-        }
-      }
-    }
 
     if (defaultConfig.plugins_v2) {
       nextConfigExtensions = this.registerPlugins(defaultConfig.plugins_v2, path.dirname(require.resolve('../pvm-defaults')))

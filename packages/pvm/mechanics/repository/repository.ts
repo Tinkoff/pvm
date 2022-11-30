@@ -3,7 +3,6 @@ import { lazyCallee } from '../../lib/class-helpers'
 import { pkgsetAll } from '../pkgset/pkgset-all'
 import { loadPkg } from '../../lib/pkg'
 import includeRootResolve from '../pkgset/include-root-resolve'
-import { getHostApi } from '../../lib/plugins'
 import { getUnifiedGroups } from './unified-groups'
 import { ImmutablePkgSet, PkgSet } from '../../lib/pkg-set'
 import loadHintsFile, { validateUpdateHints } from '../../lib/hints-file'
@@ -16,9 +15,8 @@ import type { Pkg, AppliedPkg } from '../../lib/pkg'
 
 import { wdShell } from '../../lib/shell'
 import revParse from '../../lib/git/rev-parse'
-import { initVcsPlatform } from '../vcs'
 import type { Container } from '@tinkoff/dippy'
-import { CONFIG_TOKEN, CWD_TOKEN } from '../../tokens'
+import { CONFIG_TOKEN, CWD_TOKEN, HOST_API_TOKEN, VCS_PLATFORM_TOKEN } from '../../tokens'
 
 interface RepositoryInitOpts {
   ref?: string | void,
@@ -95,8 +93,8 @@ export class Repository {
     return result
   }
 
-  getHostApi(): ReturnType<typeof getHostApi> {
-    return getHostApi(this.cwd)
+  getHostApi(): typeof HOST_API_TOKEN {
+    return this.di.get(HOST_API_TOKEN)
   }
 
   @lazyCallee
@@ -160,7 +158,7 @@ export class Repository {
       }
     }
 
-    const vcsPlatform = await initVcsPlatform(this.di, { cwd: this.cwd })
+    const vcsPlatform = this.di.get(VCS_PLATFORM_TOKEN)
     const updateHints = (await vcsPlatform.getUpdateHintsByCommit(revParse('HEAD', this.cwd))) ?? {}
 
     validateUpdateHints(this.config, updateHints)

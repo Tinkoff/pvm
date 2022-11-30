@@ -11,7 +11,6 @@ import { createReleaseContext } from './release/release-context'
 
 import { Repository } from '../repository'
 import { UpdateReasonType, UpdateState } from './update-state'
-import { vcsInitForUpdate } from './vcs-init'
 import getTemplateEnv from '../template/env'
 import { Notificator } from '../notifications'
 
@@ -22,7 +21,7 @@ import type { ChangedContext } from './changed-context'
 import type { Container } from '../../lib/di'
 
 import { env } from '../../lib/env'
-import { CONFIG_TOKEN, CWD_TOKEN } from '../../tokens'
+import { CONFIG_TOKEN, CWD_TOKEN, VCS_PLATFORM_UPDATE_TOKEN } from '../../tokens'
 
 async function markReleaseTypes(updateState: UpdateState, forceReleaseState: ForceReleaseState): Promise<void> {
   let packagesForMark = updateState.changedContext.packages
@@ -77,7 +76,7 @@ async function makeUpdateState(di: Container, changedContext: ChangedContext, op
     await generateNotes(updateState)
   }
 
-  const forceReleaseState = await processForceRelease(updateState)
+  const forceReleaseState = await processForceRelease(di, updateState)
 
   // Выставляем релизные типы на основе факта изменений пакетов и других условий
   await markReleaseTypes(updateState, forceReleaseState)
@@ -224,7 +223,7 @@ async function updateWithVcsRetry<R>(di: Container, updateMethod: UpdateMethod<R
         CI_PIPELINE_URL: env.CI_PIPELINE_URL,
       })
       if (!dryRun) {
-        const messenger = new Notificator(di.get(CONFIG_TOKEN))
+        const messenger = new Notificator(di)
         await messenger.sendMessage({
           content: notifyMessage,
           attachments: [
@@ -256,18 +255,18 @@ async function update<R>(di, updateMethod: UpdateMethod<R>, opts: CliUpdateOpts 
   }
 
   const config = di.get(CONFIG_TOKEN)
+  const vcsPlatform = di.get(VCS_PLATFORM_UPDATE_TOKEN)
 
-  const vcs = await vcsInitForUpdate(di, {
-    ...opts,
-    cwd: config.cwd,
-  })
+  if (opts.vcsMode) {
+    vcsPlatform.setVcsMode(opts.vcsMode)
+  }
 
   if (updateMethod.prepare) {
-    await updateMethod.prepare(config, vcs)
+    await updateMethod.prepare(config, vcsPlatform)
   }
 
   const updateState = await getUpdateState(di, { cwd: config.cwd })
-  return updateMethod.run(di, updateState, vcs, opts)
+  return updateMethod.run(di, updateState, vcsPlatform, opts)
 }
 
 function release(di: Container): ReturnType<typeof makeRelease.run> {

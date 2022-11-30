@@ -5,29 +5,26 @@ import fs from 'fs'
 import { httpreq } from '../../lib/httpreq'
 import { mkdirp } from '../../lib/fs'
 import childProcess from 'child_process'
-import type { HostApi } from '../../lib/plugins'
 import { logger } from './logger'
 import type { Container } from '../../lib/di'
-import { CONFIG_TOKEN } from '../../tokens'
+import { CONFIG_TOKEN, HOST_API_TOKEN } from '../../tokens'
 
 interface NotifyOpts {
   notifyScript?: string,
   strategy?: string,
-  hostApi?: HostApi,
 }
 
-export async function releaseMessage(di: Container, releasedProps: ReleasedProps, opts: NotifyOpts = {}): Promise<Message> {
+export async function releaseMessage(di: Container, releasedProps: ReleasedProps, opts: NotifyOpts): Promise<Message> {
   const config = di.get(CONFIG_TOKEN)
-  const { strategy, hostApi } = opts
+  const { strategy } = opts
+  const hostApi = di.get(HOST_API_TOKEN)
   const defaultScriptName = strategy === 'stale' ? 'stale' : 'release'
   let defaultScriptPath
-  const defaultScriptsPath = path.resolve(__dirname, '../messages/notify-scripts')
-  const pluginNotifyScriptsPath = await hostApi?.notifyScriptsPath()
-  const notifyScriptsPath = pluginNotifyScriptsPath ?? defaultScriptsPath
+  const notifyScriptsPath = await hostApi.notifyScriptsPath()
 
   defaultScriptPath = path.resolve(notifyScriptsPath, `${defaultScriptName}.js`)
   if (!fs.existsSync(defaultScriptPath)) {
-    defaultScriptPath = path.resolve(defaultScriptsPath, `${defaultScriptName}.js`)
+    defaultScriptPath = path.resolve(defaultScriptPath, `${defaultScriptName}.js`)
   }
 
   const {

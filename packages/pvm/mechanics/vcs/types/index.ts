@@ -57,10 +57,10 @@ export interface FileCommitApi<TCommitContext> {
 }
 
 export interface AbstractVcs<TCommitContext> extends FileCommitApi<TCommitContext> {
+  dryRun: boolean,
   fetchLatestSha(refName: string): Promise<string>,
   addTag(tag_name: string, ref: string): Promise<unknown>,
   push(opts?: PushOptions): Promise<void>,
-  dryRun(): void,
   getCurrentBranch(): string | void,
   getHeadRev(): string,
   isLastAvailableRef(rev: string): boolean,

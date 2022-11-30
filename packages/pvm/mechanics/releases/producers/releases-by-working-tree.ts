@@ -2,7 +2,6 @@ import { lastReleaseTagIgnoreEnv } from '../../../lib/git/last-release-tag'
 import { loggerFor } from '../../../lib/logger'
 import { gitAuthorDate, isShallowRepository, revParse } from '../../../lib/git/commands'
 import gitCommits from '../../../lib/git/commits'
-import { getHostApi } from '../../../lib/plugins'
 import { changedFiles } from '../../pkgset/changed-files'
 import { makeUpdateState } from '../../update'
 import { pkgsetFromRef } from '../../pkgset/pkgset-from-ref'
@@ -16,7 +15,7 @@ import type { PkgReleaseEntry, ReleaseData, ReleaseDataExt } from '../../../mech
 import type { Pkg } from '../../../lib/pkg'
 import { env } from '../../../lib/env'
 import type { Container } from '../../../lib/di'
-import { CONFIG_TOKEN, CWD_TOKEN } from '../../../tokens'
+import { CONFIG_TOKEN, CWD_TOKEN, HOST_API_TOKEN } from '../../../tokens'
 
 export interface MakeReleasesFromWTOpts {
   stopAtRef?: string,
@@ -71,7 +70,7 @@ async function makeReleasesFromWorkingTree(di: Container, opts: MakeReleasesFrom
     currentPackages = prevPackages || new ImmutablePkgSet(pkgsetFromRef(config, currentRef))
 
     const targetRef = isReleaseCommit(config.cwd, releaseTag) ? `${releaseTag}^` : releaseTag
-    const hostApi = await getHostApi(config.cwd)
+    const hostApi = di.get(HOST_API_TOKEN)
 
     if (lookBackReleaseInfo.releasePosition === ReleasePosition.following) {
       const prevReleaseTag = lookBackReleaseInfo.prevTagName

@@ -46,8 +46,12 @@ team = 'tinkoff'
 channel = 'pvm-github'
 author = { name = 'pvm minion (github)', avatarEmoji = ':deciduous_tree:' }
 
-[plugins]
-local_plugins = ['packages/pvm-plugin-conventional-changelog']
-
 [[plugins_v2]]
 plugin = '@pvm/plugin-github'
+
+[[plugins_v2]]
+plugin = '@pvm/plugin-conventional-changelog'
+
+[[plugins_v2]]
+plugin = '@pvm/plugin-mattermost'
+options = { team = 'tinkoff' }

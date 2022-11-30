@@ -6,32 +6,31 @@ import { logger } from './logger'
 import resolveFrom from 'resolve-from'
 import { requireDefault } from '../../lib/interop'
 import defaultsDeep from 'lodash.defaultsdeep'
+import type { Container } from '../../lib/di'
+import { CONFIG_TOKEN, MESSENGER_CLIENT_TOKEN } from '../../tokens'
 
 export class Notificator {
   private messengers: MessengerClients
   private config: Config
 
-  constructor(config: Config) {
-    this.config = config
+  constructor(di: Container) {
+    this.config = di.get(CONFIG_TOKEN)
     this.messengers = new MessengerClients()
-    this.config.notifications.clients.forEach(({ name, pkg }) => {
-      const Client = require(pkg).MessengerClient as { new(name: string, config: Config, clientConfig?: MessengerClientConfig): AbstractMessengerClient }
-      if (!Client) {
-        throw new Error(`Messenger client ${pkg} should have named export "MessengerClient"`)
-      }
 
-      this.messengers.register(name, new Client(name, config, Notificator.getClientConfig(name, config)))
+    const clients = di.get(MESSENGER_CLIENT_TOKEN)
+    clients.forEach(client => {
+      this.messengers.register(client.name, client)
     })
   }
 
-  static getClientConfig(clientName: string, config: Config): MessengerClientConfig {
+  static createClient(Client: { new(name: string, config: Config, clientConfig?: MessengerClientConfig): AbstractMessengerClient }, config: Config, opts: MessengerClientConfig & { name?: string }): AbstractMessengerClient {
     const projectPkg = resolveFrom.silent(config.cwd, './package')
     const username = projectPkg ? `${requireDefault(projectPkg).name} minion` : void 0
-    return defaultsDeep({}, config.notifications.client_configs[clientName], config.notifications.clients_common_config, {
+    return new Client(opts.name ?? Client.name, config, defaultsDeep({}, opts, config.notifications.clients_common_config, {
       author: {
         name: username,
       },
-    })
+    }))
   }
 
   async sendMessage(message: Message, opts: { target?: string } = {}): Promise<void> {

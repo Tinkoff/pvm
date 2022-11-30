@@ -3,6 +3,8 @@ import chalk from 'chalk'
 import type { Pkg as PkgType } from './pkg'
 import type { SignaleType } from 'signales'
 import { env } from './env'
+import { logger } from './logger'
+import { inspectArgs } from './inspect-args'
 
 export function isFlatArraysEqual<T>(left: T[], right: T[]): boolean {
   if (left.length !== right.length) {
@@ -89,4 +91,16 @@ export function handleDifferentComparisonRefs(logger: SignaleType, storedPkg: Pk
     throw new Error(`Found pkg ${providedPkg.name} with same name but different reference. Search by name instead, or refactor pkg obtain code.`)
   }
   logger.error(chalk`Incorrect comparison of two packages with same name {blue ${storedPkg.name}} but constructed from different refs {yellow ${storedPkg.ref}} and {yellow ${providedPkg.ref}}`)
+}
+
+export function dryRun(_target: any, propName: string, descriptor: TypedPropertyDescriptor<any>): void {
+  const method = descriptor.value!
+
+  descriptor.value = function(...args) {
+    if (this.dryRun) {
+      logger.debug(`DRY RUN: ${propName}`, `(${inspectArgs(args)})`)
+    } else {
+      return method.call(this, ...args)
+    }
+  }
 }
