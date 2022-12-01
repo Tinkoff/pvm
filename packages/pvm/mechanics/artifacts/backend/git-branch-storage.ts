@@ -115,7 +115,6 @@ export class GitBranchStorage implements StorageImpl {
       cwd: this.workingDir,
       config: this.config,
       resolvePushRemote: this.resolvePushRemote,
-      globalFlags: this.globalFlags,
     })
 
     const commitContext = await gitVcs.beginCommit()

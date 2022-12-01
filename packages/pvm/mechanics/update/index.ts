@@ -21,7 +21,12 @@ import type { ChangedContext } from './changed-context'
 import type { Container } from '../../lib/di'
 
 import { env } from '../../lib/env'
-import { CONFIG_TOKEN, CWD_TOKEN, VCS_PLATFORM_UPDATE_TOKEN } from '../../tokens'
+import {
+  CONFIG_TOKEN,
+  CWD_TOKEN,
+  VCS_PLATFORM_FACTORY_TOKEN,
+  VCS_PLATFORM_TOKEN,
+} from '../../tokens'
 
 async function markReleaseTypes(updateState: UpdateState, forceReleaseState: ForceReleaseState): Promise<void> {
   let packagesForMark = updateState.changedContext.packages
@@ -255,10 +260,12 @@ async function update<R>(di, updateMethod: UpdateMethod<R>, opts: CliUpdateOpts 
   }
 
   const config = di.get(CONFIG_TOKEN)
-  const vcsPlatform = di.get(VCS_PLATFORM_UPDATE_TOKEN)
 
+  let vcsPlatform
   if (opts.vcsMode) {
-    vcsPlatform.setVcsMode(opts.vcsMode)
+    vcsPlatform = di.get(VCS_PLATFORM_FACTORY_TOKEN)({ vcsMode: opts.vcsMode })
+  } else {
+    vcsPlatform = di.get(VCS_PLATFORM_TOKEN)
   }
 
   if (updateMethod.prepare) {

@@ -3,6 +3,7 @@ export * from './tokens'
 export * from './types'
 
 export * from './mechanics/vcs'
+export * from './mechanics/platform'
 export * from './mechanics/notifications'
 
 export { env, checkEnv } from './lib/env'

@@ -1,4 +1,4 @@
-import { CONFIG_TOKEN, PLATFORM_TOKEN, declarePlugin, provide, GLOBAL_FLAGS_TOKEN } from '@pvm/pvm'
+import { CONFIG_TOKEN, CWD_TOKEN, declarePlugin, HOST_API_TOKEN, provide, RAW_PLATFORM_TOKEN } from '@pvm/pvm'
 import { GithubPlatform } from './platform'
 
 export default declarePlugin({
@@ -6,11 +6,12 @@ export default declarePlugin({
     return {
       providers: [
         provide({
-          provide: PLATFORM_TOKEN,
+          provide: RAW_PLATFORM_TOKEN,
           useClass: GithubPlatform,
           deps: {
             config: CONFIG_TOKEN,
-            globalFlags: GLOBAL_FLAGS_TOKEN,
+            cwd: CWD_TOKEN,
+            hostApi: HOST_API_TOKEN,
           },
         }),
       ],

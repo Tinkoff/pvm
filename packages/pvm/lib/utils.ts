@@ -93,24 +93,13 @@ export function handleDifferentComparisonRefs(logger: SignaleType, storedPkg: Pk
   logger.error(chalk`Incorrect comparison of two packages with same name {blue ${storedPkg.name}} but constructed from different refs {yellow ${storedPkg.ref}} and {yellow ${providedPkg.ref}}`)
 }
 
-export function dryRun(_target: any, propName: string, descriptor: TypedPropertyDescriptor<any>): void {
+export function logDryRun(_target: { dryRun: boolean }, propName: string, descriptor: TypedPropertyDescriptor<any>): void {
   const method = descriptor.value!
-
   descriptor.value = function(...args) {
     if (this.dryRun) {
       logger.debug(`DRY RUN: ${propName}`, `(${inspectArgs(args)})`)
-    } else {
-      return method.call(this, ...args)
     }
-  }
-}
 
-export function localMode(_target: any, _propName: string, descriptor: TypedPropertyDescriptor<any>): void {
-  const method = descriptor.value!
-
-  descriptor.value = function(...args) {
-    if (!this.localMode) {
-      return method.call(this, ...args)
-    }
+    return method.call(this, ...args)
   }
 }

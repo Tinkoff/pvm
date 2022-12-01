@@ -1,7 +1,7 @@
 import { cutText } from '../../lib/text'
 import padLines from '../../lib/text/pad-lines'
 
-import type { AddTagOptions, CommitResult, VcsOnly, UnknownCommitContext, PushOptions } from './types'
+import type { AddTagOptions, CommitResult, VcsOnly, UnknownCommitContext, PushOptions } from '../../types'
 
 function details(text: string, maxLen = 2000): string {
   return '<details>\n\n```\n' + cutText(text, maxLen) + '\n````\n\n</details>'

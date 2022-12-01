@@ -16,7 +16,7 @@ import type { Pkg, AppliedPkg } from '../../lib/pkg'
 import { wdShell } from '../../lib/shell'
 import revParse from '../../lib/git/rev-parse'
 import type { Container } from '../../lib/di'
-import { CONFIG_TOKEN, CWD_TOKEN, HOST_API_TOKEN, VCS_PLATFORM_TOKEN } from '../../tokens'
+import { CONFIG_TOKEN, CWD_TOKEN, HOST_API_TOKEN, PLATFORM_TOKEN } from '../../tokens'
 
 interface RepositoryInitOpts {
   ref?: string | void,
@@ -158,8 +158,8 @@ export class Repository {
       }
     }
 
-    const vcsPlatform = this.di.get(VCS_PLATFORM_TOKEN)
-    const updateHints = (await vcsPlatform.getUpdateHintsByCommit(revParse('HEAD', this.cwd))) ?? {}
+    const platform = this.di.get(PLATFORM_TOKEN)
+    const updateHints = (await platform.getUpdateHintsByCommit(revParse('HEAD', this.cwd))) ?? {}
 
     validateUpdateHints(this.config, updateHints)
 

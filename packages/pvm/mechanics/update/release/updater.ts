@@ -27,7 +27,8 @@ import type { VcsPlatform } from '../../vcs'
 import type{ ReleaseData } from '../../releases/types'
 import type{ Config } from '../../../types'
 import type { Container } from '../../../lib/di'
-import { CONFIG_TOKEN, HOST_API_TOKEN, PLATFORM_TOKEN, VCS_PLATFORM_TOKEN } from '../../../tokens'
+import { CONFIG_TOKEN, GLOBAL_FLAGS_TOKEN, HOST_API_TOKEN, PLATFORM_TOKEN, VCS_PLATFORM_TOKEN } from '../../../tokens'
+import type { PlatformInterface } from '../../platform'
 
 const logger = loggerFor('pvm:update')
 
@@ -80,7 +81,7 @@ export async function release(di: Container, updateState: UpdateState, vcsPlatfo
     const releaseRef = (await conditionallyPushChanges(di, updateState, vcsPlatform, opts)) ?? calculateReleaseRef(config.cwd, targetRef)
 
     if (releaseContext) {
-      await createRelease(vcsPlatform, releaseRef, updateState, releaseContext)
+      await createRelease(vcsPlatform, di.get(PLATFORM_TOKEN), releaseRef, updateState, releaseContext)
     }
   } catch (e) {
     await vcsPlatform.rollbackCommit(commitContext)
@@ -245,6 +246,7 @@ async function checkBranchActual(di: Container, targetRef: string): Promise<void
 async function pushChanges(di: Container, vcs: VcsPlatform, updateState: UpdateState): Promise<string | undefined> {
   const templateEnv = await getTemplateEnv(di)
   const platform = di.get(PLATFORM_TOKEN)
+  const dryRun = di.get(GLOBAL_FLAGS_TOKEN).getFlag('dryRun')
 
   let commitMessage = templateEnv.render('release-commit', {
     packages: updateState.getReleasePackages(),
@@ -261,7 +263,7 @@ async function pushChanges(di: Container, vcs: VcsPlatform, updateState: UpdateS
     await vcs.push({
       remote: updateState.repo.config.update.push_remote,
     })
-    const prefix = vcs.isDryRun ? 'DRY RUN: ' : ''
+    const prefix = dryRun ? 'DRY RUN: ' : ''
     logger.info(`${prefix}changes have been committed, sha: ${updCommit.id}`)
 
     return updCommit.id
@@ -314,7 +316,7 @@ async function updatePackages(vcs: VcsPlatform, updateState: UpdateState): Promi
   }
 }
 
-async function createRelease(vcs: VcsPlatform, sha: string, updateState: UpdateState, releaseContext: ReleaseContext): Promise<void> {
+async function createRelease(vcs: VcsPlatform, platform: PlatformInterface<any, any>, sha: string, updateState: UpdateState, releaseContext: ReleaseContext): Promise<void> {
   const { config } = updateState.repo
   const { for_packages } = config.tagging
 
@@ -324,7 +326,7 @@ async function createRelease(vcs: VcsPlatform, sha: string, updateState: UpdateS
   logger.info(chalk`creating release tag {underline ${releaseContext.releaseTag}} on ref:${sha}`)
   logger.info('tagAnnotation:', releaseContext.tagAnnotation)
   debug('release-notes:', releaseContext.releaseNotes)
-  await vcs.addTagAndRelease(sha, releaseContext.releaseTag, {
+  await platform.addTagAndRelease(sha, releaseContext.releaseTag, {
     name: releaseContext.name,
     description: releaseContext.releaseNotes,
     annotation: releaseContext.tagAnnotation || undefined,
@@ -352,7 +354,7 @@ async function createRelease(vcs: VcsPlatform, sha: string, updateState: UpdateS
        */
       let maybePromise
       if (for_packages.as_release) {
-        maybePromise = vcs.addTagAndRelease(sha, newTagName, {
+        maybePromise = platform.addTagAndRelease(sha, newTagName, {
           name: `${newPkg.name} ${newPkg.version}`,
           description: updateState.releaseNotes.get(oldPkg) || '',
         })

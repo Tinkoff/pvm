@@ -1,4 +1,4 @@
-import { PLATFORM_TOKEN, declarePlugin, provide, DI_TOKEN } from '@pvm/pvm'
+import { declarePlugin, provide, DI_TOKEN, RAW_PLATFORM_TOKEN } from '@pvm/pvm'
 import { GitlabPlatform } from './platform'
 
 export * from './tokens'
@@ -8,7 +8,7 @@ export default declarePlugin({
     return {
       providers: [
         provide({
-          provide: PLATFORM_TOKEN,
+          provide: RAW_PLATFORM_TOKEN,
           useClass: GitlabPlatform,
           deps: {
             di: DI_TOKEN,

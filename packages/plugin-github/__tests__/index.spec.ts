@@ -1,9 +1,8 @@
 import { GithubPlatform } from '../platform'
 import initRepo from '../../../test/initRepo'
-import { env } from '@pvm/pvm'
+import { env, HOST_API_TOKEN } from '@pvm/pvm'
 import { randomUUID } from 'crypto'
 import { Octokit } from 'octokit'
-import { GlobalFlags } from '@pvm/pvm/lib/cli/global-flags'
 
 const GITHUB_TEST_OWNER = 'pvm-test-bot'
 const API_ATTEMPTS_TIME_LIMIT = 15e3
@@ -19,10 +18,12 @@ const githubClient = new Octokit({
 
 (env.PVM_GITHUB_TEST_REPO_TOKEN ? describe : describe.skip)('pvm-github', () => {
   beforeAll(() => {
+    // eslint-disable-next-line pvm/no-process-env
     process.env.GITHUB_TOKEN = process.env.PVM_GITHUB_TEST_REPO_TOKEN
   })
 
   afterAll(() => {
+    // eslint-disable-next-line pvm/no-process-env
     process.env.GITHUB_TOKEN = undefined
   })
 
@@ -312,7 +313,8 @@ async function prepareRepository() {
         auth_strategy: 'authToken',
       },
     },
-    globalFlags: new GlobalFlags(),
+    hostApi: repo.di.get(HOST_API_TOKEN),
+    cwd: repo.dir,
   })
   const headCommit = (await repo.execScript('git rev-parse HEAD')).stdout.trim()
 

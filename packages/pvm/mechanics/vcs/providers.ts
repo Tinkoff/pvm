@@ -12,7 +12,7 @@ import {
   CWD_TOKEN,
   RESOLVE_PUSH_REMOTE_TOKEN,
   GLOBAL_FLAGS_TOKEN,
-  VCS_PLATFORM_TOKEN, PLATFORM_TOKEN, VCS_PLATFORM_UPDATE_TOKEN, VCS_PLATFORM_FACTORY_TOKEN,
+  VCS_PLATFORM_TOKEN, PLATFORM_TOKEN, VCS_PLATFORM_FACTORY_TOKEN, RAW_VCS_TOKEN,
 } from '../../tokens'
 import markdownifyCommits from '../../lib/markdownify-commits'
 import type { Pkg } from '../../lib/pkg'
@@ -25,6 +25,7 @@ import type { UpdateState } from '../update/update-state'
 import type { ReleaseData, ReleaseDataExt } from '../releases/types'
 import path from 'path'
 import { GitVcs } from './git-vcs'
+import { DecoratedVcs } from './decorated-vcs'
 
 export default [
   provide({
@@ -91,6 +92,14 @@ export default [
   }),
   provide({
     provide: VCS_TOKEN,
+    useClass: DecoratedVcs,
+    deps: {
+      vcs: RAW_VCS_TOKEN,
+      globalFlags: GLOBAL_FLAGS_TOKEN,
+    },
+  }),
+  provide({
+    provide: RAW_VCS_TOKEN,
     useClass: GitVcs,
     deps: {
       resolvePushRemote: RESOLVE_PUSH_REMOTE_TOKEN,
@@ -102,26 +111,12 @@ export default [
   provide({
     provide: VCS_PLATFORM_TOKEN,
     useFactory: ({
-      vcs,
-      platform,
-      hostApi,
-      cwd,
-      globalFlags,
+      vcsPlatformFactory,
     }) => {
-      return new VcsPlatform({
-        vcs,
-        platform,
-        hostApi,
-        cwd,
-        globalFlags,
-      })
+      return vcsPlatformFactory({})
     },
     deps: {
-      vcs: VCS_TOKEN,
-      platform: PLATFORM_TOKEN,
-      hostApi: HOST_API_TOKEN,
-      cwd: CWD_TOKEN,
-      globalFlags: GLOBAL_FLAGS_TOKEN,
+      vcsPlatformFactory: VCS_PLATFORM_FACTORY_TOKEN,
     },
   }),
   provide({
@@ -136,34 +131,6 @@ export default [
       vcs: VCS_TOKEN,
       platform: PLATFORM_TOKEN,
       hostApi: HOST_API_TOKEN,
-      cwd: CWD_TOKEN,
-      globalFlags: GLOBAL_FLAGS_TOKEN,
-    },
-  }),
-  provide({
-    provide: VCS_PLATFORM_UPDATE_TOKEN,
-    useFactory: ({
-      vcs,
-      platform,
-      hostApi,
-      cwd,
-      config,
-      globalFlags,
-    }) => {
-      return new VcsPlatform({
-        vcs,
-        platform,
-        hostApi,
-        cwd,
-        vcsMode: config.update.commit_via_platform ? 'platform' : 'vcs',
-        globalFlags,
-      })
-    },
-    deps: {
-      vcs: VCS_TOKEN,
-      platform: PLATFORM_TOKEN,
-      hostApi: HOST_API_TOKEN,
-      config: CONFIG_TOKEN,
       cwd: CWD_TOKEN,
       globalFlags: GLOBAL_FLAGS_TOKEN,
     },

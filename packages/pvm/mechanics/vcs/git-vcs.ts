@@ -14,11 +14,10 @@ import revParse from '../../lib/git/rev-parse'
 import { addTag, getCurrentBranchIgnoreEnv, gitFetch } from '../../lib/git/commands'
 import { getGitVersion } from '../../lib/runtime-env/versions'
 
-import type { AbstractVcs, AddTagOptions, CommitResult, PushOptions, CommitOptions } from './types'
+import type { AbstractVcs, AddTagOptions, CommitResult, PushOptions, CommitOptions, Config } from '../../types'
 import { env } from '../../lib/env'
-import type { Config } from '../../types/config'
-import type { RESOLVE_PUSH_REMOTE_TOKEN, GLOBAL_FLAGS_TOKEN } from '../../tokens'
-import { dryRun } from '../../lib/utils'
+
+import type { RESOLVE_PUSH_REMOTE_TOKEN } from '../../tokens'
 
 const gitlabPushWithoutKeyDesc = {
   'ru': `Вы пытаетесь отправить изменения через git на gitlab раннере. Однако, по умолчанию из гитлаб раннеров нельзя отправлять изменения через git протокол (см. https://gitlab.com/gitlab-org/gitlab-foss/-/issues/63858).
@@ -116,7 +115,6 @@ function prepareGit(cwd: string): void {
 }
 
 export class GitVcs implements AbstractVcs<GitCommitContext> {
-  dryRun = false
   private gitPrepared = false
   protected shell: typeof __shell
   protected runShell: typeof __runShell
@@ -127,7 +125,7 @@ export class GitVcs implements AbstractVcs<GitCommitContext> {
   protected resolvePushRemote: typeof RESOLVE_PUSH_REMOTE_TOKEN
 
   // eslint-disable-next-line
-  constructor({ config, cwd, resolvePushRemote, globalFlags }: { config: Config, cwd: string, resolvePushRemote: typeof RESOLVE_PUSH_REMOTE_TOKEN, globalFlags: typeof GLOBAL_FLAGS_TOKEN }) {
+  constructor({ config, cwd, resolvePushRemote }: { config: Config, cwd: string, resolvePushRemote: typeof RESOLVE_PUSH_REMOTE_TOKEN }) {
     this.config = config
     this.cwd = cwd
     this.resolvePushRemote = resolvePushRemote
@@ -135,7 +133,6 @@ export class GitVcs implements AbstractVcs<GitCommitContext> {
     this.runShell = bindToCwd(this.cwd, __runShell)
     this.execShell = bindToCwd(this.cwd, __execShell)
     this.cachedShell = mema(this.shell)
-    this.dryRun = globalFlags.getFlag('dryRun')
   }
 
   prepareGitMemo(): void {
@@ -166,7 +163,6 @@ export class GitVcs implements AbstractVcs<GitCommitContext> {
     }
   }
 
-  @dryRun
   addFiles(_commitContext: GitCommitContext, filePaths: string[]) {
     if (filePaths.length) {
       return this.runGit(`git add ${filePaths.map(escapeFilePath).join(' ')}`)
@@ -174,7 +170,6 @@ export class GitVcs implements AbstractVcs<GitCommitContext> {
     return Promise.resolve()
   }
 
-  @dryRun
   updateFile(_, filePath, content): Promise<void> {
     mkdirp(path.dirname(filePath))
     fs.writeFileSync(filePath, content)
@@ -182,7 +177,6 @@ export class GitVcs implements AbstractVcs<GitCommitContext> {
     return this.runGit(`git add ${filePath}`)
   }
 
-  @dryRun
   appendFile(_, filePath, content) {
     mkdirp(path.dirname(filePath))
     fs.appendFileSync(filePath, content)
@@ -190,7 +184,6 @@ export class GitVcs implements AbstractVcs<GitCommitContext> {
     return this.runGit(`git add ${filePath}`)
   }
 
-  @dryRun
   async deleteFile(_, filePath): Promise<void> {
     if (fs.existsSync(filePath)) {
       return this.runGit(`git rm ${filePath}`)
@@ -218,12 +211,10 @@ export class GitVcs implements AbstractVcs<GitCommitContext> {
       commitArgs.push('--allow-empty')
     }
 
-    if (!this.dryRun) {
-      await this.runShell(`git commit ${commitArgs.join(' ')}`, { input: message })
-    }
+    await this.runShell(`git commit ${commitArgs.join(' ')}`, { input: message })
 
     return {
-      id: this.shell('git rev-parse HEAD'),
+      id: this.getHeadRev(),
     }
   }
 
@@ -246,11 +237,6 @@ export class GitVcs implements AbstractVcs<GitCommitContext> {
       (this.resolvePushRemote ? await this.resolvePushRemote() : 'origin')
 
     const pushArgs: string[] = []
-
-    if (this.dryRun || env.PVM_EXTERNAL_DRY_RUN) {
-      pushArgs.push('--dry-run')
-      logger.info('pushing changes in dry run mode')
-    }
 
     const { pushOptions = new Map() } = opts
 
@@ -331,7 +317,6 @@ export class GitVcs implements AbstractVcs<GitCommitContext> {
     return this.shell(`git rev-parse origin/${refName}`)
   }
 
-  @dryRun
   async addTag(tagName, ref, opts: AddTagOptions = {}): Promise<void> {
     this.prepareGitMemo()
     addTag(this.cwd, {

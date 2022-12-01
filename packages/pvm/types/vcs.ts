@@ -38,6 +38,7 @@ export interface PushOptions {
   skipCi?: boolean,
   noTags?: boolean,
   pushOptions?: Map<string, string | true>,
+  dryRun?: boolean,
 }
 
 export interface PlatformReleaseTag {
@@ -48,6 +49,10 @@ export interface MetaComment<Note> {
   metadata: Record<string, any>,
   content: string,
   note: Note,
+}
+
+export interface AddTagOptions {
+  annotation?: string | null,
 }
 
 export interface FileCommitApi<TCommitContext> {
@@ -62,9 +67,8 @@ export interface FileCommitApi<TCommitContext> {
 
 export interface AbstractVcs<TCommitContext> extends FileCommitApi<TCommitContext> {
   fetchLatestSha(refName: string): Promise<string>,
-  addTag(tag_name: string, ref: string): Promise<unknown>,
+  addTag(tag_name: string, ref: string, opts: AddTagOptions): Promise<unknown>,
   push(opts?: PushOptions): Promise<void>,
-  dryRun(): void,
   getCurrentBranch(): string | void,
   getHeadRev(): string,
   isLastAvailableRef(rev: string): boolean,
@@ -79,10 +83,6 @@ export interface PlatformRelease {
   description: string,
 }
 
-export interface AddTagOptions {
-  annotation?: string | null,
-}
-
 export type GetReleaseResult = [PlatformResult.OK, PlatformRelease] | [PlatformResult.NOT_FOUND | PlatformResult.NO_SUCH_TAG, null]
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -91,7 +91,6 @@ export interface UnknownCommitContext {
 }
 
 export interface VcsOnly {
-  isDryRun: boolean,
   cwd: string,
   beginCommit(): UnknownCommitContext,
   rollbackCommit(commitContext: UnknownCommitContext): Promise<void>,

@@ -11,7 +11,7 @@ function cutText(text: string, maxLen: number): string {
 
 interface MessageBuilderOpts {
   attachPackages?: boolean,
-  platform: PlatformInterface<any>,
+  platform: PlatformInterface<any, any>,
   config: Config,
 }
 
@@ -26,7 +26,7 @@ interface BuildMessageOpts {
   attachPackages?: boolean,
   bodyWrapper?: BodyWrapper,
   conventionalCommits?: ConventionalCommit[],
-  platform: PlatformInterface<any>,
+  platform: PlatformInterface<any, any>,
   config: Config,
 }
 

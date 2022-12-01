@@ -3,20 +3,30 @@ import { Octokit } from 'octokit'
 import { createAppAuth } from '@octokit/auth-app'
 import { createActionAuth } from '@octokit/auth-action'
 
-import { wdShell, PlatformResult, env, PlatformInterface, releaseTagFilter, getCurrentBranchIgnoreEnv, getHostUrl, gracefullyTruncateText } from '@pvm/pvm'
+import {
+  wdShell,
+  PlatformResult,
+  env,
+  PlatformInterface,
+  releaseTagFilter,
+  getCurrentBranchIgnoreEnv,
+  getHostUrl,
+  gracefullyTruncateText,
+} from '@pvm/pvm'
 import type {
   GetReleaseResult,
   VcsRelease,
   CreateReleasePayload, PlatformReleaseTag,
   AlterReleaseResult, MetaComment,
   Config,
+
+  CommitResult,
+  HostApi,
 } from '@pvm/pvm'
 import type { IssueComment, PullRequest } from './types'
 
 import hostedGitInfo from 'hosted-git-info'
 import { log } from './logger'
-import { dryRun } from '@pvm/pvm/lib/utils'
-import type { GlobalFlags } from '@pvm/pvm/lib/cli/global-flags'
 
 export const AuthenticationStrategy = {
   'authApp': createAppAuth,
@@ -44,11 +54,13 @@ function getFailedRequestLogTitle(error): string {
   return `${error.response.status}: ${error.request.method} ${error.request.url} ${loggedBody ? JSON.stringify(loggedBody, null, 2) : ''}`
 }
 
-export class GithubPlatform extends PlatformInterface<PullRequest> {
+export class GithubPlatform extends PlatformInterface<PullRequest, never> {
   public currentMr: PullRequest | null = null;
   private githubClient: Octokit
   private githubRepoPath: { repo: string, owner: string }
   private config: Config;
+  protected cwd: string
+  protected hostApi: HostApi
 
   static getAuthStrategy(config: Config): typeof createAppAuth | typeof createActionAuth | undefined {
     let resultStrategy
@@ -94,9 +106,11 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
     return resultRepo
   }
 
-  constructor({ config, globalFlags }: { config: Config, globalFlags: GlobalFlags }) {
+  constructor({ config, cwd, hostApi }: { config: Config, cwd: string, hostApi: HostApi }) {
     super()
     this.config = config
+    this.cwd = cwd
+    this.hostApi = hostApi
     this.githubClient = new Octokit({
       authStrategy: GithubPlatform.getAuthStrategy(config),
       auth: env.GITHUB_TOKEN,
@@ -104,8 +118,6 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
       baseUrl: config.github.api_url,
     })
 
-    this.dryRun = globalFlags.getFlag('dryRun')
-    this.localMode = globalFlags.getFlag('localMode')
     this.githubRepoPath = GithubPlatform.getRepoUrlParts(this.config.cwd)
 
     this.setupClientHooks()
@@ -208,7 +220,6 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
     this.currentMr = pr
   }
 
-  @dryRun
   async addTag(ref: string, tag_name: string): Promise<unknown> {
     return await this.githubClient.rest.git.createRef({
       ...this.githubRepoPath,
@@ -217,7 +228,6 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
     })
   }
 
-  @dryRun
   async addTagAndRelease(ref: string, tag_name: string, data: CreateReleasePayload): Promise<AlterReleaseResult> {
     const { data: release } = await this.githubClient.rest.repos.createRelease({
       ...this.githubRepoPath,
@@ -234,7 +244,6 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
     }
   }
 
-  @dryRun
   async createRelease(tag_name: string, data: CreateReleasePayload): Promise<AlterReleaseResult> {
     // createRelease creating the tag if not find one, so perform separate check and fail before if tag not existing
     await this.githubClient.rest.git.getRef({
@@ -256,7 +265,6 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
     }
   }
 
-  @dryRun
   async editRelease(tag: string, data: CreateReleasePayload): Promise<AlterReleaseResult> {
     const { data: { id: release_id } } = await this.githubClient.rest.repos.getReleaseByTag({
       ...this.githubRepoPath,
@@ -274,7 +282,6 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
     }
   }
 
-  @dryRun
   async upsertRelease(tagName: string, data: CreateReleasePayload): Promise<AlterReleaseResult> {
     try {
       const res = await this.createRelease(tagName, data)
@@ -327,7 +334,6 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
     }
   }
 
-  @dryRun
   async createMrNote(noteBody: string): Promise<IssueComment> {
     const { data: issueComment } = await this.githubClient.rest.issues.createComment({
       ...this.githubRepoPath,
@@ -338,7 +344,6 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
     return issueComment
   }
 
-  @dryRun
   async updateMrNote(commentId: number, noteBody: string): Promise<IssueComment> {
     const { data: issueComment } = await this.githubClient.rest.issues.updateComment({
       ...this.githubRepoPath,
@@ -349,7 +354,6 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
     return issueComment
   }
 
-  @dryRun
   async syncAttachment(_kind: string, _attachment: Buffer, _opts: any): Promise<unknown> {
     return Promise.reject(new Error('Attachments for pull requests are not supported at this moment'))
   }
@@ -364,7 +368,6 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
     }
   }
 
-  @dryRun
   async createProjectLabel(label: string, color: string): Promise<unknown> {
     return (await this.githubClient.rest.issues.createLabel({
       ...this.githubRepoPath,
@@ -373,7 +376,6 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
     })).data
   }
 
-  @dryRun
   async setMrLabels(labels: string[]): Promise<unknown> {
     return await this.githubClient.rest.issues.addLabels({
       ...this.githubRepoPath,
@@ -410,5 +412,33 @@ export class GithubPlatform extends PlatformInterface<PullRequest> {
 
   private logReleaseTag(tagName: string): void {
     log.info(`release tag link: ${getHostUrl(this.config.cwd)}/${this.githubRepoPath.owner}/${this.githubRepoPath.repo}/tags/${tagName}`)
+  }
+
+  updateFile(): void {
+    throw new Error('Not supported')
+  }
+
+  commit(): Promise<CommitResult> {
+    throw new Error('Not supported')
+  }
+
+  deleteFile(): void {
+    throw new Error('Not supported')
+  }
+
+  rollbackCommit(): Promise<void> {
+    throw new Error('Not supported')
+  }
+
+  addFiles(): void {
+    throw new Error('Not supported')
+  }
+
+  appendFile(): void {
+    throw new Error('Not supported')
+  }
+
+  beginCommit(): never {
+    throw new Error('Not supported')
   }
 }

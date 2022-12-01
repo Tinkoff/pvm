@@ -3,9 +3,9 @@ import { Lexer } from 'marked'
 import * as TOML from '@iarna/toml'
 import {
   cwdShell, getContents, PlatformResult,
-  PlatformInterfaceWithFileCommitApi,
+  PlatformInterface,
   env,
-  log, CONFIG_TOKEN, GLOBAL_FLAGS_TOKEN, CWD_TOKEN,
+  log, CONFIG_TOKEN, CWD_TOKEN, HOST_API_TOKEN,
 } from '@pvm/pvm'
 import type {
   AddTagOptions,
@@ -15,6 +15,7 @@ import type {
   Config,
 
   Container,
+  HostApi,
 } from '@pvm/pvm'
 
 import { releasesIterator, updateRelease, createRelease, upsertRelease, addTagAndRelease } from './lib/api/releases'
@@ -36,7 +37,6 @@ import createLabel from './lib/api/labels/create'
 import getLabels from './lib/api/labels/labels'
 import updateMr from './lib/api/mr/update'
 import { getGitlabHostUrl } from './lib/remote-url'
-import { dryRun } from '@pvm/pvm/lib/utils'
 
 const PVM_UPDATE_HINTS_KIND = 'pvm-update-hints'
 
@@ -61,23 +61,22 @@ function isFileInitiallyExists(filePath: string): boolean {
   }
 }
 
-export class GitlabPlatform extends PlatformInterfaceWithFileCommitApi<MergeRequest, CommitContext> {
-  public supportsFileCommitApi = true as const;
+export class GitlabPlatform extends PlatformInterface<MergeRequest, CommitContext> {
   public currentMr: MergeRequest | null = null;
   protected config: Config;
   protected di: Container
   protected cwd: string
+  protected hostApi: HostApi
 
   constructor({ di }: { di: Container }) {
     super()
 
     this.config = di.get(CONFIG_TOKEN)
-    this.dryRun = di.get(GLOBAL_FLAGS_TOKEN).getFlag('dryRun')
     this.cwd = di.get(CWD_TOKEN)
+    this.hostApi = di.get(HOST_API_TOKEN)
     this.di = di
   }
 
-  @dryRun
   setMrLabels(labels: string[]): Promise<unknown> {
     const iid = this.requireMr().iid
 
@@ -90,7 +89,6 @@ export class GitlabPlatform extends PlatformInterfaceWithFileCommitApi<MergeRequ
     return getLabels(this.di, gitlabEnv.projectId)
   }
 
-  @dryRun
   async createProjectLabel(label: string, color: string): Promise<unknown> {
     return await createLabel(gitlabEnv.projectId, {
       name: label,
@@ -117,7 +115,6 @@ export class GitlabPlatform extends PlatformInterfaceWithFileCommitApi<MergeRequ
     })
   }
 
-  @dryRun
   async updateMrNote(commentId: number, body: string): Promise<void> {
     const iid = this.requireMr().iid
 
@@ -168,7 +165,6 @@ export class GitlabPlatform extends PlatformInterfaceWithFileCommitApi<MergeRequ
     this.currentMr = await findOpenSingleMr(this.di, this.getCurrentBranch())
   }
 
-  @dryRun
   async addTagAndRelease(ref: string, tag_name: string, data): Promise<AlterReleaseResult> {
     const res = await addTagAndRelease(this.di, gitlabEnv.projectId, ref, {
       ...data, // name and description
@@ -180,7 +176,6 @@ export class GitlabPlatform extends PlatformInterfaceWithFileCommitApi<MergeRequ
     return res
   }
 
-  @dryRun
   async createRelease(tag_name: string, data): Promise<AlterReleaseResult> {
     const res = await createRelease(this.di, gitlabEnv.projectId, {
       ...data, // name and description
@@ -192,7 +187,6 @@ export class GitlabPlatform extends PlatformInterfaceWithFileCommitApi<MergeRequ
     return res
   }
 
-  @dryRun
   async editRelease(tag_name, data): Promise<AlterReleaseResult> {
     return await updateRelease(this.di, gitlabEnv.projectId, {
       ...data,
@@ -200,7 +194,6 @@ export class GitlabPlatform extends PlatformInterfaceWithFileCommitApi<MergeRequ
     })
   }
 
-  @dryRun
   async upsertRelease(tagName: string, data): Promise<AlterReleaseResult> {
     const res = await upsertRelease(this.di, gitlabEnv.projectId, {
       ...data,
@@ -212,7 +205,6 @@ export class GitlabPlatform extends PlatformInterfaceWithFileCommitApi<MergeRequ
     return res
   }
 
-  @dryRun
   syncAttachment(kind: string, attachment: Buffer, opts: SyncAttachmentOpts = {}) {
     return syncAttachment(this.di, this.requireMr().iid, kind, attachment, opts)
   }
@@ -230,7 +222,6 @@ export class GitlabPlatform extends PlatformInterfaceWithFileCommitApi<MergeRequ
     return Promise.resolve()
   }
 
-  @dryRun
   addFiles(commitContext: CommitContext, file_paths: string[]) {
     for (const file_path of file_paths) {
       if (commitContext.mods[file_path]) {
@@ -248,7 +239,6 @@ export class GitlabPlatform extends PlatformInterfaceWithFileCommitApi<MergeRequ
     }
   }
 
-  @dryRun
   async updateFile(commitContext: CommitContext, file_path: string, content: string) {
     commitContext.mods[file_path] = {
       action: isFileInitiallyExists(file_path) ? 'update' : 'create',
@@ -256,7 +246,6 @@ export class GitlabPlatform extends PlatformInterfaceWithFileCommitApi<MergeRequ
     }
   }
 
-  @dryRun
   async deleteFile(commitContext: CommitContext, file_path: string) {
     if (file_path in commitContext.mods && commitContext.mods[file_path].action === 'create') {
       delete commitContext.mods[file_path]
@@ -267,7 +256,6 @@ export class GitlabPlatform extends PlatformInterfaceWithFileCommitApi<MergeRequ
     }
   }
 
-  @dryRun
   async appendFile(commitContext: CommitContext, file_path: string, content: string) {
     let currContent: string
     if (commitContext.mods[file_path]) {
@@ -281,7 +269,6 @@ export class GitlabPlatform extends PlatformInterfaceWithFileCommitApi<MergeRequ
     await this.updateFile(commitContext, file_path, currContent + content)
   }
 
-  @dryRun
   async commit(commitContext: CommitContext, message: string, opts: CommitOptions = {}): Promise<CommitResult> {
     const { branch } = opts
 
@@ -310,7 +297,6 @@ export class GitlabPlatform extends PlatformInterfaceWithFileCommitApi<MergeRequ
     return commits.length ? commits[0].id : '0000000000000000000000000000000000000000'
   }
 
-  @dryRun
   async addTag(tag_name: string, ref: string, opts: AddTagOptions = {}) {
     const payload: Record<string, string> = {
       tag_name,
