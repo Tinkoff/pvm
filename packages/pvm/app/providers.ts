@@ -1,3 +1,4 @@
+import type { Provider } from '../lib/di'
 import { provide } from '../lib/di'
 import { CLI_EXTENSION_TOKEN, GLOBAL_FLAGS_TOKEN, CLI_TOKEN } from '../tokens'
 
@@ -7,6 +8,9 @@ import { GlobalFlags } from '../lib/cli/global-flags'
 import vcsProviders from '../mechanics/vcs/providers'
 import changelogProviders from '../mechanics/changelog/providers'
 import publishProviders from '../mechanics/publish/providers'
+import platformProviders from '../mechanics/platform/providers'
+import repositoryProviders from '../mechanics/repository/providers'
+import notificationsProviders from '../mechanics/notifications/providers'
 
 export default [
   provide({
@@ -26,4 +30,7 @@ export default [
   ...vcsProviders,
   ...changelogProviders,
   ...publishProviders,
-]
+  ...platformProviders,
+  ...repositoryProviders,
+  ...notificationsProviders,
+] as [...Provider[]]

@@ -133,7 +133,6 @@ export const defaultConfig: ConfigSchema = {
   },
   plugins_v2: [
     { plugin: require.resolve('./commands') },
-    { plugin: require.resolve('./plugins/common') },
   ],
   templating: {
     use_short_names: false,

@@ -122,10 +122,10 @@ export class GitVcs implements AbstractVcs<GitCommitContext> {
   protected cachedShell: typeof __shell
   protected config: Config
   protected cwd: string
-  protected resolvePushRemote: typeof RESOLVE_PUSH_REMOTE_TOKEN
+  protected resolvePushRemote: typeof RESOLVE_PUSH_REMOTE_TOKEN | null
 
   // eslint-disable-next-line
-  constructor({ config, cwd, resolvePushRemote }: { config: Config, cwd: string, resolvePushRemote: typeof RESOLVE_PUSH_REMOTE_TOKEN }) {
+  constructor({ config, cwd, resolvePushRemote }: { config: Config, cwd: string, resolvePushRemote: typeof RESOLVE_PUSH_REMOTE_TOKEN | null }) {
     this.config = config
     this.cwd = cwd
     this.resolvePushRemote = resolvePushRemote

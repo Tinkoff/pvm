@@ -23,6 +23,7 @@ import type { Repository } from '../mechanics/repository'
 import { getUpdateState } from '../mechanics/update'
 import { download, upload } from '../mechanics/artifacts/pub/artifacts'
 import { runCli } from './run-cli'
+import providers from './providers'
 
 const log = loggerFor('pvm:app')
 
@@ -30,6 +31,7 @@ export function isPlainObject(x: unknown): x is Record<string, unknown> {
   return !!x && !Array.isArray(x) && typeof x === 'object'
 }
 
+// todo: get rid of container passing down to functions
 export class Pvm {
   container: Container
   cwd: string
@@ -59,6 +61,8 @@ export class Pvm {
     }))
 
     this.initConfigAndPlugins(config, plugins)
+
+    providers.forEach(p => this.container.register(p))
   }
 
   /**

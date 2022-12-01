@@ -8,7 +8,6 @@ const { shell: __unsafe_shell } = require('../packages/pvm/lib/shell')
 const { pkgTagRe } = require('../packages/pvm/lib/tag-meta')
 const { loadPkg } = require('../packages/pvm/lib/pkg')
 const { getTagAnnotation } = require('../packages/pvm/lib/git/commands')
-const { getHostApi } = require('../packages/pvm/lib/plugins')
 const { getUpdateState } = require('../packages/pvm/mechanics/update')
 const { setTagNotes, tagNotes } = require('./git/tagNotes')
 const { reposDir } = require('./repos-dir')
@@ -22,8 +21,7 @@ const {
   taggedCacheManager,
   CacheTag,
 } = require('../packages/pvm/lib/memoize')
-const { Pvm } = require('@pvm/pvm')
-const { DI_TOKEN } = require('@pvm/pvm/tokens')
+const { Pvm, HOST_API_TOKEN } = require('@pvm/pvm')
 
 const isPkgTag = pkgTagRe.test.bind(pkgTagRe)
 
@@ -106,7 +104,7 @@ const initRepo = async (name, config, repoOpts = {}) => {
       return repoConfig
     },
     get di() {
-      return repoApp.get(DI_TOKEN)
+      return repoApp.container
     },
     async updateConfig(config) {
       await writeConfig({ dir: this.cwd }, config, repoOpts.configFormat)
@@ -117,8 +115,8 @@ const initRepo = async (name, config, repoOpts = {}) => {
       clearConfigCacheFor(this.cwd)
       repoConfig = await getConfig(this.cwd)
     },
-    async getHostApi() {
-      return await getHostApi(this.cwd)
+    getHostApi() {
+      return repoApp.container.get(HOST_API_TOKEN)
     },
     approvers(pickAttr = '') {
       const users = mapUsers(repoData.get('mr_approvals.approvers_ids'), false).sort((a, b) => {

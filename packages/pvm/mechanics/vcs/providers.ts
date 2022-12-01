@@ -102,7 +102,7 @@ export default [
     provide: RAW_VCS_TOKEN,
     useClass: GitVcs,
     deps: {
-      resolvePushRemote: RESOLVE_PUSH_REMOTE_TOKEN,
+      resolvePushRemote: { token: RESOLVE_PUSH_REMOTE_TOKEN, optional: true },
       config: CONFIG_TOKEN,
       cwd: CWD_TOKEN,
       globalFlags: GLOBAL_FLAGS_TOKEN,
