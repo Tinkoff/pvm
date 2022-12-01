@@ -1,5 +1,7 @@
-const fs = require('fs')
-const path = require('path')
+import fs from 'fs'
+import path from 'path'
+import initRepo from '../initRepo'
+import { writeRepo } from '../writeRepo'
 
 describe('pvm/changelog', () => {
   it('[nomono] should not generate empty section if there are no commits since release', async () => {

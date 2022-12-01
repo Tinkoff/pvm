@@ -4,13 +4,18 @@ import { pullOutLinks, dottifyList } from '../../lib/text/markdown'
 import { issueToLink, issueToMdLink } from '../../lib/text/jira'
 import { stripServiceLabels } from '../../lib/text/commits'
 import { stripPkgNamespace } from '../../lib/tag-meta'
+import type { Config } from '../../types'
+import type { Pkg } from '../../lib/pkg'
 
-let env
+let env: nunjucks.Environment & {
+  setVar?: (name: string, value: any) => void,
+  getVar?: (name: string) => any,
+}
 
-async function getEnv(config): Promise<nunjucks.Environment> {
+async function getEnv(config: Config): Promise<nunjucks.Environment> {
   if (!env) {
     const ConfigLoader = class {
-      public getSource(name) {
+      public getSource(name: string) {
         return {
           src: config.templates[name],
           path: `/config/templates/${name}`,
@@ -44,7 +49,7 @@ async function getEnv(config): Promise<nunjucks.Environment> {
     })
     let cutMessage = void 0
 
-    env.addGlobal('showPkg', (pkg) => {
+    env.addGlobal('showPkg', (pkg: Pkg) => {
       const name = templatingConfig.use_short_names ? pkg.shortName : pkg.name
 
       return `**${name}@${pkg.version}**`
@@ -93,13 +98,13 @@ async function getEnv(config): Promise<nunjucks.Environment> {
       return `${withoutLast.join(joiner)} and ${last}`
     })
     env.addFilter('items', (list, id) => {
-      return list.map(item => item[id])
+      return list.map((item: any) => item[id])
     })
     env.addFilter('toArray', arr => {
       return Array.from(arr)
     })
     env.addFilter('ul', (list, symbol = '•') => {
-      return list.map(item => `${symbol} ${item}`).join('\n')
+      return list.map((item: string) => `${symbol} ${item}`).join('\n')
     })
     env.addFilter('wrap', (t, wrap) => {
       if (Array.isArray(t)) {

@@ -1,5 +1,5 @@
 import { spawn } from 'child_process'
-import type { ExecShellOptions } from "../../types"
+import type { ExecShellOptions } from '../../types'
 
 interface ShellError extends Error {
   code: number | null,
@@ -7,7 +7,7 @@ interface ShellError extends Error {
   stderr: string,
 }
 
-interface ExecResult {
+export interface ExecResult {
   stdout: string,
   stderr: string,
 }

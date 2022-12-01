@@ -2,7 +2,7 @@ import type { ExecSyncOptions, SpawnSyncReturns } from 'child_process'
 import { spawnSync } from 'child_process'
 import { logger } from '../logger'
 
-let lastLoggedCommand
+let lastLoggedCommand: string
 
 export class ShellError extends Error {
   stderr: string | Buffer = ''

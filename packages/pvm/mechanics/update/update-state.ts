@@ -29,14 +29,14 @@ function getMaxVersion(packages: Iterable<Pkg>): string {
 }
 
 function makeProcessingDecorator(onlyInProcessing: boolean) {
-  return (_target: any, propKey: string, desc: PropertyDescriptor): void => {
+  return (_target: { _processing: boolean }, propKey: string, desc: PropertyDescriptor): void => {
     const descKey: 'get' | 'value' = desc.get ? 'get' : 'value'
     const fn = desc[descKey]
     if (typeof fn !== 'function') {
       throw new TypeError(`processing decorator applied on non-function property ${propKey}`)
     }
 
-    desc[descKey] = function(...args: any[]) {
+    desc[descKey] = function(this: { _processing: boolean }, ...args: any[]) {
       if (this._processing && !onlyInProcessing) {
         throw new Error(`Calling method ${propKey} are not allowed while update state under the construction`)
       }
@@ -94,8 +94,8 @@ export class UpdateState {
   wantedReleaseTypes: Map<Pkg, PvmReleaseType> = new Map()
   // для каких пакетов надо обновить зависимости исходя из newVersions
   updateDepsFor: Iterable<Pkg> = new Set<Pkg>()
-  protected _processing = true
-  protected _appliedPackages: ImmutablePkgSet<AppliedPkg>
+  _processing = true
+  protected _appliedPackages: ImmutablePkgSet<AppliedPkg> | undefined
 
   constructor(repo: Repository, changedContext: ChangedContext, updateContext: UpdateContext) {
     this.repo = repo
@@ -233,6 +233,11 @@ export class UpdateState {
   @lazyCallee
   getReleasePackages(): Map<Pkg, AppliedPkg> {
     const result = new Map<Pkg, AppliedPkg>()
+
+    if (!this._appliedPackages) {
+      throw new Error('finalize should be called before')
+    }
+
     for (const pkg of this.newVersions.keys()) {
       if (!this.hasSameVersion(pkg)) {
         result.set(pkg, this._appliedPackages.get(pkg.name)!)

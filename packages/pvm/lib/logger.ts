@@ -11,7 +11,7 @@ if (!logLevel) {
   logLevel = /pvm/.test(DEBUG) ? 'debug' : 'info'
 }
 
-const secretKeys = ['GL_TOKEN', 'GITLAB_TOKEN', 'GITHUB_TOKEN', 'GITHUB_AUTH']
+const secretKeys: Array<keyof typeof env> = ['GL_TOKEN', 'GITLAB_TOKEN', 'GITHUB_TOKEN', 'GITHUB_AUTH']
 
 const secrets = secretKeys.reduce((acc, key) => {
   const secret = env[key]

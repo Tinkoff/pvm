@@ -95,7 +95,7 @@ export function handleDifferentComparisonRefs(logger: SignaleType, storedPkg: Pk
 
 export function logDryRun(_target: { dryRun: boolean }, propName: string, descriptor: TypedPropertyDescriptor<any>): void {
   const method = descriptor.value!
-  descriptor.value = function(...args) {
+  descriptor.value = function(this: { dryRun: boolean }, ...args: any[]) {
     if (this.dryRun) {
       logger.debug(`DRY RUN: ${propName}`, `(${inspectArgs(args)})`)
     }

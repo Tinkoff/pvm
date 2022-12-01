@@ -1,4 +1,6 @@
+// @ts-ignore
 import { Remarkable } from 'remarkable'
+// @ts-ignore
 import { linkify } from 'remarkable/linkify'
 
 const remark = new Remarkable({

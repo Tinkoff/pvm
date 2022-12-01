@@ -1,11 +1,13 @@
+// @ts-ignore
 import shuffleSeed from 'shuffle-seed'
 import formatDate from 'date-fns/format'
+// @ts-ignore
 import uniq from 'uniq'
-import dateNow from "../../lib/now"
-import { lastReleaseTag } from "../../lib/git/last-release-tag"
-import type { Config } from "../../types"
-import { log } from "../../lib/logger"
-import { wdShell } from "../../lib/shell"
+import dateNow from '../../lib/now'
+import { lastReleaseTag } from '../../lib/git/last-release-tag'
+import type { Config } from '../../types'
+import { log } from '../../lib/logger'
+import { wdShell } from '../../lib/shell'
 import resolveWords from './resolve-words'
 
 function rotate<T>(arr: ReadonlyArray<T>, n: number): T[] {
@@ -28,7 +30,7 @@ function takeNextSuffix(cwd: string, words: string[], prevWord: string | null, g
   const rotatedWords = rotate(words, suffixIndex)
   let rotatedIndex = 0
 
-  let suffix
+  let suffix: string = rotatedWords[rotatedIndex]
   let found = false
   while (rotatedIndex < rotatedWords.length) {
     suffix = rotatedWords[rotatedIndex++]
@@ -81,7 +83,7 @@ function filterSuffixes(suffixes: string[] | string): string[] {
       .replace(/@{/g, '')
       .replace(/[^a-zA-Z-._0-9@]/g, '')
     )
-  );
+  )
 }
 
 export function addSuffixToSemverTagName(config: Config, seed: string, semverTag: string): string {

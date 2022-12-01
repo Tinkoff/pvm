@@ -3,7 +3,7 @@ import type { Argv } from 'yargs'
 import type { Container } from '../../lib/di'
 
 import pvmUpdate from './pvm-update'
-import {GLOBAL_FLAGS_TOKEN} from "../../tokens";
+import { GLOBAL_FLAGS_TOKEN } from '../../tokens'
 
 export default (di: Container) => ({
   command: 'local <update>',

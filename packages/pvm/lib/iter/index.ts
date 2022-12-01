@@ -22,7 +22,7 @@ async function drainWhileResolves<T>(asyncIterable: AsyncIterable<T>): Promise<D
         break
       }
       result.value.push(value)
-    } catch (e) {
+    } catch (e: any) {
       // ok, we done here
       result.error = e
       break
@@ -44,7 +44,7 @@ async function * safeIterate<T>(asyncIterable: AsyncIterable<T>): AsyncIterableI
         break
       }
       yield [value, null]
-    } catch (e) {
+    } catch (e: any) {
       yield [void 0, e]
       break
     }

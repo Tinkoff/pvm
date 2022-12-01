@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import assert from 'assert'
 import Yargs from 'yargs/yargs'
+// @ts-ignore
 import { hideBin } from 'yargs/helpers'
 
 import '../node-boot'
@@ -71,8 +72,8 @@ export function runCli(commands: Array<typeof CLI_EXTENSION_TOKEN>, globalFlags:
   patchYargsOptions(yargs).parse()
 }
 
-function hasExplicitType(opt): boolean {
-  return opt.boolean || opt.number || opt.string || opt.array || opt.type
+function hasExplicitType(opt: { boolean?: boolean, number?: boolean, string?: boolean, array?: boolean, type?: string }): boolean {
+  return opt.boolean || opt.number || opt.string || opt.array || !!opt.type
 }
 
 function guessType(value: any): 'boolean' | 'number' | 'array' | 'string' | undefined {
@@ -100,6 +101,7 @@ function patchYargsOptions(yargs: Argv, runSelfTest = true): Argv {
           opt.type = derivedType
         }
       }
+      // @ts-ignore
       return originalOption.call(yargs, key, opt)
     }
   }

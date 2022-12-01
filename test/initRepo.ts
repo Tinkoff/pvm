@@ -1,33 +1,32 @@
-const path = require('path')
-const fs = require('fs')
-const fse = require('fs-extra')
-const { getConfig, clearConfigCacheFor } = require('@pvm/pvm/app/config')
-const { lastReleaseTag } = require('../packages/pvm/lib/git/last-release-tag')
-const { httpreq } = require('../packages/pvm/lib/httpreq')
-const { shell: __unsafe_shell } = require('../packages/pvm/lib/shell')
-const { pkgTagRe } = require('../packages/pvm/lib/tag-meta')
-const { loadPkg } = require('../packages/pvm/lib/pkg')
-const { getTagAnnotation } = require('../packages/pvm/lib/git/commands')
-const { getUpdateState } = require('../packages/pvm/mechanics/update')
-const { setTagNotes, tagNotes } = require('./git/tagNotes')
-const { reposDir } = require('./repos-dir')
-const { writeConfig } = require('./helpers')
-const { runScript, execScript } = require('./executors')
-const { dataFor } = require('./git/data')
-const { mapUsers, getUser } = require('./fixtures/users')
-const getGitConfigTools = require('./gitConfig')
-const os = require('os')
-const {
-  taggedCacheManager,
-  CacheTag,
-} = require('../packages/pvm/lib/memoize')
-const { Pvm, HOST_API_TOKEN } = require('@pvm/pvm')
+import { HOST_API_TOKEN, Pvm } from '@pvm/pvm'
+import type { Config, RecursivePartial } from '@pvm/pvm'
+
+import { CacheTag, taggedCacheManager } from '../packages/pvm/lib/memoize'
+import os from 'os'
+import { getGitConfigTools } from './gitConfig'
+import type { User } from './fixtures/users'
+import { getUser, mapUsers } from './fixtures/users'
+import { dataFor } from './git/data'
+import { execScript, runScript } from './executors'
+import { writeConfig } from './helpers'
+import { reposDir } from './repos-dir'
+import { setTagNotes, tagNotes } from './git/tagNotes'
+import { getTagAnnotation } from '../packages/pvm/lib/git/commands'
+import { loadPkg } from '../packages/pvm/lib/pkg'
+import { pkgTagRe } from '../packages/pvm/lib/tag-meta'
+import { shell as __unsafe_shell } from '../packages/pvm/lib/shell'
+import { httpreq } from '../packages/pvm/lib/httpreq'
+import { lastReleaseTag } from '../packages/pvm/lib/git/last-release-tag'
+import fse from 'fs-extra'
+import fs from 'fs'
+import path from 'path'
+import type { RepoTestApi } from './types'
 
 const isPkgTag = pkgTagRe.test.bind(pkgTagRe)
 
 const pvmRoot = path.resolve(__dirname, '..')
 
-function processPackageRoot(repoDir) {
+function processPackageRoot(repoDir: string) {
   const pkgPath = path.join(repoDir, 'package.json')
   if (fs.existsSync(pkgPath)) {
     const pkgStr = fs.readFileSync(pkgPath).toString('utf8')
@@ -38,7 +37,11 @@ function processPackageRoot(repoDir) {
   }
 }
 
-const initRepo = async (name, config, repoOpts = {}) => {
+const initRepo = async (name: string, config?: RecursivePartial<Config>, repoOpts: {
+  cwd?: string,
+  configFormat?: 'json' | 'toml' | 'js'
+  empty?: boolean
+} = {}): Promise<RepoTestApi> => {
   let fullRepoDir = name
   let projectRoot = repoOpts.cwd ?? fullRepoDir
 
@@ -55,7 +58,7 @@ const initRepo = async (name, config, repoOpts = {}) => {
       fs.mkdirSync(repoDir, {
         recursive: true,
       })
-    } catch (e) {
+    } catch (e: any) {
       if (e.code === 'EEXIST') {
         return initRepo(baseName, config)
       }
@@ -80,7 +83,7 @@ const initRepo = async (name, config, repoOpts = {}) => {
     await writeConfig({ dir: projectRoot }, config, repoOpts.configFormat)
   }
 
-  const gitShell = (cmd, opts = {}) => __unsafe_shell(cmd, { ...opts, cwd: fullRepoDir }).trim()
+  const gitShell = (cmd: string, opts = {}) => __unsafe_shell(cmd, { ...opts, cwd: fullRepoDir }).trim()
 
   const gitConfigTools = getGitConfigTools(gitShell)
 
@@ -91,12 +94,18 @@ const initRepo = async (name, config, repoOpts = {}) => {
   gitShell('"mkdir" -p .git/gl')
 
   const repoData = dataFor(fullRepoDir)
-  const repoApp = new Pvm({
-    cwd: projectRoot,
-  })
-  let repoConfig = repoApp.getConfig()
 
-  const result = {
+  function makePvmApp() {
+    return new Pvm({
+      cwd: projectRoot,
+    })
+  }
+
+  let repoApp = makePvmApp()
+
+  const repoConfig = repoApp.getConfig()
+
+  const repoTestApi: RepoTestApi = {
     dir: projectRoot,
     cwd: projectRoot,
     data: repoData,
@@ -108,17 +117,15 @@ const initRepo = async (name, config, repoOpts = {}) => {
     },
     async updateConfig(config) {
       await writeConfig({ dir: this.cwd }, config, repoOpts.configFormat)
-      clearConfigCacheFor(this.cwd)
-      repoConfig = await getConfig(this.cwd)
+      repoApp = makePvmApp()
     },
     async syncConfig() {
-      clearConfigCacheFor(this.cwd)
-      repoConfig = await getConfig(this.cwd)
+      repoApp = makePvmApp()
     },
     getHostApi() {
       return repoApp.container.get(HOST_API_TOKEN)
     },
-    approvers(pickAttr = '') {
+    approvers(pickAttr?: keyof User) {
       const users = mapUsers(repoData.get('mr_approvals.approvers_ids'), false).sort((a, b) => {
         if (a.username === b.username) {
           return 0
@@ -130,7 +137,7 @@ const initRepo = async (name, config, repoOpts = {}) => {
       }
       return users
     },
-    setApprovers(usernames) {
+    setApprovers(usernames: string[]) {
       repoData.set('mr_approvals.approvers_ids', usernames.reduce((acc, username) => {
         const user = getUser(username)
         if (user) {
@@ -139,16 +146,14 @@ const initRepo = async (name, config, repoOpts = {}) => {
           throw new Error(`no such user ${username}`)
         }
         return acc
-      }, []))
+      }, [] as number[]))
     },
     shell: gitShell,
     lastReleaseTag() {
       return lastReleaseTag(repoConfig)
     },
     getUpdateState() {
-      return getUpdateState({
-        cwd: this.cwd,
-      })
+      return repoApp.getUpdateState()
     },
     readPkg(pkgPath) {
       return JSON.parse(
@@ -165,7 +170,7 @@ const initRepo = async (name, config, repoOpts = {}) => {
         'utf-8'
       )
     },
-    pkgVersion(pkgPath) {
+    pkgVersion(pkgPath: string) {
       return this.readPkg(pkgPath).version
     },
     tags(ref = 'HEAD') {
@@ -188,7 +193,7 @@ const initRepo = async (name, config, repoOpts = {}) => {
         fs.mkdirSync(path.resolve(this.cwd, dir), {
           recursive: true,
         })
-      } catch (e) {
+      } catch (e: any) {
         if (e.code !== 'EEXIST') {
           throw e
         }
@@ -223,7 +228,7 @@ const initRepo = async (name, config, repoOpts = {}) => {
       if (!Array.isArray(filepaths)) {
         filepaths = [filepaths]
       }
-      const cmd = []
+      const cmd: string[] = []
       const createdDirs = Object.create(null)
       for (const filepath of filepaths) {
         if (!(filepath in createdDirs)) {
@@ -252,7 +257,7 @@ const initRepo = async (name, config, repoOpts = {}) => {
     async annotatedTag(tagName, annotation, ref = 'HEAD') {
       await this.runScript(`git tag --file=- ${tagName} ${ref}`, { input: annotation })
     },
-    async loadPkg(pkgPath, ref = void 0) {
+    loadPkg(pkgPath, ref = void 0) {
       return loadPkg(this.config, pkgPath, { cwd: this.cwd, ref: ref })
     },
     async linkNodeModules() {
@@ -290,7 +295,7 @@ const initRepo = async (name, config, repoOpts = {}) => {
     getTagAnnotation(tagName) {
       return getTagAnnotation(this.cwd, tagName)
     },
-    readFile(relPath, encoding = 'utf8') {
+    readFile(relPath, encoding: 'utf8' | 'ascii' | 'hex' = 'utf8') {
       return fs.readFileSync(path.resolve(this.cwd, relPath)).toString(encoding)
     },
     existsPath(relPath) {
@@ -312,7 +317,7 @@ const initRepo = async (name, config, repoOpts = {}) => {
 
   const initialSetupPath = path.join(fullRepoDir, '_setup.js')
 
-  let setupFunc = null
+  let setupFunc: null | ((repoTestApi: RepoTestApi) => void) = null
   if (fs.existsSync(initialSetupPath)) {
     setupFunc = require(initialSetupPath)
     fs.unlinkSync(initialSetupPath)
@@ -339,13 +344,12 @@ const initRepo = async (name, config, repoOpts = {}) => {
     gitShell(`git fetch`)
     gitShell(`git fetch origin`)
   }
-  result.env.PVM_CONFIG_SEARCH_FROM = result.dir
 
   if (setupFunc) {
-    await setupFunc(result)
+    await setupFunc(repoTestApi)
   }
 
-  return result
+  return repoTestApi
 }
 
-module.exports = initRepo
+export default initRepo

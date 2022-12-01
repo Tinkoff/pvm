@@ -131,20 +131,20 @@ const defaultRetryCodes = [
   429,
 ]
 
-function wait(ms): Promise<void> {
+function wait(ms: number): Promise<void> {
   return new Promise(resolve => {
     setTimeout(resolve, ms)
   })
 }
 
-export async function requestWithRetries(requestFn: () => any, retryOpts: { retryCodes?: number[], timeouts?: number[] } = {}, retryIndex = 0) {
+export async function requestWithRetries<T extends() => Promise<any>>(requestFn: T, retryOpts: { retryCodes?: number[], timeouts?: number[] } = {}, retryIndex = 0): Promise<ReturnType<T>> {
   const {
     timeouts = defaultRetryTimeouts,
     retryCodes = defaultRetryCodes,
   } = retryOpts
   try {
     return await requestFn()
-  } catch (e) {
+  } catch (e: any) {
     // retry later
     if (retryCodes.indexOf(e.statusCode) !== -1) {
       const timeout = timeouts[retryIndex]

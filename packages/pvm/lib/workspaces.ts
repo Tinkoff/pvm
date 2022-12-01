@@ -4,8 +4,9 @@ import glob from 'fast-glob'
 import micromatch from 'micromatch'
 import { wdShell } from './shell'
 import { cwdToGitRelativity } from './git/worktree'
+import type { PkgMeta } from '../types'
 
-function getPkgDirPatterns(pkg): string[] {
+function getPkgDirPatterns(pkg: PkgMeta): string[] {
   const { workspaces = [] } = pkg
 
   if (Array.isArray(workspaces)) {
@@ -34,7 +35,7 @@ enum WorkspacePatternsStatus {
 
 type WorkspacesPatternsResult = [WorkspacePatternsStatus.Ok | WorkspacePatternsStatus.EndResult, string[]]
 
-function workspacePatternsFromManifest(pkg): WorkspacesPatternsResult {
+function workspacePatternsFromManifest(pkg: PkgMeta): WorkspacesPatternsResult {
   if (!pkg) {
     return [WorkspacePatternsStatus.EndResult, []]
   }

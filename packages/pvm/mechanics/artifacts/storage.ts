@@ -8,7 +8,7 @@ import type { Config, StorageDef } from '../../types'
 
 import type { StorageImpl } from './storage.h'
 import type { Container } from '../../lib/di'
-import { CONFIG_TOKEN } from '../../tokens'
+import { CONFIG_TOKEN, GLOBAL_FLAGS_TOKEN } from '../../tokens'
 
 const finalizedMap = new WeakMap<StorageImpl, boolean>()
 const storagesPool = new Map<string, StorageImpl>()
@@ -21,6 +21,8 @@ export interface InitStorageDeps {
 
 export interface StorageOpts {
   config: Config,
+  dryRun: boolean,
+  localMode: boolean,
   type: StorageDef['type'],
   destPrefix?: string,
 }
@@ -29,12 +31,16 @@ export class Storage {
   destPrefix?: string
   storage: StorageImpl
   config: Config
+  dryRun: boolean
+  localMode: boolean
   type: StorageDef['type']
   logger = logger
 
   constructor(storage: StorageImpl, opts: StorageOpts) {
     this.storage = storage
     this.config = opts.config
+    this.dryRun = opts.dryRun
+    this.localMode = opts.localMode
     this.destPrefix = opts.destPrefix
     this.type = opts.type
   }
@@ -64,8 +70,8 @@ export class Storage {
     if (!this.finalized) {
       const remotePath = this.destPrefix ? path.join(this.destPrefix, localPath) : localPath
       logger.info(`Upload "${localPath}" to "${remotePath}"`)
-      if (this.config.executionContext.dryRun || this.config.executionContext.local) {
-        logger.info(`skip uploading due to ${this.config.executionContext.dryRun ? 'dry run' : 'local mode'}`)
+      if (this.dryRun || this.localMode) {
+        logger.info(`skip uploading due to ${this.dryRun ? 'dry run' : 'local mode'}`)
         return
       }
       return await this.storage.uploadPath(localPath, remotePath)
@@ -78,7 +84,7 @@ export class Storage {
     if (!this.finalized) {
       const remotePath = this.destPrefix ? path.join(this.destPrefix, wantedLocalPath) : wantedLocalPath
       logger.info(`Download "${remotePath}" to "${wantedLocalPath}"`)
-      if (this.config.executionContext.dryRun) {
+      if (this.dryRun) {
         logger.info('skip downloading due to dry run')
         return
       }
@@ -115,9 +121,12 @@ async function lazyInitStorageImpl(deps: InitStorageDeps, storageDef: StorageDef
 
 export async function instatiateStorage<S extends typeof Storage>(StorageKlass: S, deps: InitStorageDeps, storageDef: StorageDef): Promise<InstanceType<S>> {
   const storage = await lazyInitStorageImpl(deps, storageDef)
+  const globalFlags = deps.di.get(GLOBAL_FLAGS_TOKEN)
   return new StorageKlass(storage, {
     type: storageDef.type,
     config: deps.di.get(CONFIG_TOKEN),
+    dryRun: globalFlags.getFlag('dryRun'),
+    localMode: globalFlags.getFlag('localMode'),
     destPrefix: storageDef.type !== 'external' ? storageDef.dest : undefined,
   }) as unknown as InstanceType<S>
 }

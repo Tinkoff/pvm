@@ -37,7 +37,7 @@ function loadDedicatedVersionsMap(config: Config, ref: string | undefined): Reco
         versioningCache.set(cacheKey, result)
         return result
       }
-    } catch (e) {
+    } catch (e: any) {
       logger.debug(`Could not find or parse versions file "${source_file}" in ref "${ref}"`, e.message)
     }
 

@@ -26,7 +26,7 @@ export interface GitBranchStorageOpts {
 export class GitBranchStorage implements StorageImpl {
   branch: string
   cwd: string
-  workingDir: string
+  _workingDir: string | undefined
   gitPrepared = false
   config: Config
   resolvePushRemote: typeof RESOLVE_PUSH_REMOTE_TOKEN
@@ -38,6 +38,14 @@ export class GitBranchStorage implements StorageImpl {
     this.globalFlags = di.get(GLOBAL_FLAGS_TOKEN)
     this.cwd = di.get(CWD_TOKEN)
     this.branch = branch
+  }
+
+  get workingDir(): string {
+    if (!this._workingDir) {
+      throw new Error('init should be called before accessing to workingDir')
+    }
+
+    return this._workingDir
   }
 
   private prepareGit(): void {
@@ -60,7 +68,7 @@ export class GitBranchStorage implements StorageImpl {
 
   async init(): Promise<void> {
     const workingDir = tempy.directory({ prefix: 'pvm' })
-    this.workingDir = workingDir
+    this._workingDir = workingDir
     logger.info(`Initialized worktree at "${workingDir}" for branch "${this.branch}"`)
     const artifactsExistsLocally = isBranchExists(this.cwd, this.branch)
     const artifactsExistsRemote = isRemoteBranchExists(this.cwd, this.branch)

@@ -21,7 +21,7 @@ export class DecoratedPlatform extends PlatformInterface<any, any> {
   protected hostApi: HostApi
 
   constructor({ platform, globalFlags, vcs, cwd, hostApi }: { platform: PlatformInterface<any, any>, globalFlags: GlobalFlags, vcs: AbstractVcs<any>, cwd: string, hostApi: HostApi }) {
-    super()
+    super({ name: platform.name, globalFlags })
     this.platform = platform
     this.vcs = vcs
     this.dryRun = globalFlags.getFlag('dryRun')
@@ -216,7 +216,7 @@ export class DecoratedPlatform extends PlatformInterface<any, any> {
   }
 
   @logDryRun
-  updateFile(commitContext: any, file_path, content): void {
+  updateFile(commitContext: any, file_path: string, content: string): void {
     if (!this.dryRun && !this.localMode) {
       return this.platform.updateFile(commitContext, file_path, content)
     }

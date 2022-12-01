@@ -3,7 +3,7 @@ import { cwdShell } from '../shell'
 const semverRe = /\d+\.\d+\.\d+/
 
 export function makeSemverGetter(cmd: string): () => string | undefined {
-  let versionCached
+  let versionCached: string | undefined
 
   return () => {
     if (!versionCached) {

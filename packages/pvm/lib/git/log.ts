@@ -1,4 +1,6 @@
+// @ts-ignore
 import gitLog from 'git-log-parser' // @TODO рассмотреть git-raw-commits, возможно он будет пошустрее
+// @ts-ignore
 import through from 'through2'
 import { logger } from '../logger'
 
@@ -12,7 +14,7 @@ function log(opts: Record<string, any>, spawnOpts: SpawnOptions | undefined = vo
 
     gitLog.parse(opts, spawnOpts)
       .on('error', reject)
-      .pipe(through.obj((commit, _enc, cb) => {
+      .pipe(through.obj((commit: Commit, _enc: unknown, cb: (p: any) => void) => {
         commits.push(commit)
         cb(null)
       }).on('finish', () => {

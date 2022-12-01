@@ -219,10 +219,10 @@ async function updateWithVcsRetry<R>(di: Container, updateMethod: UpdateMethod<R
   const dryRun = opts?.dryRun || false
   try {
     return await update(di, updateMethod, opts)
-  } catch (e) {
+  } catch (e: any) {
     if ((e as PushError).context === 'push' && !commit_via_platform && retry_via_platform_if_failed_via_vcs) {
       logger.warn(`PVM has failed to push a release commit via git:\n${e.message}\n Retrying release attempt using platform api now!`)
-      const templateEnv = await getTemplateEnv(di)
+      const templateEnv = await getTemplateEnv(config)
       const notifyMessage = templateEnv.render('failed_vcs_push', {
         CI_PIPELINE_URL: env.CI_PIPELINE_URL,
       })
@@ -252,7 +252,7 @@ async function updateWithVcsRetry<R>(di: Container, updateMethod: UpdateMethod<R
   }
 }
 
-async function update<R>(di, updateMethod: UpdateMethod<R>, opts: CliUpdateOpts = {}): Promise<R> {
+async function update<R>(di: Container, updateMethod: UpdateMethod<R>, opts: CliUpdateOpts = {}): Promise<R> {
   // @ts-ignore
   if (opts && opts.dryRun) {
     log(chalk`{yellowBright DRY RUN}`)
@@ -268,7 +268,7 @@ async function update<R>(di, updateMethod: UpdateMethod<R>, opts: CliUpdateOpts 
   }
 
   if (updateMethod.prepare) {
-    await updateMethod.prepare(config, vcsPlatform)
+    await updateMethod.prepare(di, vcsPlatform)
   }
 
   const updateState = await getUpdateState(di, { cwd: config.cwd })

@@ -12,7 +12,7 @@ async function * readLines(opts: ReadLinesOptions = {}) {
   let lingeringLine = ''
 
   let lines: string[] = []
-  let resolver
+  let resolver: (res?: boolean) => void
 
   process.stdin.on('data', function(chunk) {
     lines = (chunk as unknown as string).split(splitter)

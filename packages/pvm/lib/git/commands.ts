@@ -1,5 +1,6 @@
 import path from 'path'
 import fs from 'fs'
+// @ts-ignore
 import parseRepositoryUrl from '@hutson/parse-repository-url'
 import gitUrlParse from 'git-url-parse'
 import { wdShell } from '../shell'

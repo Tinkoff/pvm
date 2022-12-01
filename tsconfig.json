@@ -1,7 +1,10 @@
 {
   "compilerOptions": {
-    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "skipLibCheck": true,
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "target": "es2018",
     "experimentalDecorators": true,
     "resolveJsonModule": true,
@@ -24,7 +27,6 @@
     "module": "CommonJS",
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noImplicitAny": false,
     "sourceMap": false,
     "importsNotUsedAsValues": "error",
     "paths": {

@@ -7,7 +7,7 @@ async function * iterableToAsyncIterable<T>(it: Iterable<T>): AsyncIterableItera
   return yield * it
 }
 
-async function print(_di: Container, updateState: UpdateState, _vcs: any, cliOpts: CliUpdateOpts): Promise<AsyncIterable<string>> {
+async function print(_di: Container, updateState: UpdateState, _vcs: any, cliOpts: CliUpdateOpts = {}): Promise<AsyncIterable<string>> {
   const { format = '%n' } = cliOpts
 
   return pprint(iterableToAsyncIterable(updateState.getReleasePackages().values()), format)

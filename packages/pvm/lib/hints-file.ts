@@ -8,7 +8,7 @@ import type { UpdateHints, Config } from '../types'
 
 import { cwdToGitRelativity } from './git/worktree'
 
-function err(path, message): Error {
+function err(path: string, message: string): Error {
   return new Error(`[hints-file]: ${path ? `(${path})` : ''} ${message}`)
 }
 
@@ -17,16 +17,16 @@ export interface Validator {
   key: string,
 }
 
-function makeValidator(key, fn): Validator {
+function makeValidator(key: string, fn: (config: Config, hints: UpdateHints, api: { err: (message: string) => Error }, hintValue: any) => void): Validator {
   const api = {
-    err(message) {
+    err(message: string) {
       return err(key, message)
     },
     key,
   }
 
   return {
-    run: (config, hints) => {
+    run: (config, hints: Record<string, any>) => {
       fn(config, hints, api, hints[key])
     },
     key,
@@ -59,7 +59,7 @@ const validateReleaseTypes = makeValidator('release-types', (_, hints, api) => {
   }
 })
 
-const validateUpdateDependants = makeValidator('update-dependants-for', (config, hints, api) => {
+const validateUpdateDependants = makeValidator('update-dependants-for', (config: Config, hints: UpdateHints, api) => {
   const {
     dependants_release_type,
     update_dependants,

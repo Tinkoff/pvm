@@ -1,5 +1,11 @@
 
-const users = [
+export type User = {
+  id: number,
+  username: string,
+  name: string,
+}
+
+export const users: User[] = [
   {
     id: 1,
     username: 'default',
@@ -52,22 +58,18 @@ const users = [
   },
 ]
 
-function mapUsers(ids, wrap = true) {
+export function mapUsers(ids: number[], wrap: true): Array<{ user: User }>
+export function mapUsers(ids: number[], wrap: false | undefined): Array<User>
+export function mapUsers(ids: number[], wrap = true): Array<{ user: User } | User> {
   return ids.reduce((acc, id) => {
     const user = users.find(u => u.id === id)
     if (user) {
       acc.push(wrap ? { user } : user)
     }
     return acc
-  }, [])
+  }, [] as Array<User | { user: User }>)
 }
 
-function getUser(username) {
+export function getUser(username: string) {
   return users.find(u => u.username === username)
-}
-
-module.exports = {
-  users,
-  mapUsers,
-  getUser,
 }

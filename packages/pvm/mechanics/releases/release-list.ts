@@ -1,6 +1,7 @@
 import path from 'path'
 import fs from 'fs'
 import ms from 'ms'
+// @ts-ignore
 import bytes from 'bytes'
 import { expDropRight } from '../../lib/utils/array'
 import { makeReleasesFromWorkingTree } from './producers/releases-by-working-tree'
@@ -68,7 +69,7 @@ export function appendReleaseData(config: Config, releaseList: ReleaseData[], re
   return reduceReleaseList(config, releaseList)
 }
 
-export function fsAppendReleaseData(config: Config, releaseData: ReleaseData): void {
+export function fsAppendReleaseData(config: Config, releaseData: ReleaseData, dryRun: boolean): void {
   const releaseListConfig = config.release_list
   if (!releaseListConfig.enabled) {
     return
@@ -79,7 +80,7 @@ export function fsAppendReleaseData(config: Config, releaseData: ReleaseData): v
     releaseList = JSON.parse(fs.readFileSync(fullPath, { encoding: 'utf-8' })) as unknown as ReleaseData[]
   }
   const reducedReleaseList = appendReleaseData(config, releaseList, releaseData)
-  if (!config.executionContext.dryRun) {
+  if (!dryRun) {
     fs.writeFileSync(fullPath, JSON.stringify(reducedReleaseList))
   }
   logger.info(`ReleaseList(size=${reducedReleaseList.length}) has been written to "${releaseListConfig.path}"`)

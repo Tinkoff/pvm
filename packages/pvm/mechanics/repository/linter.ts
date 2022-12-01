@@ -110,6 +110,9 @@ const versionsFileGeneralRule: LintRepoRule = {
     }
 
     const versionsRecord = versioningFile.load(repo.config)
+    if (!versionsRecord) {
+      return
+    }
     // проверяем что нет лишних записей
     for (const pkgName of Object.keys(versionsRecord)) {
       if (!repo.pkgset.has(pkgName)) {

@@ -1,3 +1,4 @@
+import type { PkgsetChangedOpts } from './changed'
 import changed from './changed'
 import stdin from './stdin'
 import stale from './stale'
@@ -6,8 +7,10 @@ import changedAt from './changed-at'
 import changedSinceRelease from './changed-since-release'
 import released from './released'
 import affected from './affected'
+import type { Container } from '../../../lib/di'
+import type { Pkg } from '../../../lib/pkg'
 
-const strategies = {
+const strategies: Record<string, (di: Container, opts?: PkgsetChangedOpts) => AsyncIterableIterator<Pkg>> = {
   changed,
   stdin,
   stale,

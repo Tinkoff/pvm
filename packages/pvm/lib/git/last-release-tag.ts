@@ -33,7 +33,7 @@ function lastMatchedTagImpl(cwd: string, mask: string, target: string | void = v
     // как правило если оба есть и отличаются, firstParentTag будет более старым
     shell(`git merge-base --is-ancestor "${firstParentTag}" "${nonFPTag}"`, { cwd })
     return nonFPTag
-  } catch (e) {
+  } catch (e: any) {
     if (e.status !== 1) {
       throw e
     }

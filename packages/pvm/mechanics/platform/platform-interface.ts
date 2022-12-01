@@ -12,10 +12,17 @@ import { getNoteBody } from '../vcs/utils'
 import { logDryRun } from '../../lib/utils'
 import { PlatformResult } from '../../lib/shared'
 import getCommits from '../../lib/git/commits'
+import type { GlobalFlags } from '../../lib/cli/global-flags'
 
 export abstract class PlatformInterface<MergeRequest, CommitContext> implements FileCommitApi<CommitContext> {
   name: string
   dryRun: boolean
+
+  constructor({ name, globalFlags }: { name: string, globalFlags: GlobalFlags }) {
+    this.dryRun = globalFlags.getFlag('dryRun')
+    this.name = name
+  }
+
   protected abstract cwd: string
   protected abstract hostApi: HostApi
   abstract requireMr(): MergeRequest;
@@ -116,7 +123,7 @@ export abstract class PlatformInterface<MergeRequest, CommitContext> implements 
   }
 
   @logDryRun
-  async makeReleaseForTag(tagObject, prevRef: string): Promise<void> {
+  async makeReleaseForTag(tagObject: { name: string }, prevRef: string): Promise<void> {
     if (this.dryRun) {
       return
     }
@@ -171,5 +178,5 @@ export abstract class PlatformInterface<MergeRequest, CommitContext> implements 
 
   abstract rollbackCommit(commitContext: CommitContext): Promise<void>;
 
-  abstract updateFile(commitContext: CommitContext, file_path, content): void;
+  abstract updateFile(commitContext: CommitContext, file_path: string, content: string): void;
 }

@@ -1,7 +1,10 @@
+import type { Commit } from '@pvm/pvm'
+import type { GitlabCommit } from '../../types'
+
 const addSeconds = require('date-fns/addSeconds')
 
 // берем коммит от git-log-parser и преобразовываем в формат коммита гитлаба
-const transform = (c, processDate) => {
+const transform = (c: Commit, processDate: (d: Date) => string): GitlabCommit => {
   const sha = c.commit.long
   return {
     id: sha,
@@ -18,7 +21,7 @@ const transform = (c, processDate) => {
   }
 }
 
-function makeTransormer() {
+export function makeTransformer() {
   let i = 0
 
   const baseDate = new Date('2018-11-27T12:00:00.000Z')
@@ -31,10 +34,8 @@ function makeTransormer() {
     incDate() {
       i++
     },
-    transform(c) {
+    transform(c: Commit) {
       return transform(c, fakeDate)
     },
   }
 }
-
-module.exports = makeTransormer

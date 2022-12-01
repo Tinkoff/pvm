@@ -4,6 +4,7 @@ import { env } from './env'
 import { gitFetch } from './git/commands'
 import path from 'path'
 import fs from 'fs'
+// @ts-ignore
 import ini from 'ini'
 
 function readNpmRc(cwd: string): string {
@@ -16,14 +17,14 @@ const { version } = require('../package.json')
 
 let booted = false
 
-const fail = (e) => {
+const fail = (e: Error) => {
   logger.fatal(e)
   process.exitCode = 1
 }
 
 nodeBoot()
 
-function beforeExitCallback(exitCode): void {
+function beforeExitCallback(exitCode: number): void {
   if (typeof exitCode === 'undefined') {
     logger.fatal('Deadlock detected!')
     process.exitCode = 1

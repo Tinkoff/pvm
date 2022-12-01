@@ -53,12 +53,12 @@ const allOwnDepsKeys = [
   'dependencies',
   'devDependencies',
   'optionalDependencies',
-]
+] as const
 
 const allDepsKeys = [
   ...allOwnDepsKeys,
   'peerDependencies',
-]
+] as const
 
 export interface PkgCreateOpts {
   indent?: number,
@@ -315,10 +315,10 @@ export class Pkg {
   }
 
   // возвращает в каких ключах (dependencies, devDependencies, ...) есть переданная зависимость
-  getDepKeys(pkgName: string): string[] {
-    const result: string[] = []
+  getDepKeys(pkgName: string): Array<typeof allDepsKeys[number]> {
+    const result: Array<typeof allDepsKeys[number]> = []
     for (const depKey of allDepsKeys) {
-      if (this.meta[depKey] && pkgName in this.meta[depKey]) {
+      if (this.meta[depKey]?.[pkgName]) {
         result.push(depKey)
       }
     }
@@ -365,10 +365,11 @@ export interface PkgDiff {
 
 export class AppliedPkg extends Pkg {
   protected _newDeps: Map<string, string> = new Map()
-  meta: PkgAppliedMeta
+  override meta: PkgAppliedMeta
 
   constructor(pkgPath: string, manifest: PkgAppliedMeta, opts: PkgCreateOpts = {}) {
     super(pkgPath, manifest, opts)
+    this.meta = manifest
   }
 
   setNewDeps(newDeps: Map<string, string>) {
@@ -376,8 +377,8 @@ export class AppliedPkg extends Pkg {
     for (const [pkgName, depVersion] of newDeps) {
       const depKeys = this.getDepKeys(pkgName)
       for (const depKey of depKeys) {
-        const semverPrefix = detectRangePrefix(this.meta[depKey][pkgName])
-        this.meta[depKey][pkgName] = `${semverPrefix}${depVersion}`
+        const semverPrefix = detectRangePrefix(this.meta[depKey]![pkgName])
+        this.meta[depKey]![pkgName] = `${semverPrefix}${depVersion}`
       }
     }
   }

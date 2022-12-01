@@ -1,11 +1,13 @@
 // make repository by text spec
-const fs = require('fs')
-const path = require('path')
-const { reposDir } = require('./repos-dir')
+import fs from 'fs'
+import path from 'path'
+// @ts-ignore
+import { reposDir } from './repos-dir'
+import type { PkgPath, PkgSpec, PkgVersion, Repo, RepoPkg, RepoSpec } from './types'
 
 // makeRepo('any_name', 'src/a@1.0.0,src/b@1.0.0', { b: 'a'})
 
-function splitPkgPath(pkgPath) {
+function splitPkgPath(pkgPath: string): [string, string] {
   const firstIndexOfSlash = pkgPath.indexOf('/')
   return [
     pkgPath.substring(0, firstIndexOfSlash),
@@ -13,20 +15,20 @@ function splitPkgPath(pkgPath) {
   ]
 }
 
-function parseSpec({ name, version, spec, deps = {} }) {
-  const rep = {
+function parseSpec({ name, version, spec, deps = {} }: RepoSpec): Repo {
+  const rep: Repo = {
     packages: new Map(),
     name,
     version,
+    workspaces: new Set(),
   }
 
-  const packagesSpec = Array.isArray(spec) ? spec : spec.split(',')
+  const packagesSpec = (Array.isArray(spec) ? spec : spec.split(',')) as PkgSpec[]
   for (const pkgSpec of packagesSpec) {
-    const [pkgPath, version] = pkgSpec.split('@')
+    const [pkgPath, version] = pkgSpec.split('@') as [PkgPath, PkgVersion]
     const [pkgDir, pkgName] = splitPkgPath(pkgPath)
-    rep.workspaces = rep.workspaces || new Set()
     rep.workspaces.add(`${pkgDir}/*`)
-    const pkg = {
+    const pkg: RepoPkg = {
       name: pkgName,
       path: pkgPath,
       version,
@@ -38,16 +40,16 @@ function parseSpec({ name, version, spec, deps = {} }) {
     if (!rep.packages.has(pkgName)) {
       throw new Error(`Invalided repo deps spec, there is no ${pkgName} package`)
     }
-    const pkg = rep.packages.get(pkgName)
+    const pkg = rep.packages.get(pkgName)!
     const deps = typeof depSpec === 'string' ? [depSpec] : depSpec
 
-    const dependencies = {}
+    const dependencies: RepoPkg['dependencies'] = {}
 
     for (const depName of deps) {
       if (!rep.packages.has(depName)) {
         throw new Error(`Invalided repo deps spec, there is no ${depName} package`)
       }
-      dependencies[depName] = rep.packages.get(depName).version
+      dependencies[depName] = rep.packages.get(depName)!.version
     }
 
     pkg.dependencies = dependencies
@@ -56,7 +58,7 @@ function parseSpec({ name, version, spec, deps = {} }) {
   return rep
 }
 
-function rootPkgTemplate(rep) {
+function rootPkgTemplate(rep: Repo) {
   return JSON.stringify({
     name: rep.name,
     version: rep.version,
@@ -65,7 +67,7 @@ function rootPkgTemplate(rep) {
   }, null, 2)
 }
 
-function pkgTemplate(pkg) {
+function pkgTemplate(pkg: RepoPkg) {
   const json = {
     name: pkg.name,
     version: pkg.version,
@@ -75,13 +77,13 @@ function pkgTemplate(pkg) {
   return JSON.stringify(json, null, 2)
 }
 
-function mkdirp(dir) {
+function mkdirp(dir: string) {
   fs.mkdirSync(dir, {
     recursive: true,
   })
 }
 
-function makeRepoByStructure(targetDir, rep) {
+function makeRepoByStructure(targetDir: string, rep: Repo) {
   fs.writeFileSync(path.join(targetDir, 'package.json'), rootPkgTemplate(rep))
   for (const pkg of rep.packages.values()) {
     mkdirp(path.join(targetDir, pkg.path))
@@ -89,7 +91,7 @@ function makeRepoByStructure(targetDir, rep) {
   }
 }
 
-function takeDirAndMakeRepo(commonDir, rep) {
+function takeDirAndMakeRepo(commonDir: string, rep: Repo): string {
   const baseName = rep.name
   let name = baseName
   let repoDir = `${commonDir}/${name}`
@@ -102,8 +104,8 @@ function takeDirAndMakeRepo(commonDir, rep) {
     fs.mkdirSync(repoDir, {
       recursive: true,
     })
-  } catch (e) {
-    if (e.code === 'EEXIST') {
+  } catch (e: unknown) {
+    if ((e as { code?: string }).code === 'EEXIST') {
       return takeDirAndMakeRepo(baseName, rep)
     }
     throw e
@@ -113,9 +115,7 @@ function takeDirAndMakeRepo(commonDir, rep) {
   return repoDir
 }
 
-function writeRepo(repoSpec) {
+export function writeRepo(repoSpec: RepoSpec) {
   const rep = parseSpec(repoSpec)
   return takeDirAndMakeRepo(reposDir, rep)
 }
-
-exports.writeRepo = writeRepo

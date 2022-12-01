@@ -50,6 +50,9 @@ overrides:
       execScript: true
       initRepo: true
       writeConfig: true
+  - files: ['*.ts']
+    rules:
+      no-redeclare: off
 
 env:
   node: true

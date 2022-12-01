@@ -2,6 +2,7 @@ import type { PkgSet } from '../../../lib/pkg-set'
 import semver from 'semver'
 import { logger } from '../../../lib/logger'
 import { PkgMap } from '../../../lib/pkg-map'
+import type { HttpReqError } from '../../../lib/httpreq'
 import { httpreq } from '../../../lib/httpreq'
 
 import { AbstractPublishApplier } from './abstract'
@@ -102,8 +103,8 @@ export class CanaryPublishApplier extends AbstractPublishApplier {
        * Поэтому ходим в registry напрямую через rest api
        */
       packumentStr = (await httpreq(`${registry.replace(/\/$/, '')}/${pkg.name}`)).body
-    } catch (e) {
-      if (e.statusCode !== 404) {
+    } catch (e: unknown) {
+      if ((e as HttpReqError).statusCode !== 404) {
         throw e
       }
     }

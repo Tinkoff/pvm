@@ -12,8 +12,8 @@ type AsyncIterableGetter<T> = () => AsyncIterable<T>
 const asyncIterablesCache = new Map<AsyncIterableGetter<any>, IterationStatus<any>>()
 
 function iterateCached<T>(getAsyncIterator: AsyncIterableGetter<T>, ctx: any): AsyncIterableIterator<T> {
-  let resolveFinished
-  let rejectFinished
+  let resolveFinished: (value?: unknown) => void
+  let rejectFinished: (e: Error) => void
 
   const makeInitialStatus = (): IterationStatus<T> => {
     const willFinished: Promise<unknown> = new Promise((resolve, reject) => {
@@ -37,7 +37,7 @@ function iterateCached<T>(getAsyncIterator: AsyncIterableGetter<T>, ctx: any): A
     asyncIterablesCache.set(getAsyncIterator, status)
   }
 
-  async function * cachedIterator() {
+  async function * cachedIterator(): AsyncGenerator<T> {
     if (status.finished) {
       for (const item of status.items) {
         yield item
@@ -52,7 +52,7 @@ function iterateCached<T>(getAsyncIterator: AsyncIterableGetter<T>, ctx: any): A
           status.items.push(value)
           yield value
         }
-      } catch (e) {
+      } catch (e: any) {
         status.error = e
         throw e
       } finally {

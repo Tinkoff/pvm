@@ -1,5 +1,5 @@
 import { isValidReleaseType } from '../../lib/semver-extra'
-import { log } from '../../lib/logger'
+import { log, logger } from '../../lib/logger'
 import { Repository } from '../repository'
 import type { AppliedPkg, Pkg } from '../../lib/pkg'
 import { pkgsetFromFlags } from '../pkgset/pkgset'
@@ -48,7 +48,7 @@ export async function setVersions(di: Container, opts: {
       } else {
         resultVersion = semver.inc(pkg.version, versionOrReleaseType as ReleaseType)
         if (resultVersion === null) {
-          log.warn(`Could not increment version ${pkg.version} of ${pkg.name} with release type ${versionOrReleaseType}`)
+          logger.warn(`Could not increment version ${pkg.version} of ${pkg.name} with release type ${versionOrReleaseType}`)
         }
       }
     }

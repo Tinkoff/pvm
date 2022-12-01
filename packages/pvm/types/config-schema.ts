@@ -213,7 +213,7 @@ export interface Config {
     /**
      * Dependency lists that should be updated and used when package version updates
      */
-    deps_keys: Array<'dependencies' | 'devDependencies' | 'peerDependencies' | 'optionalDependencies' | string>,
+    deps_keys: Array<'dependencies' | 'devDependencies' | 'peerDependencies' | 'optionalDependencies'>,
   },
   pkgset: {
     /**
@@ -444,6 +444,7 @@ export interface Config {
    * See packages/pvm-template/lib/env.ts for extra filters and variables
    */
   templates: {
+    [key: string]: string,
     /**
      * todo: Привести к единому формату нейминга (дефисы в нижнее подчеркивание)
      */

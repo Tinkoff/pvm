@@ -7,12 +7,12 @@ export function pullOutLinks(text: string): string {
   })
 }
 
-export function replaceLinks(text: string, replacer): string {
+export function replaceLinks(text: string, replacer: string): string {
   return text.replace(mrkdwnLinkRe, replacer)
 }
 
-const escapeRe = (s) => {
-  return s.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+const escapeRe = (s: string) => {
+  return s.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
 }
 
 export function dottifyList(text: string, symbolItem = '-'): string {

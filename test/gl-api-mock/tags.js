@@ -1,6 +1,6 @@
 const express = require('express')
 const getTags = require('../git/gl/tags')
-const shell = require('../../packages/pvm/lib/shell').default
+const { shell } = require('../../packages/pvm/lib/shell')
 const commitsToTags = require('../git/gl/commitsToTags').default
 const gitLog = require('../../packages/pvm/lib/git/log').default
 const { tagNotes, setTagNotes } = require('../git/tagNotes')

@@ -46,7 +46,13 @@ export interface UpdateHints {
   'update-dependants-for'?: Array<{
     match: string,
     'release-type': PvmReleaseType | 'as-dep',
+    'max-depth'?: number,
   }>,
+  'force-release'?: {
+    packages: string[],
+    'release-type'?: PvmReleaseType,
+    'release-notes'?: string,
+  },
 }
 
 export type ReleaseMessageGenerator = (releasedProps: ReleasedProps) => Promise<Message>

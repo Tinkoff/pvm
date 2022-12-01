@@ -1,9 +1,9 @@
 import { mema } from '../../lib/memoize'
 import getTemplateEnv from './env'
 import { compile } from 'nunjucks'
-import type { Container } from '../../lib/di'
+import type { Config } from '../../types'
 
-export const lazyCompileTemplate = mema(async (di: Container, text: string) => {
-  const templateEnv = await getTemplateEnv(di)
+export const lazyCompileTemplate = mema(async (config: Config, text: string) => {
+  const templateEnv = await getTemplateEnv(config)
   return compile(text, templateEnv)
 })

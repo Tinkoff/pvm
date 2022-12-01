@@ -46,7 +46,7 @@ export function makeUnifiedReleaseTagTest(config: Config): (tagName: string) => 
   }
 }
 
-export function releaseTagFilter(config: Config): (string) => boolean {
+export function releaseTagFilter(config: Config): (s: string) => boolean {
   return isGenericTagUsed(config) ? makeUnifiedReleaseTagTest(config) : isSemverTag
 }
 

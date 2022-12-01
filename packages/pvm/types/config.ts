@@ -6,8 +6,4 @@ export type Config = ConfigSchema & {
    * @deprecated needs for backward compatibility with old plugin loading system
    */
   configLookupDir: string,
-  executionContext: {
-    dryRun: boolean,
-    local: boolean,
-  },
 }

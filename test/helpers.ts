@@ -1,13 +1,14 @@
-const fs = require('fs')
-const assert = require('assert')
-const path = require('path')
-const util = require('util')
-const sprout = require('sprout-data')
-const TOML = require('@iarna/toml')
+import fs from 'fs'
+import assert from 'assert'
+import path from 'path'
+import util from 'util'
+import * as sprout from 'sprout-data'
+import TOML from '@iarna/toml'
+import type { Config, RecursivePartial } from '@pvm/pvm'
 
 const writeFile = util.promisify(fs.writeFile)
 
-function writeConfig(repo, config, configFormat = 'json') {
+export function writeConfig(repo: { dir: string }, config: RecursivePartial<Config>, configFormat: 'json' | 'js' | 'toml' = 'json') {
   const configPath = path.join(repo.dir, `.pvm.${configFormat}`)
   assert.ok(
     configFormat === 'json' || configFormat === 'toml' || configFormat === 'js',
@@ -29,12 +30,10 @@ function writeConfig(repo, config, configFormat = 'json') {
       newContents = JSON.stringify(config, null, 2)
       break
     case 'toml':
-      newContents = TOML.stringify(config)
+      newContents = TOML.stringify(config as any)
       break
     case 'js':
       newContents = `module.exports = ${config}`
   }
   return writeFile(configPath, newContents)
 }
-
-exports.writeConfig = writeConfig

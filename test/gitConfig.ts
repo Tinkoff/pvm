@@ -3,7 +3,7 @@ const {
   GITLAB_USER_NAME = 'Jest Agent',
 } = process.env
 
-module.exports = function getGitConfigTools(gitShell) {
+export function getGitConfigTools(gitShell: (cmd: string) => string) {
   return {
     getUserConfig() {
       let name
@@ -32,7 +32,7 @@ module.exports = function getGitConfigTools(gitShell) {
       gitShell(`git config --unset user.name`)
     },
 
-    async runInPreparedEnvironment(runner) {
+    async runInPreparedEnvironment(runner: () => any) {
       const { name, email } = this.getUserConfig()
       const shouldPrepareEnv = !name || !email
 
@@ -49,7 +49,7 @@ module.exports = function getGitConfigTools(gitShell) {
       return runResult
     },
 
-    async runInPureEnvironment(runner) {
+    async runInPureEnvironment(runner: () => any) {
       const { name, email } = this.getUserConfig()
       const shouldPurifyEnv = name || email
 

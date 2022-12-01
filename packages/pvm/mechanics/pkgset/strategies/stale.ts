@@ -29,7 +29,7 @@ async function * pkgset(di: Container, opts: PkgsetStaleOpts = {}): AsyncIterabl
       // @TODO сделать параллельные запросы в нпм (ускорить)
       logger.info(`retrieving published version for ${pkg.name} from ${registry || 'default'} registry..`)
       response = wdShell(config.cwd, `npm view ${pkg.name} version ${registry ? `--registry ${registry}` : ''}`, { stdio: 'pipe' })
-    } catch (e) {
+    } catch (e: any) {
       // According https://github.com/npm/cli/issues/3075 there is a flag --json behaviour change that defeats its purpose
       // and making output unparsable as json
       if (e.toString().indexOf(' E404') === -1) {

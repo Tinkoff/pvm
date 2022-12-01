@@ -19,7 +19,10 @@ import { env } from '../../lib/env'
 
 import type { RESOLVE_PUSH_REMOTE_TOKEN } from '../../tokens'
 
-const gitlabPushWithoutKeyDesc = {
+const gitlabPushWithoutKeyDesc: {
+  ru: string,
+  _: string,
+} = {
   'ru': `Вы пытаетесь отправить изменения через git на gitlab раннере. Однако, по умолчанию из гитлаб раннеров нельзя отправлять изменения через git протокол (см. https://gitlab.com/gitlab-org/gitlab-foss/-/issues/63858).
 
 Если операция не пройдет, сделайте следующее:
@@ -170,21 +173,21 @@ export class GitVcs implements AbstractVcs<GitCommitContext> {
     return Promise.resolve()
   }
 
-  updateFile(_, filePath, content): Promise<void> {
+  updateFile(_: GitCommitContext, filePath: string, content: string): Promise<void> {
     mkdirp(path.dirname(filePath))
     fs.writeFileSync(filePath, content)
 
     return this.runGit(`git add ${filePath}`)
   }
 
-  appendFile(_, filePath, content) {
+  appendFile(_: GitCommitContext, filePath: string, content: string) {
     mkdirp(path.dirname(filePath))
     fs.appendFileSync(filePath, content)
 
     return this.runGit(`git add ${filePath}`)
   }
 
-  async deleteFile(_, filePath): Promise<void> {
+  async deleteFile(_: GitCommitContext, filePath: string): Promise<void> {
     if (fs.existsSync(filePath)) {
       return this.runGit(`git rm ${filePath}`)
     }
@@ -195,7 +198,7 @@ export class GitVcs implements AbstractVcs<GitCommitContext> {
     return getCurrentBranchIgnoreEnv(this.cwd)
   }
 
-  async commit(_, message: string, opts: CommitOptions = {}): Promise<CommitResult> {
+  async commit(_: GitCommitContext, message: string, opts: CommitOptions = {}): Promise<CommitResult> {
     this.prepareGitMemo()
 
     const { branch } = opts
@@ -263,7 +266,7 @@ export class GitVcs implements AbstractVcs<GitCommitContext> {
       if (!env.GIT_SSH_PRIV_KEY) {
         // @TODO: i18n support
         const locale = Intl.DateTimeFormat().resolvedOptions().locale.split('-')[0].toLowerCase()
-        const messageLocale = locale in gitlabPushWithoutKeyDesc ? locale : '_'
+        const messageLocale = locale in gitlabPushWithoutKeyDesc ? locale as keyof typeof gitlabPushWithoutKeyDesc : '_'
         logger.warn(gitlabPushWithoutKeyDesc[messageLocale])
       }
       const gitLoadPushCreds = path.resolve(__dirname, './git-load-push-creds.sh')
@@ -317,7 +320,7 @@ export class GitVcs implements AbstractVcs<GitCommitContext> {
     return this.shell(`git rev-parse origin/${refName}`)
   }
 
-  async addTag(tagName, ref, opts: AddTagOptions = {}): Promise<void> {
+  async addTag(tagName: string, ref: string, opts: AddTagOptions = {}): Promise<void> {
     this.prepareGitMemo()
     addTag(this.cwd, {
       tagName,

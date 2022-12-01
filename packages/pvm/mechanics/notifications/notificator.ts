@@ -5,7 +5,7 @@ import type { Message, MessengerClientConfig, Config } from '../../types'
 import { logger } from './logger'
 import resolveFrom from 'resolve-from'
 import { requireDefault } from '../../lib/interop'
-import defaultsDeep from 'lodash.defaultsdeep'
+import defaultsDeep from 'lodash/defaultsDeep'
 
 export class Notificator {
   private messengers: MessengerClients

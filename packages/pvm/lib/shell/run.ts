@@ -1,8 +1,8 @@
 // как shell, только не захватываем вывод рисуя все как есть
 import { spawn } from 'child_process'
-import type { StdioOptions } from 'child_process'
+import type { StdioOptions, ChildProcess } from 'child_process'
 
-import type { RunShellOptions } from "../../types"
+import type { RunShellOptions } from '../../types'
 import WritableStream = NodeJS.WritableStream
 import { env } from '../env'
 
@@ -21,22 +21,24 @@ export interface RunShellError extends Error {
 
 function stdioSmartHandler(stdio: StdioOptions) {
   stdio = stdioAsArray(stdio)
-  const streamNames = ['stdin', 'stdout', 'stderr']
-  const replacedStreams: Record<string, WritableStream> = {}
+  const streamNames = ['stdin', 'stdout', 'stderr'] as const
+  const replacedStreams: Record<'stdin' | 'stdout' | 'stderr', WritableStream> = {} as any
   stdio = stdio.map((maybeStream, i) => {
     // keep stdin as is
     if (i === 0) {
       return maybeStream
     }
+    // @ts-ignore
+    // todo: fix types
     if (typeof maybeStream === 'object' && maybeStream !== null && typeof maybeStream['write'] === 'function' && !('fd' in maybeStream)) {
       replacedStreams[streamNames[i]] = maybeStream as unknown as WritableStream
       return 'pipe'
     }
     return maybeStream
   })
-  const handler = (child) => {
-    for (const [name, stream] of Object.entries(replacedStreams)) {
-      child[name].on('data', data => {
+  const handler = (child: ChildProcess) => {
+    for (const [name, stream] of Object.entries(replacedStreams) as Array<['stdin' | 'stdout' | 'stderr', WritableStream]>) {
+      child[name]?.on('data', (data: string) => {
         stream.write(data)
       })
     }

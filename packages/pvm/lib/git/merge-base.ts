@@ -4,7 +4,7 @@ import { env } from '../env'
 export function mergeBase(cwd: string, from: string, to: string): string {
   try {
     return wdShell(cwd, `git merge-base ${from} ${to}`)
-  } catch (e) {
+  } catch (e: any) {
     const message = [e.message]
     let gitDepthDesc = '.'
     if (env.GIT_DEPTH) {

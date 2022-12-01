@@ -1,14 +1,22 @@
-import makeTransformer from './transformCommit'
+import { makeTransformer } from './transformCommit'
 
 import { tagNotes } from '../tagNotes'
+import type { Commit } from '@pvm/pvm'
 import { shell } from '@pvm/pvm'
+import type { GitlabCommit } from '../../types'
 
-const makeReducer = (cwd, opts: { onlyReleases?: boolean } = {}) => {
-  const gitShell = cmd => shell(cmd, { cwd })
+const makeReducer = (cwd: string, opts: { onlyReleases?: boolean } = {}) => {
+  const gitShell = (cmd: string) => shell(cmd, { cwd })
 
   const { incDate, transform } = makeTransformer()
 
-  return (acc, c) => {
+  return (acc: Array<{
+    name: string,
+    message: string,
+    target: string,
+    commit: GitlabCommit,
+    release: { tag_name: string, description: string } | null,
+  }>, c: Commit) => {
     const sha = c.commit.long
     const tagNames = gitShell(`git tag --points-at ${sha}`).split(/\s+/).filter(s => s.length > 0)
     if (!tagNames.length) {

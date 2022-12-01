@@ -1,6 +1,7 @@
 import semver from 'semver'
-import type { AppliedPkg, Pkg } from "../../../lib/pkg"
+import type { AppliedPkg, Pkg } from '../../../lib/pkg'
 import type { UpdateState } from '../update-state'
+import type { Container } from '../../../lib/di/index'
 
 enum DepType {
   TYPE_NORMAL = 1,
@@ -25,7 +26,7 @@ function getLegend(): Legend {
     getStyleItem(type, flags) {
       const isDependant = flags & DepType.TYPE_DEPENDANT
 
-      const baseStyle = type => {
+      const baseStyle = (type: string) => {
         switch (type) {
           case 'root':
             return `shape=egg color=green`
@@ -82,7 +83,7 @@ function getLegend(): Legend {
 }
 
 function makeSafeId(name: string): string {
-  return name.replace(/[-/@]/g, '___');
+  return name.replace(/[-/@]/g, '___')
 }
 
 function pkgTitle(pkg: Pkg): string {
@@ -162,7 +163,7 @@ digraph p {
   )
 }
 
-async function run(updateState: UpdateState): Promise<string | void> {
+async function run(_di: Container, updateState: UpdateState): Promise<string | void> {
   if (updateState.isSomethingForRelease) {
     return updateStateToDot(updateState)
   }

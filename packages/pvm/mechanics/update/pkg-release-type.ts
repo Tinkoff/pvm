@@ -11,11 +11,11 @@ import type { Pkg } from '../../lib/pkg'
 import type { ForceReleaseState } from './types'
 import type { UpdateState } from './update-state'
 
-const fileReleaseAliases = {
+const fileReleaseAliases: Record<string, PvmReleaseType> = {
   skip: 'none',
 }
 
-const releaseTypesInDescOrderWithAliases: string[] = [...releaseTypesInAscendingOrder]
+const releaseTypesInDescOrderWithAliases = [...releaseTypesInAscendingOrder]
   .reverse()
   // @ts-ignore
   .concat(Object.keys(fileReleaseAliases))
@@ -92,12 +92,12 @@ export async function markReleaseType(pkg: Pkg, updateState: UpdateState, opts: 
   }
 
   if (!releaseType && updateConfig.workspace_release_files) {
-    const updated = releaseTypesInDescOrderWithAliases.some(fileName => {
-      const releaseFile = path.join(pkg.absPath, fileName)
+    const updated = releaseTypesInDescOrderWithAliases.some(releaseType => {
+      const releaseFile = path.join(pkg.absPath, releaseType)
       if (fs.existsSync(releaseFile)) {
-        releaseType = fileReleaseAliases[fileName] || fileName
+        releaseType = fileReleaseAliases[releaseType] || releaseType
 
-        updateState.releaseFilesMap.set(pkg, fileName)
+        updateState.releaseFilesMap.set(pkg, releaseType)
         return true
       }
       return false

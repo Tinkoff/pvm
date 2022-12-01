@@ -15,7 +15,7 @@ async function glapi<T = any>(di: Container, uri: string, opts: HttpReqOptions =
     GITLAB_AUTH_COMMAND,
   } = env
 
-  const gitlabAuthFn = di.get(GITLAB_AUTH_FUNCTION_TOKEN)
+  const gitlabAuthFn = di.get({ token: GITLAB_AUTH_FUNCTION_TOKEN, optional: true })
   const config = di.get(CONFIG_TOKEN)
 
   let privateToken = GL_TOKEN || GITLAB_TOKEN

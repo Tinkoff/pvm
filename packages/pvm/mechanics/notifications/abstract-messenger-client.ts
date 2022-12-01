@@ -1,7 +1,7 @@
 import type { Config, Message, MessengerClientConfig } from '../../types'
 
 import { logger } from './logger'
-import defaultsDeep from 'lodash.defaultsdeep'
+import defaultsDeep from 'lodash/defaultsDeep'
 
 export abstract class AbstractMessengerClient {
   // eslint-disable-next-line no-useless-constructor

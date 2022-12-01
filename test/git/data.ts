@@ -26,7 +26,7 @@ const defaults = {
   },
 }
 
-function dataFor(dir) {
+export function dataFor(dir: string) {
   if (!stores.has(dir)) {
     const store = new Configstore(dir, defaults, {
       configPath: path.join(dir, '.git/gl/data.json'),
@@ -35,5 +35,3 @@ function dataFor(dir) {
   }
   return stores.get(dir)
 }
-
-exports.dataFor = dataFor

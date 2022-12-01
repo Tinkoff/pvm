@@ -63,7 +63,7 @@ export async function publish(di: Container, flags: Flags): Promise<PublishedSta
   let config = di.get(CONFIG_TOKEN)
   const ref = revParse('HEAD', cwd)
 
-  flags = applyFlagsDefaultsForUnification(flags)
+  flags = applyFlagsDefaultsForUnification(di, flags)
   config = applyFlagsToConfig(config, flags)
 
   logger.info(`publishing packages..`)
@@ -404,12 +404,12 @@ function applyFlagsToConfig(config: Config, flags: Flags): Config {
   return config
 }
 
-function applyFlagsDefaultsForUnification(flags: Flags): Flags {
+function applyFlagsDefaultsForUnification(di: Container, flags: Flags): Flags {
   // унифицируем дефолтные значения для вызовов через node api и cli
-  return defaults(flags, mapValues(flagsBuilder, builder => builder.default))
+  return defaults(flags, mapValues(flagsBuilder(di), builder => (builder as any).default))
 }
 
-let distTagsCommandSupported
+let distTagsCommandSupported: boolean
 function areDistTagsSupported(pkgName: string, registry?: string): boolean {
   if (distTagsCommandSupported === void 0) {
     try {
@@ -438,7 +438,7 @@ async function getSortedPublishedVersions(pkgName: string, registry?: string): P
     if (typeof distTags === 'string') {
       distTags = [distTags]
     }
-  } catch (e) {
+  } catch (e: any) {
     // if package completely unpublished
     if (e.toString().indexOf('E404') !== -1) {
       return []

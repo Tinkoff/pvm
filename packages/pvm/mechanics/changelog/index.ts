@@ -8,7 +8,6 @@ import pkgsetAll from '../pkgset/strategies/all'
 import { lazyCompileTemplate } from '../template'
 import { pkgChangelogPath } from './rules'
 import { releaseDataMaker } from '../releases/release-data'
-import { wdmemoize, CacheTag } from '../../lib/memoize'
 import { prevReleaseTag } from '../../lib/git/last-release-tag'
 import { wdShell } from '../../lib/shell'
 
@@ -19,7 +18,7 @@ import type { Renderer, IncrementalRenderer } from './types'
 import type { ReleaseData } from '../releases/types'
 import { cwdToGitRelativity } from '../../lib/git/worktree'
 import type { Container } from '../../lib/di'
-import { CHANGELOG_RENDERERS_MAP, CONFIG_TOKEN } from '../../tokens'
+import { CHANGELOG_RENDERERS_MAP, CONFIG_TOKEN, GLOBAL_FLAGS_TOKEN } from '../../tokens'
 
 const logger = loggerFor('pvm:changelog')
 
@@ -28,7 +27,7 @@ export enum RenderTarget {
   markPr,
 }
 
-export async function getRendererPure(di: Container, rendererTarget: RenderTarget = RenderTarget.changelog): Promise<Renderer | IncrementalRenderer> {
+export async function getRenderer(di: Container, rendererTarget: RenderTarget = RenderTarget.changelog): Promise<Renderer | IncrementalRenderer> {
   const config = di.get(CONFIG_TOKEN)
   const renderersMap = di.get(CHANGELOG_RENDERERS_MAP)
 
@@ -42,8 +41,6 @@ export async function getRendererPure(di: Container, rendererTarget: RenderTarge
 
   return rendererInstance
 }
-
-export const getRenderer = wdmemoize(getRendererPure, [CacheTag.pvmConfig])
 
 export interface ChangelogContents {
   body: string,
@@ -113,7 +110,7 @@ async function getReleasesRenderer(di: Container, releaseData?: ReleaseData): Pr
     }
 
     if ((needToRenderReleaseList || !contents.frontmatter) && conf.front_matter) {
-      const template = await lazyCompileTemplate(di, conf.front_matter)
+      const template = await lazyCompileTemplate(config, conf.front_matter)
       contents.frontmatter = template.render({
         pkg: forPkg,
       })
@@ -175,13 +172,14 @@ async function packagesChangelog(di: Container, releaseData?: ReleaseData): Prom
     logger.debug(`update changelog for ${pkg.name}`)
 
     const config = di.get(CONFIG_TOKEN)
+    const dryRun = di.get(GLOBAL_FLAGS_TOKEN).getFlag('dryRun')
     const changelogAbsPath = pkgChangelogPath(config, pkg)
 
     const contents = readChangelog(changelogAbsPath)
 
     mkdirp(path.dirname(changelogAbsPath))
     const result = await renderReleases(contents, pkg)
-    if (!config.executionContext.dryRun) {
+    if (!dryRun) {
       fs.writeFileSync(changelogAbsPath, result)
     }
   }
@@ -189,10 +187,11 @@ async function packagesChangelog(di: Container, releaseData?: ReleaseData): Prom
 
 async function makeChangelog(di: Container, releaseData?: ReleaseData): Promise<void> {
   const config = di.get(CONFIG_TOKEN)
+  const dryRun = di.get(GLOBAL_FLAGS_TOKEN).getFlag('dryRun')
   const conf = config.changelog
   mkdirp(path.dirname(conf.path))
   const result = await mainChangelog(di, releaseData)
-  if (!config.executionContext.dryRun) {
+  if (!dryRun) {
     fs.writeFileSync(conf.path, result)
   }
 

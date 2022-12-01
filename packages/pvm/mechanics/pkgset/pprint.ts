@@ -1,8 +1,8 @@
-import type { Pkg } from "../../lib/pkg"
+import type { Pkg } from '../../lib/pkg'
 
 async function * pprint(pkgIterator: AsyncIterable<Pkg>, format = '%p'): AsyncIterableIterator<string> {
   for await (const pkg of pkgIterator) {
-    const data = {
+    const data: Record<string, string> = {
       p: pkg.path,
       n: pkg.name,
       s: pkg.shortName,

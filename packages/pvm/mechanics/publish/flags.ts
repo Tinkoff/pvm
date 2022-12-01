@@ -1,8 +1,10 @@
+import type { InferredOptionTypes } from 'yargs'
 import yargs from 'yargs'
 
 import { enpl } from '../../lib/text/plural'
 import { revParse } from '../../lib/git/commands'
 import { RELEASE_NOTIFICATIONS_MAP_TOKEN } from '../../tokens'
+import type { Container } from '../../lib/di'
 
 const defaultConcurrency = 1
 
@@ -28,11 +30,11 @@ const canaryFlag = {
 const messageChannelFlag = {
   messageChannel: {
     desc: `Channel for notifications`,
-    default: undefined as unknown as string,
+    type: 'string' as const,
   },
 }
 
-export const flagsBuilder = (di) => ({
+export const flagsBuilder = (di: Container) => ({
   filter: {
     alias: 'f',
     type: 'array' as const,
@@ -45,6 +47,7 @@ export const flagsBuilder = (di) => ({
     default: function() {
       return yargs.options(canaryFlag).help(false).argv.canary ? 'affected' : 'updated'
     } as unknown as string,
+    type: 'string' as const,
   },
   strategyOption: {
     alias: 'S',
@@ -62,7 +65,7 @@ export const flagsBuilder = (di) => ({
     alias: 't',
     desc: `Same as --tag option for npm publish command: associates published package with given tag.
     By default equals to latest or canary (if canary mode enabled) unless registry package version is greater than published.`,
-    type: 'string',
+    type: 'string' as const,
     default: function() {
       return yargs.options(canaryFlag).help(false).argv.canary ? revParse('HEAD', process.cwd()) : null
     } as unknown as string,
@@ -71,31 +74,32 @@ export const flagsBuilder = (di) => ({
     alias: 'b',
     desc: 'Exit publishing immediately upon the first unsuccessful package publishing.',
     default: false,
+    type: 'boolean' as const,
   },
   concurrency: {
     type: 'number' as const,
     alias: 'c',
     desc: `Number of simultaneously executed publishing processes. If argument not specified, makes ${enpl(['%1 threads', '%1 thread', '%1 threads'], defaultConcurrency)}, if argument specified without value, makes a thread to each CPU core`,
-    default: undefined as unknown as number,
   },
   byDependentOrder: {
     default: false,
+    type: 'boolean' as const,
     desc: 'Publish packages in concurrency mode according to each other',
   },
   forceVersioning: {
-    type: 'string',
+    type: 'string' as const,
     choices: ['tag', 'file', 'package'],
     default: undefined as unknown as (undefined | 'tag' | 'file' | 'package'),
   },
   registry: {
     alias: 'r',
     desc: 'npm registry, default is taken from publishConfig.registry package.json\'s value.',
-    default: undefined as unknown as string,
+    type: 'string' as const,
   },
   notify: {
     alias: 'Z',
     desc: 'Send notification if SLACK_WEBHOOK_URL or SLACK_TOKEN env variable present.',
-    type: 'boolean',
+    type: 'boolean' as const,
     default: function() {
       const { canary, messageChannel } = yargs.options({
         ...messageChannelFlag,
@@ -112,18 +116,15 @@ export const flagsBuilder = (di) => ({
       mapped to values from RELEASE_NOTIFICATIONS_MAP_TOKEN providers. Current builders are:
       ${Object.keys(di.get(RELEASE_NOTIFICATIONS_MAP_TOKEN)!.reduce((acc, m) => Object.assign(acc, m), {})).map(k => ` - ${k}`).join(`\n`)}
     `,
-    default: undefined as unknown as string,
+    type: 'string' as const,
   },
   outputStats: {
     alias: 'o',
     desc: `Output filename for JSON report of published packages.`,
-    default: undefined as unknown as string,
+    type: 'string' as const,
   },
   ...messageChannelFlag,
   ...canaryFlag,
-} as const)
+})
 
-type FlagsBuilder = ReturnType<typeof flagsBuilder>
-export type Flags = {
-  [P in keyof FlagsBuilder]: FlagsBuilder[P]['default']
-}
+export type Flags = InferredOptionTypes<ReturnType<typeof flagsBuilder>>

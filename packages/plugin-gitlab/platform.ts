@@ -37,6 +37,7 @@ import createLabel from './lib/api/labels/create'
 import getLabels from './lib/api/labels/labels'
 import updateMr from './lib/api/mr/update'
 import { getGitlabHostUrl } from './lib/remote-url'
+import type { GlobalFlags } from '@pvm/pvm/lib/cli/global-flags'
 
 const PVM_UPDATE_HINTS_KIND = 'pvm-update-hints'
 
@@ -68,8 +69,8 @@ export class GitlabPlatform extends PlatformInterface<MergeRequest, CommitContex
   protected cwd: string
   protected hostApi: HostApi
 
-  constructor({ di }: { di: Container }) {
-    super()
+  constructor({ di, globalFlags }: { di: Container, globalFlags: GlobalFlags }) {
+    super({ globalFlags })
 
     this.config = di.get(CONFIG_TOKEN)
     this.cwd = di.get(CWD_TOKEN)

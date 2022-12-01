@@ -1,3 +1,6 @@
+import initRepo from '../initRepo'
+import { runScript } from '../executors'
+
 const lastTag = require('../../packages/pvm/lib/git/last-tag').default
 
 describe('pvm/add-tag', () => {

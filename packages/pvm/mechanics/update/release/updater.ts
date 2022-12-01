@@ -156,12 +156,13 @@ async function updateReleaseAndChangelogArtifacts(di: Container, storageManager:
   // 6. UPDATE only: upload ReleaseList, Changelogs artifacts
 
   const config = di.get(CONFIG_TOKEN)
+  const dryRun = di.get(GLOBAL_FLAGS_TOKEN).getFlag('dryRun')
   const releaseListStorage = await storageManager.initFor(StorageManager.ArtifactsStorages.ReleaseList)
 
   if (config.release_list.enabled && releaseData) {
     await releaseListStorage.download()
 
-    fsAppendReleaseData(config, releaseData)
+    fsAppendReleaseData(config, releaseData, dryRun)
 
     await releaseListStorage.upload()
   }
@@ -244,7 +245,7 @@ async function checkBranchActual(di: Container, targetRef: string): Promise<void
 
 // метод делает коммит с обновлением версий
 async function pushChanges(di: Container, vcs: VcsPlatform, updateState: UpdateState): Promise<string | undefined> {
-  const templateEnv = await getTemplateEnv(di)
+  const templateEnv = await getTemplateEnv(di.get(CONFIG_TOKEN))
   const platform = di.get(PLATFORM_TOKEN)
   const dryRun = di.get(GLOBAL_FLAGS_TOKEN).getFlag('dryRun')
 

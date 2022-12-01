@@ -1,4 +1,6 @@
+// @ts-ignore
 import Viz from 'viz.js'
+// @ts-ignore
 import { Module, render } from 'viz.js/full.render.js'
 
 let viz = new Viz({ Module, render })
