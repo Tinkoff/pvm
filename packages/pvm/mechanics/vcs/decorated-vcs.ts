@@ -1,6 +1,6 @@
-import type { AbstractVcs, AddTagOptions, CommitOptions, CommitResult, PushOptions } from '../../types'
+import type { AbstractVcs, AddTagOptions, CommitOptions, CommitResult, PushOptions, PushError } from '../../types'
 import type { GlobalFlags } from '../../lib/cli/global-flags'
-import type { PushError } from './vcs'
+
 import { logger } from '../../lib/logger'
 import { logDryRun } from '../../lib/utils'
 

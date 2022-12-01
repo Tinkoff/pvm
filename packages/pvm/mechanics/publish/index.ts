@@ -21,8 +21,7 @@ import { matchAny } from '../../lib/pkg-match'
 import revParse from '../../lib/git/rev-parse'
 
 import { pkgset } from '../pkgset/pkgset'
-import { Notificator } from '../notifications'
-import { Repository } from '../repository'
+import type { Repository } from '../repository'
 import { buildDependantPackagesListIntoTree, visitDependantPackagesTree } from '../repository/dependent-packages'
 
 import { setupPublishNpmRCAndEnvVariables } from './prepare'
@@ -48,7 +47,7 @@ import { getPassedRegistry, getPkgRegistry } from './registry'
 import type { AbstractPublishApplier } from './publish-applier/abstract'
 import { env } from '../../lib/env'
 import type { Container } from '../../lib/di'
-import { CONFIG_TOKEN, CWD_TOKEN } from '../../tokens'
+import { CONFIG_TOKEN, CWD_TOKEN, NOTIFICATOR_TOKEN, REPOSITORY_FACTORY_TOKEN } from '../../tokens'
 
 const defaultConcurrency = 1
 
@@ -101,7 +100,7 @@ export async function publish(di: Container, flags: Flags): Promise<PublishedSta
    * Костыль для сохранения консистентности по ref в возвращаемом pkgset и в Repository при вызове pkgsetAll
    * https://github.com/Tinkoff/pvm/issues/2
    */
-  const repo = new Repository(di, pkgsetPackages[0]?.ref)
+  const repo = di.get(REPOSITORY_FACTORY_TOKEN)({ ref: pkgsetPackages[0]?.ref })
 
   const packagesForPublish = pkgsetPackages.filter(pkg => repo.pkgset.has(pkg) && (!flags.filter.length || matchAny(pkg, flags.filter)))
 
@@ -164,7 +163,7 @@ export async function publish(di: Container, flags: Flags): Promise<PublishedSta
       }
 
       if (!skipRealPublishing) {
-        const notificator = new Notificator(di)
+        const notificator = di.get(NOTIFICATOR_TOKEN)
         await notificator.sendMessage(message)
       } else {
         logger.info('Notify message:')

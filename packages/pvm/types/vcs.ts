@@ -103,3 +103,7 @@ export interface VcsOnly {
   push(opts?: PushOptions): Promise<unknown>,
   addTag(tagName: string, ref: string, opts?: AddTagOptions): Promise<void>,
 }
+
+export interface PushError extends Error {
+  context: 'push',
+}

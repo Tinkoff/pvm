@@ -10,13 +10,15 @@ import { lastReleaseTag } from '../../lib/git/last-release-tag'
 import { logger } from '../../lib/logger'
 import { noPackagesInMugError } from '../../lib/behaviors/no-packages-in-mug'
 
-import type { Config, UpdateHints } from '../../types'
+import type { Config, HostApi, UpdateHints } from '../../types'
 import type { Pkg, AppliedPkg } from '../../lib/pkg'
 
 import { wdShell } from '../../lib/shell'
 import revParse from '../../lib/git/rev-parse'
 import type { Container } from '../../lib/di'
-import { CONFIG_TOKEN, CWD_TOKEN, HOST_API_TOKEN, PLATFORM_TOKEN } from '../../tokens'
+import type { HOST_API_TOKEN } from '../../tokens'
+import { REPOSITORY_FACTORY_TOKEN } from '../../tokens'
+import type { PlatformInterface } from '../platform'
 
 interface RepositoryInitOpts {
   ref?: string | void,
@@ -37,20 +39,28 @@ interface ApplyVersionOpts {
 export class Repository {
   cwd: string
   config: Config
-  di: Container
+  platform: PlatformInterface<any, any>
+  hostApi: HostApi
   ref: string | undefined
 
-  constructor(di: Container, ref: string | void) {
-    this.di = di
-    this.config = di.get(CONFIG_TOKEN)
-    this.cwd = di.get(CWD_TOKEN)
+  constructor({
+    config,
+    hostApi,
+    cwd,
+    platform,
+    ref,
+  }: { config: Config, hostApi: HostApi, platform: PlatformInterface<any, any>, cwd: string, ref: string | void}) {
+    this.config = config
+    this.hostApi = hostApi
+    this.platform = platform
+    this.cwd = cwd
     if (ref) {
       this.ref = ref
     }
   }
 
   static async init(di: Container, opts: RepositoryInitOpts = {}): Promise<Repository> {
-    const repo = new Repository(di, opts.ref)
+    const repo = di.get(REPOSITORY_FACTORY_TOKEN)({ ref: opts.ref })
 
     if (!opts.skipValidatingConfig) {
       repo.validateConfig()
@@ -94,7 +104,7 @@ export class Repository {
   }
 
   getHostApi(): typeof HOST_API_TOKEN {
-    return this.di.get(HOST_API_TOKEN)
+    return this.hostApi
   }
 
   @lazyCallee
@@ -158,7 +168,7 @@ export class Repository {
       }
     }
 
-    const platform = this.di.get(PLATFORM_TOKEN)
+    const platform = this.platform
     const updateHints = (await platform.getUpdateHintsByCommit(revParse('HEAD', this.cwd))) ?? {}
 
     validateUpdateHints(this.config, updateHints)

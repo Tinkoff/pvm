@@ -4,7 +4,8 @@ import type { VcsPlatform } from '../mechanics/vcs'
 import type { PlatformInterface } from '../mechanics/platform'
 import type { GlobalFlags } from '../lib/cli/global-flags'
 import type { IncrementalRenderer } from '../mechanics/changelog/types'
-import type { AbstractMessengerClient } from '../mechanics/notifications'
+import type { AbstractMessengerClient, Notificator } from '../mechanics/notifications'
+import type { Repository } from '../mechanics/repository'
 
 export { DI_TOKEN } from '../lib/di'
 
@@ -23,4 +24,6 @@ export const CHANGELOG_CUSTOM_RENDERER = createToken<IncrementalRenderer>('CHANG
 export const MESSENGER_CLIENT_TOKEN = createToken<AbstractMessengerClient>('MESSENGER_CLIENT_TOKEN', {
   multi: true,
 })
+export const NOTIFICATOR_TOKEN = createToken<Notificator>('NOTIFICATOR_TOKEN')
 export const RELEASE_NOTIFICATIONS_MAP_TOKEN = createToken<Record<string, ReleaseMessageGenerator>>('RELEASE_NOTIFICATIONS_MAP_TOKEN', { multi: true })
+export const REPOSITORY_FACTORY_TOKEN = createToken<(opts?: { ref: string | void }) => Repository>('REPOSITORY_FACTORY_TOKEN')

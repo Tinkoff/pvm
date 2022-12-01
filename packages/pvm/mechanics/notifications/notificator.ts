@@ -6,18 +6,16 @@ import { logger } from './logger'
 import resolveFrom from 'resolve-from'
 import { requireDefault } from '../../lib/interop'
 import defaultsDeep from 'lodash.defaultsdeep'
-import type { Container } from '../../lib/di'
-import { CONFIG_TOKEN, MESSENGER_CLIENT_TOKEN } from '../../tokens'
 
 export class Notificator {
   private messengers: MessengerClients
   private config: Config
 
-  constructor(di: Container) {
-    this.config = di.get(CONFIG_TOKEN)
+  constructor({ config, messengerClients }: { config: Config, messengerClients: Array<AbstractMessengerClient>}) {
+    this.config = config
     this.messengers = new MessengerClients()
 
-    const clients = di.get(MESSENGER_CLIENT_TOKEN)
+    const clients = messengerClients
     clients.forEach(client => {
       this.messengers.register(client.name, client)
     })

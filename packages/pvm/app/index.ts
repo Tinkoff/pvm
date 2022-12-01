@@ -1,7 +1,7 @@
 import path from 'path'
 import type { PluginConfig, PluginFactory, Config, RecursivePartial, PluginDeclaration } from '../types'
 import { Container, DI_TOKEN, provide } from '../lib/di'
-import { CONFIG_TOKEN, CWD_TOKEN } from '../tokens'
+import { CONFIG_TOKEN, CWD_TOKEN, NOTIFICATOR_TOKEN, REPOSITORY_FACTORY_TOKEN } from '../tokens'
 import {
   loadRawConfig,
   mergeDefaults,
@@ -15,11 +15,11 @@ import chalk from 'chalk'
 import { getNewTag } from '../mechanics/add-tag/get-new-tag'
 import { loadPkg } from '../lib/pkg'
 import getFiles from '../mechanics/files/files'
-import { Notificator } from '../mechanics/notifications'
+import type { Notificator } from '../mechanics/notifications'
 import { pkgset } from '../mechanics/pkgset/pkgset'
 import { getPackages } from '../mechanics/packages'
 import { getCurrentRelease } from '../mechanics/releases'
-import { Repository } from '../mechanics/repository'
+import type { Repository } from '../mechanics/repository'
 import { getUpdateState } from '../mechanics/update'
 import { download, upload } from '../mechanics/artifacts/pub/artifacts'
 import { runCli } from './run-cli'
@@ -95,7 +95,7 @@ export class Pvm {
   }
 
   public getNotificator(): Notificator {
-    return new Notificator(this.container)
+    return this.container.get(NOTIFICATOR_TOKEN)
   }
 
   public getPkgSet(strategy: string, opts: Record<string, any>): ReturnType<typeof pkgset> {
@@ -117,10 +117,7 @@ export class Pvm {
   }
 
   public getRepository(ref?: string): Repository {
-    return new Repository(
-      this.container,
-      ref
-    )
+    return this.container.get(REPOSITORY_FACTORY_TOKEN)({ ref })
   }
 
   public getUpdateState(opts: Parameters<typeof getUpdateState>[1] = {}): ReturnType<typeof getUpdateState> {

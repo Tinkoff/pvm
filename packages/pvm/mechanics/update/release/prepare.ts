@@ -1,15 +1,14 @@
 import { logger } from '../../../lib/logger'
-import { Repository } from '../../repository'
 import { lint } from '../../repository/linter'
 /* import { upconf } from '@pvm/repository/lib/upconf/upconf' */
 
 import type { Container } from '../../../lib/di'
-import { CONFIG_TOKEN } from '../../../tokens'
+import { CONFIG_TOKEN, REPOSITORY_FACTORY_TOKEN } from '../../../tokens'
 /* import type { Vcs } from '@pvm/vcs' */
 
 async function autolint(di: Container) {
   logger.info('update.autolint is enabled, linting and fix if necessary packages before update..')
-  const repo = new Repository(di)
+  const repo = di.get(REPOSITORY_FACTORY_TOKEN)()
   const lintResult = lint(repo, {
     fix: true,
     index: true,

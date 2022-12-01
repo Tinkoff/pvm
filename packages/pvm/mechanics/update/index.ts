@@ -12,18 +12,17 @@ import { createReleaseContext } from './release/release-context'
 import { Repository } from '../repository'
 import { UpdateReasonType, UpdateState } from './update-state'
 import getTemplateEnv from '../template/env'
-import { Notificator } from '../notifications'
 
 import type { Pkg } from '../../lib/pkg'
 import type { ReleaseContext, ForceReleaseState, UpdateMethod, CliUpdateOpts } from './types'
-import type { PvmReleaseType } from '../../types'
+import type { PushError, PvmReleaseType } from '../../types'
 import type { ChangedContext } from './changed-context'
 import type { Container } from '../../lib/di'
 
 import { env } from '../../lib/env'
 import {
   CONFIG_TOKEN,
-  CWD_TOKEN,
+  CWD_TOKEN, NOTIFICATOR_TOKEN,
   VCS_PLATFORM_FACTORY_TOKEN,
   VCS_PLATFORM_TOKEN,
 } from '../../tokens'
@@ -221,14 +220,14 @@ async function updateWithVcsRetry<R>(di: Container, updateMethod: UpdateMethod<R
   try {
     return await update(di, updateMethod, opts)
   } catch (e) {
-    if (e.context === 'push' && !commit_via_platform && retry_via_platform_if_failed_via_vcs) {
+    if ((e as PushError).context === 'push' && !commit_via_platform && retry_via_platform_if_failed_via_vcs) {
       logger.warn(`PVM has failed to push a release commit via git:\n${e.message}\n Retrying release attempt using platform api now!`)
       const templateEnv = await getTemplateEnv(di)
       const notifyMessage = templateEnv.render('failed_vcs_push', {
         CI_PIPELINE_URL: env.CI_PIPELINE_URL,
       })
       if (!dryRun) {
-        const messenger = new Notificator(di)
+        const messenger = di.get(NOTIFICATOR_TOKEN)
         await messenger.sendMessage({
           content: notifyMessage,
           attachments: [

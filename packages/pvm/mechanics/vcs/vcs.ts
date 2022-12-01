@@ -8,18 +8,6 @@ import type {
 import type { PlatformInterface } from '../platform/platform-interface'
 import type { GlobalFlags } from '../../lib/cli/global-flags'
 
-export interface PushError extends Error {
-  context: 'push',
-}
-
-export interface VcsConstructorOpts {
-  cwd: string,
-  vcsMode?: 'vcs' | 'platform',
-  vcs: AbstractVcs<any>,
-  platform: PlatformInterface<any, any>,
-  globalFlags: GlobalFlags,
-}
-
 export class VcsPlatform implements VcsOnly {
   readonly vcs: AbstractVcs<any>
   readonly cwd: string
@@ -30,7 +18,13 @@ export class VcsPlatform implements VcsOnly {
   vcsMode: 'vcs' | 'platform'
   vcsOrPlatform: PlatformInterface<any, any> | AbstractVcs<any>
 
-  constructor(opts: VcsConstructorOpts) {
+  constructor(opts: {
+    cwd: string,
+    vcsMode?: 'vcs' | 'platform',
+    vcs: AbstractVcs<any>,
+    platform: PlatformInterface<any, any>,
+    globalFlags: GlobalFlags,
+  }) {
     const { cwd, vcsMode = 'vcs', vcs, platform, globalFlags } = opts
 
     this.cwd = cwd

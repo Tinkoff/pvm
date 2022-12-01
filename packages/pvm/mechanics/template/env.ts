@@ -4,14 +4,11 @@ import { pullOutLinks, dottifyList } from '../../lib/text/markdown'
 import { issueToLink, issueToMdLink } from '../../lib/text/jira'
 import { stripServiceLabels } from '../../lib/text/commits'
 import { stripPkgNamespace } from '../../lib/tag-meta'
-import type { Container } from '../../lib/di'
-import { CONFIG_TOKEN } from '../../tokens'
 
 let env
 
-async function getEnv(di: Container): Promise<nunjucks.Environment> {
+async function getEnv(config): Promise<nunjucks.Environment> {
   if (!env) {
-    const config = di.get(CONFIG_TOKEN)
     const ConfigLoader = class {
       public getSource(name) {
         return {

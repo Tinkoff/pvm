@@ -5,7 +5,7 @@ import getStdin from 'get-stdin'
 import type { Argv } from 'yargs'
 import type { Container } from '../../lib/di'
 import type { Message } from '../../types'
-import { Notificator } from '../../mechanics/notifications'
+import { NOTIFICATOR_TOKEN } from '../../tokens'
 
 export default (di: Container) => ({
   command: 'send',
@@ -58,7 +58,7 @@ export default (di: Container) => ({
 
     const message: Message = messageBuild as Message
 
-    const messenger = new Notificator(di)
+    const messenger = di.get(NOTIFICATOR_TOKEN)
 
     return messenger.sendMessage(message, {
       target: flags.target ? flags.target.length === 1 ? flags.target[0] : flags.target : undefined,

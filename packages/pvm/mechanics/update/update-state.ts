@@ -10,8 +10,7 @@ import type { ChangedContext } from './changed-context'
 import type { UpdateContext } from './update-context'
 import type { Repository } from '../repository'
 import type { Pkg, AppliedPkg } from '../../lib/pkg'
-import type { PvmReleaseType, SemverReleaseType } from '../../types'
-import type { Container } from '../../lib/di'
+import type { Config, PvmReleaseType, SemverReleaseType } from '../../types'
 
 import { loggerFor } from '../../lib/logger'
 
@@ -205,7 +204,7 @@ export class UpdateState {
       predefinedDependants: this.updateDepsFor,
     })
 
-    await addDependantsReleaseNotes(this.repo.di, this, this._appliedPackages)
+    await addDependantsReleaseNotes(this.repo.config, this, this._appliedPackages)
 
     this._processing = false
     return this
@@ -272,10 +271,10 @@ export class UpdateState {
   }
 }
 
-async function addDependantsReleaseNotes(di: Container, updateState: UpdateState, appliedPackages: ImmutablePkgSet<AppliedPkg>): Promise<void> {
+async function addDependantsReleaseNotes(config: Config, updateState: UpdateState, appliedPackages: ImmutablePkgSet<AppliedPkg>): Promise<void> {
   const { repo, changedContext } = updateState
   const hostApi = await repo.getHostApi()
-  const templateEnv = await getTemplateEnv(di)
+  const templateEnv = await getTemplateEnv(config)
 
   const originReleaseNotes = await hostApi.commitsToNotes(changedContext.commits)
 
