@@ -24,14 +24,16 @@ export class Notificator {
   static createClient(Client: { new(name: string, config: Config, clientConfig?: MessengerClientConfig): AbstractMessengerClient }, config: Config, opts: MessengerClientConfig & { name?: string }): AbstractMessengerClient {
     const projectPkg = resolveFrom.silent(config.cwd, './package')
     const username = projectPkg ? `${requireDefault(projectPkg).name} minion` : void 0
-    return new Client(opts.name ?? Client.name, config, defaultsDeep({}, opts, config.notifications.clients_common_config, {
+    const clientName = opts.name ?? Client.name
+
+    return new Client(clientName, config, defaultsDeep({}, config.notifications.client_configs[clientName], opts, config.notifications.clients_common_config, {
       author: {
         name: username,
       },
     }))
   }
 
-  async sendMessage(message: Message, opts: { target?: string } = {}): Promise<void> {
+  async sendMessage(message: Message, opts: { target?: string | string[] } = {}): Promise<void> {
     const target = opts.target ?? this.config.notifications.target
     const errors: Error[] = []
     switch (target) {

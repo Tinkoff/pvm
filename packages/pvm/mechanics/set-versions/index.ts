@@ -11,9 +11,9 @@ import type { Container } from '../../lib/di'
 
 export async function setVersions(di: Container, opts: {
   versionOrReleaseType: PvmReleaseType | string,
-  filterPath: string[],
+  filterPath?: string[],
   strategy: string,
-  strategyOption: string[],
+  strategyOption?: string[],
   updateDependants: boolean,
   bumpDependants: boolean,
 }): Promise<void> {
@@ -30,13 +30,13 @@ export async function setVersions(di: Container, opts: {
 
   log(`About to update packages using "${opts.strategy}" strategy`)
   if (filterPath.length) {
-    log(`filtering packages by path by ${opts.filterPath.join(', ')} glob patterns`)
+    log(`filtering packages by path by ${filterPath.join(', ')} glob patterns`)
   }
   const repo = await Repository.init(di)
   const newVersions = new Map<Pkg, string>()
 
   for await (const pkg of pkgsetFromFlags(di, opts)) {
-    if (filterPath.length && !micromatch.any(pkg.path, opts.filterPath, {})) {
+    if (filterPath.length && !micromatch.any(pkg.path, filterPath, {})) {
       continue
     }
 

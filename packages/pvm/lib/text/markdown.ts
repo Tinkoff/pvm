@@ -7,7 +7,7 @@ export function pullOutLinks(text: string): string {
   })
 }
 
-export function replaceLinks(text: string, replacer: string): string {
+export function replaceLinks(text: string, replacer: ((substr: string, subj: string, link: string) => string)): string {
   return text.replace(mrkdwnLinkRe, replacer)
 }
 

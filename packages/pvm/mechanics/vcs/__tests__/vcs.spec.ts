@@ -1,13 +1,16 @@
+import initRepo from '../../../../../test/initRepo'
 import { VCS_PLATFORM_FACTORY_TOKEN } from '../../../tokens'
+import { GlobalFlags } from '../../../lib/cli/global-flags'
 
 describe('vcs', () => {
   it('should rollback commits', async () => {
-    // @ts-ignore
     const repo = await initRepo('monorepo-new')
     const vcsFactory = repo.di.get(VCS_PLATFORM_FACTORY_TOKEN)
 
+    const globalFlags = new GlobalFlags()
+    globalFlags.setFlag('localMode', true)
     const vcs = vcsFactory({
-      localMode: true,
+      globalFlags,
       vcsMode: 'vcs',
     })
     const commitContext = await vcs.beginCommit()

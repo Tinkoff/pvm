@@ -4,15 +4,16 @@ import type { UpdateContext } from '../../mechanics/update/update-context'
 import { loadPkg } from '../../lib/pkg'
 import { UpdateState } from '../../mechanics/update/update-state'
 import { Repository } from '../../mechanics/repository'
+import type { Container } from '../../lib/di'
+import initRepo from '../../../../test/initRepo'
 
-async function makeUpdateState(di, changedContext: ChangedContext, updateContext: UpdateContext): Promise<UpdateState> {
+async function makeUpdateState(di: Container, changedContext: ChangedContext, updateContext: UpdateContext): Promise<UpdateState> {
   const repo = await Repository.init(di)
   return new UpdateState(repo, changedContext, updateContext)
 }
 
 describe('pvm-update/pkg-release-type', () => {
   it('should respect update.release_type_overrides config', async () => {
-    // @ts-ignore
     const repo = await initRepo('monorepo-new', {
       update: {
         release_type_overrides: [

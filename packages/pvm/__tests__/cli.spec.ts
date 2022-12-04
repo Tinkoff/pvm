@@ -10,14 +10,14 @@ describe('@pvm/cli', () => {
         plugin: () => ({
           providers: [provide({
             provide: CLI_EXTENSION_TOKEN,
-            useValue: {
-              command: 'cli-test',
-              description: 'test command',
-              handler: () => {
+            useFactory: () => builder => builder.command(
+              'cli-test',
+              'test command',
+              () => {
                 outputStore = 'command works!\n'
                 process.stdout.write(outputStore)
-              },
-            },
+              }
+            ),
             multi: true,
           })],
         }),

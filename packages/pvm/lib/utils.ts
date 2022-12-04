@@ -103,3 +103,13 @@ export function logDryRun(_target: { dryRun: boolean }, propName: string, descri
     return method.call(this, ...args)
   }
 }
+
+export function typedObjectKeys<T extends Record<string, any>>(obj: T): Array<keyof T> {
+  const keys: Array<keyof T> = []
+
+  for (const k of Object.keys(obj)) {
+    keys.push(k)
+  }
+
+  return keys
+}

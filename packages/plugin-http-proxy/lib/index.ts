@@ -1,3 +1,4 @@
+// @ts-ignore
 import { bootstrap } from 'global-agent'
 import { declarePlugin } from '@pvm/pvm'
 

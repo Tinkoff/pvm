@@ -1,9 +1,8 @@
-
+import initRepo from '../../../test/initRepo'
 import { getPackages } from '../mechanics/packages'
 
 describe('pvm/getPackages', () => {
   it('dangerously_opts.always_changed_workspaces should work for changed list', async () => {
-    // @ts-ignore
     const repo = await initRepo('monorepo-new', {
       dangerously_opts: {
         always_changed_workspaces: [
@@ -21,7 +20,6 @@ describe('pvm/getPackages', () => {
   })
 
   it('dangerously_opts.always_changed_workspaces should work for affected list', async () => {
-    // @ts-ignore
     const repo = await initRepo('monorepo-new', {
       dangerously_opts: {
         always_changed_workspaces: [
@@ -39,7 +37,6 @@ describe('pvm/getPackages', () => {
   })
 
   it('dangerously_opts.always_changed_workspaces should work for update list', async () => {
-    // @ts-ignore
     const repo = await initRepo('monorepo-new', {
       dangerously_opts: {
         always_changed_workspaces: [

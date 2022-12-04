@@ -1,3 +1,4 @@
+// @ts-ignore
 import parseMd from 'parse-md'
 import { Octokit } from 'octokit'
 import { createAppAuth } from '@octokit/auth-app'
@@ -27,6 +28,7 @@ import type { IssueComment, PullRequest } from './types'
 
 import hostedGitInfo from 'hosted-git-info'
 import { log } from './logger'
+import type { GlobalFlags } from '@pvm/pvm/lib/cli/global-flags'
 
 export const AuthenticationStrategy = {
   'authApp': createAppAuth,
@@ -43,15 +45,15 @@ function getSuccessRequestLogTitle(options: any): string {
   return `${options.method} ${options.url} ${JSON.stringify(printableData)}`
 }
 
-function getFailedRequestLogTitle(error): string {
-  let loggedBody
+function getFailedRequestLogTitle(error: any): string {
+  let loggedBody: Record<string, string> = {}
   if (error.request.body) {
     loggedBody = JSON.parse(error.request.body)
     Object.keys(loggedBody).forEach(k => {
       loggedBody[k] = gracefullyTruncateText(loggedBody[k].toString(), MAX_LOG_PROP_LENGTH, '...')
     })
   }
-  return `${error.response.status}: ${error.request.method} ${error.request.url} ${loggedBody ? JSON.stringify(loggedBody, null, 2) : ''}`
+  return `${error.response.status}: ${error.request.method} ${error.request.url} ${Object.keys(loggedBody).length ? JSON.stringify(loggedBody, null, 2) : ''}`
 }
 
 export class GithubPlatform extends PlatformInterface<PullRequest, never> {
@@ -106,8 +108,8 @@ export class GithubPlatform extends PlatformInterface<PullRequest, never> {
     return resultRepo
   }
 
-  constructor({ config, cwd, hostApi }: { config: Config, cwd: string, hostApi: HostApi }) {
-    super()
+  constructor({ config, cwd, hostApi, globalFlags }: { config: Config, cwd: string, hostApi: HostApi, globalFlags: GlobalFlags }) {
+    super({ name: GithubPlatform.name, globalFlags })
     this.config = config
     this.cwd = cwd
     this.hostApi = hostApi
@@ -146,7 +148,7 @@ export class GithubPlatform extends PlatformInterface<PullRequest, never> {
         name: name ?? tag_name,
         description: body ?? '',
       }]
-    } catch (e) {
+    } catch (e: any) {
       if (e.statusCode === 404) {
         return [PlatformResult.NO_SUCH_TAG, null]
       }
@@ -289,8 +291,8 @@ export class GithubPlatform extends PlatformInterface<PullRequest, never> {
       this.logReleaseTag(tagName)
 
       return res
-    } catch (e) {
-      if (e.response.data.errors.find(e => e.code === 'already_exists')) {
+    } catch (e: any) {
+      if (e.response.data.errors.find((e: any) => e.code === 'already_exists')) {
         return this.editRelease(tagName, data)
       }
 
@@ -319,10 +321,10 @@ export class GithubPlatform extends PlatformInterface<PullRequest, never> {
           continue
         }
         const { metadata, content } = parseResult
-
-        if (metadata && metadata.kind === kind) {
+        const typedMetadata = metadata as Record<string, string> | undefined
+        if (typedMetadata?.kind === kind) {
           return {
-            metadata,
+            metadata: typedMetadata,
             content,
             note: {
               ...note,

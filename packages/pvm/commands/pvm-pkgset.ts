@@ -1,17 +1,15 @@
-#!/usr/bin/env node
 import chalk from 'chalk'
 import pprint from '../mechanics/pkgset/pprint'
 import { pkgsetFromFlags } from '../mechanics/pkgset/pkgset'
 import { getStrategiesDescriptionList } from '../mechanics/pkgset/strategies'
 
-// eslint-disable-next-line node/no-extraneous-import
-import type { Argv } from 'yargs'
 import type { Container } from '../lib/di'
+import type { CommandFactory } from '../types'
 
-export default (di: Container) => ({
-  command: 'pkgset',
-  description: 'Shows the list of packages by the specified criterion (low-level version)',
-  builder: (yargs: Argv) => {
+export default (di: Container): CommandFactory => builder => builder.command(
+  'pkgset',
+  'Shows the list of packages by the specified criterion (low-level version)',
+  (yargs) => {
     return yargs
       .example('$0 pkgset', 'filter packages in workspaces and print "<name>@<version>" for each package')
       .example('pvm pkgset -f %n -s changed -S from=v1.2.3', 'Print packages names which have been change from v1.2.3 to HEAD')
@@ -20,8 +18,8 @@ export default (di: Container) => ({
         default: 'all',
         alias: 's',
       })
-      .option('S', {
-        alias: 'strategy-option',
+      .option('strategy-option', {
+        alias: 'S',
         desc: 'Pass option through to the used strategy.',
         type: 'array' as const,
         default: [],
@@ -37,9 +35,12 @@ export default (di: Container) => ({
         alias: 'f',
       })
   },
-  handler: async function main(flags): Promise<void> {
-    for await (const line of pprint(pkgsetFromFlags(di, flags), flags.format)) {
+  async function main(flags): Promise<void> {
+    for await (const line of pprint(pkgsetFromFlags(di, {
+      strategy: flags['strategy'],
+      strategyOption: flags['strategy-option'],
+    }), flags.format)) {
       console.log(line)
     }
-  },
-})
+  }
+)

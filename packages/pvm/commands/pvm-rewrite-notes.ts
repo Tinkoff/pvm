@@ -1,15 +1,13 @@
-#!/usr/bin/env node
-
 import { log } from '../lib/logger'
 import getPreviousRefForFirstRelease from '../lib/git/previous-ref-for-initial-release'
-import type { PlatformReleaseTag } from '../types'
+import type { CommandFactory, PlatformReleaseTag } from '../types'
 import type { Container } from '../lib/di'
 import { CONFIG_TOKEN, PLATFORM_TOKEN } from '../tokens'
 
-export default (di: Container) => ({
-  command: 'rewrite-notes',
-  description: 'Recalculate and rewrite release notes for particular range of git tags',
-  builder: {
+export default (di: Container): CommandFactory => builder => builder.command(
+  'rewrite-notes',
+  'Recalculate and rewrite release notes for particular range of git tags',
+  {
     'skip-first': {
       desc: 'Do not overwrite release notes for first release tag',
       default: false,
@@ -25,7 +23,7 @@ export default (di: Container) => ({
     },
   },
 
-  handler: async function pvmRewriteNotes(flags) {
+  async function pvmRewriteNotes(flags) {
     const platform = di.get(PLATFORM_TOKEN)
     let nextReleaseTag: PlatformReleaseTag | null = null
 
@@ -53,5 +51,5 @@ export default (di: Container) => ({
         getPreviousRefForFirstRelease(config, nextReleaseTag.name)
       )
     }
-  },
-})
+  }
+)

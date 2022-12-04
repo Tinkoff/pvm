@@ -161,5 +161,6 @@ export const defaultConfig: ConfigSchema = {
   notifications: {
     target: 'first_available',
     clients_common_config: {},
+    client_configs: {},
   },
 }

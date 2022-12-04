@@ -4,7 +4,7 @@ import type { AlterReleaseResult } from '../types'
 import type { Container } from '@pvm/pvm'
 
 // https://docs.gitlab.com/ee/api/releases/index.html#create-a-release
-async function createRelease(di: Container, projectId, data): Promise<AlterReleaseResult> {
+async function createRelease(di: Container, projectId: string, data: Record<string, any>): Promise<AlterReleaseResult> {
   const { json } = await glapi(di, `/projects/${encodeURIComponent(projectId)}/releases`, {
     method: 'POST',
     body: data,
@@ -16,7 +16,7 @@ async function createRelease(di: Container, projectId, data): Promise<AlterRelea
 }
 
 // https://docs.gitlab.com/ee/api/releases/index.html#update-a-release
-async function updateRelease(di: Container, projectId, data): Promise<AlterReleaseResult> {
+async function updateRelease(di: Container, projectId: string, data: Record<string, any>): Promise<AlterReleaseResult> {
   const { json } = await glapi(di, `/projects/${encodeURIComponent(projectId)}/releases/${data.tag_name}`, {
     method: 'POST',
     body: data,

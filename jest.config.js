@@ -3,8 +3,6 @@ module.exports = {
   testMatch: [
     '<rootDir>/packages/**/__tests__/**/*.spec.ts',
     '<rootDir>/src/**/__tests__/**/*.spec.ts',
-    '<rootDir>/src/**/*.spec.js',
-    '<rootDir>/test/**/*.spec.js',
     '<rootDir>/test/**/*.spec.ts',
   ],
   setupFiles: [

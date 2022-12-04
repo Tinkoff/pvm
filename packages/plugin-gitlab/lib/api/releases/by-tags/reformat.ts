@@ -1,5 +1,21 @@
+import type { VcsRelease } from '@pvm/pvm'
 
-function reformat(releaseTag) {
+function reformat(releaseTag: {
+  [key: string]: unknown,
+  id: string,
+  name: string,
+  release?: {
+    description: string,
+  },
+  commit: {
+    id: string,
+    created_at: string,
+  },
+}): VcsRelease & { author: Record<string, any>, assets: {
+    count: number,
+    sources: string[],
+    links: string[],
+  }, } {
   return {
     ...releaseTag,
     name: releaseTag.name,

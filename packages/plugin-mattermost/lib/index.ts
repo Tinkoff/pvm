@@ -166,7 +166,10 @@ export default declarePlugin({
     providers: [
       provide({
         provide: MESSENGER_CLIENT_TOKEN,
-        useFactory: ({ config }) => Notificator.createClient(MattermostClient, config, opts),
+        useFactory: ({ config }) => Notificator.createClient(MattermostClient, config, {
+          name: 'mattermost',
+          ...opts,
+        }),
         deps: {
           config: CONFIG_TOKEN,
           cwd: CWD_TOKEN,

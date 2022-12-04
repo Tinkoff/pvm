@@ -1,3 +1,4 @@
+// @ts-ignore
 import binaryVersionCheck from 'bin-version-check'
 
 const REQUIRED_CMD = [
@@ -10,7 +11,7 @@ export async function verifyRequiredBins(): Promise<void> {
   for (const [cmd, versionRange] of REQUIRED_CMD) {
     try {
       await binaryVersionCheck(cmd, versionRange)
-    } catch (error) {
+    } catch (error: any) {
       errors.push(error.message)
     }
   }

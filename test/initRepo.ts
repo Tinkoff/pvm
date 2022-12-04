@@ -37,7 +37,7 @@ function processPackageRoot(repoDir: string) {
   }
 }
 
-const initRepo = async (name: string, config?: RecursivePartial<Config>, repoOpts: {
+const initRepo = async (name: string, config?: RecursivePartial<Config> | string, repoOpts: {
   cwd?: string,
   configFormat?: 'json' | 'toml' | 'js'
   empty?: boolean
@@ -116,6 +116,9 @@ const initRepo = async (name: string, config?: RecursivePartial<Config>, repoOpt
       return repoApp.container
     },
     async updateConfig(config) {
+      if (repoOpts.configFormat === 'js') {
+        throw new Error('Config update impossible for js format. Consider to use writeConfig instead')
+      }
       await writeConfig({ dir: this.cwd }, config, repoOpts.configFormat)
       repoApp = makePvmApp()
     },

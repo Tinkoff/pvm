@@ -3,6 +3,7 @@ import path from 'path'
 import { lint } from '../../mechanics/repository/linter'
 import { Repository } from '../../mechanics/repository/repository'
 import { versioningFile } from '../../lib/dedicated-versions-file'
+import initRepo from '../../../../test/initRepo'
 
 async function getRepository(testRepo: any): Promise<Repository> {
   return await Repository.init(testRepo.dir)
@@ -13,7 +14,6 @@ const fallbackVersion = '0.0.1'
 describe('linter', () => {
   describe('dedicated versions in file', () => {
     it('in case no version should add real version to versions file and stub version to package', async () => {
-      // @ts-ignore
       const repo = await initRepo('monostub')
 
       await repo.writeFile('src/new/package.json', JSON.stringify({
@@ -33,7 +33,6 @@ describe('linter', () => {
     })
 
     it('should move real version of new package to versions file', async () => {
-      // @ts-ignore
       const repo = await initRepo('monostub')
 
       await repo.addPkg('src/new', {
@@ -57,7 +56,6 @@ describe('linter', () => {
     })
 
     it('should create versions file if not exists', async () => {
-      // @ts-ignore
       const repo = await initRepo('monorepo-new', {
         versioning: {
           source: 'file',
@@ -82,7 +80,6 @@ describe('linter', () => {
     })
 
     it('should remove unnecessary package entries from versions.json file', async () => {
-      // @ts-ignore
       const repo = await initRepo('monostub')
 
       await repo.runScript('git rm -rf src/b')
@@ -103,7 +100,6 @@ describe('linter', () => {
     })
 
     it('in case of existing stub version, should write non-stub version to versions file', async () => {
-      // @ts-ignore
       const repo = await initRepo('monostub')
 
       await repo.addPkg('src/new', {
@@ -127,7 +123,6 @@ describe('linter', () => {
     })
 
     it('should rewrite stub versions in versioning file', async () => {
-      // @ts-ignore
       const repo = await initRepo('monostub')
       const pvmRepo = await getRepository(repo)
 
@@ -149,7 +144,6 @@ describe('linter', () => {
 
   describe('dedicated unified version in single tag', () => {
     it('should rewrite package versions to stubs', async () => {
-      // @ts-ignore
       const repo = await initRepo('monouno', {
         versioning: {
           source: 'tag',

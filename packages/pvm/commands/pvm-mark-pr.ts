@@ -13,6 +13,8 @@ import type { Pkg } from '../lib/pkg'
 import type { Container } from '../lib/di'
 import { CONFIG_TOKEN, CWD_TOKEN, MARK_PR_HOOK_TOKEN, PLATFORM_TOKEN } from '../tokens'
 import type { PlatformInterface } from '../mechanics/platform'
+import type { CommandFactory } from '../types/cli'
+import type { Config } from '../types'
 
 async function analyzeUpdate(_di: Container, platform: PlatformInterface<any, any>, updateState: UpdateState): Promise<any> {
   const { warnings } = analyzeUpdatedPackages(updateState)
@@ -66,7 +68,7 @@ async function attachMigrationProcess(platform: PlatformInterface<any, any>, cwd
 
 interface Marker {
   fn(di: Container, platform: PlatformInterface<any, any>, updateState: UpdateState): Promise<unknown>,
-  confKey: string,
+  confKey: keyof Config['mark_pr'],
 }
 
 const markers: Marker[] = [
@@ -92,10 +94,11 @@ const markers: Marker[] = [
   },
 ]
 
-export default (di: Container) => ({
-  command: 'mark-pr',
-  description: `Marks merge or pull request by project labels, packages about to update, etc`,
-  handler: async function main(): Promise<void> {
+export default (di: Container): CommandFactory => builder => builder.command(
+  'mark-pr',
+  `Marks merge or pull request by project labels, packages about to update, etc`,
+  {},
+  async function main(): Promise<void> {
     const conf = di.get(CONFIG_TOKEN).mark_pr
     const platform = di.get(PLATFORM_TOKEN)
     const cwd = di.get(CWD_TOKEN)
@@ -112,5 +115,5 @@ export default (di: Container) => ({
     }
 
     await di.get(MARK_PR_HOOK_TOKEN)?.forEach(hook => hook(platform, updateState))
-  },
-})
+  }
+)

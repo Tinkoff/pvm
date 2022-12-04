@@ -14,7 +14,7 @@ function pkgset(di: Container, strategy: string, opts: Record<string, any> = {})
 
 async function * pkgsetFromFlags(di: Container, flags: {
   strategy: string,
-  strategyOption: string[],
+  strategyOption?: string[],
 }): AsyncIterableIterator<Pkg> {
   yield * pkgset(di, flags.strategy, parseSubArgs(flags.strategyOption))
 }

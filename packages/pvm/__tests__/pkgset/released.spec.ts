@@ -2,10 +2,10 @@ import semver from 'semver'
 import drainItems from '../../lib/iter/drain-items'
 import released from '../../mechanics/pkgset/strategies/released'
 import all from '../../mechanics/pkgset/strategies/all'
+import initRepo from '../../../../test/initRepo'
 
 describe('pkgset/released', () => {
   it('should correctly work for file-based internally-cached versioning', async () => {
-    // @ts-ignore
     const repo = await initRepo('monostub')
 
     await repo.tag('release-initial')

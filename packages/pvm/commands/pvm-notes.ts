@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 // команда обновляет release notes для последнего тэга через vcs
 
 import { log } from '../lib/logger'
@@ -8,7 +6,7 @@ import getPreviousRefForFirstRelease from '../lib/git/previous-ref-for-initial-r
 import { env } from '../lib/env'
 import type { Container } from '../lib/di'
 import { CONFIG_TOKEN, PLATFORM_TOKEN } from '../tokens'
-import type { Config } from '../types/config'
+import type { Config, CommandFactory } from '../types'
 
 async function findPrevRef(config: Config, targetTag: string) {
   const prevRelease = lastReleaseTag(config, `${targetTag}^`)
@@ -20,10 +18,11 @@ async function findPrevRef(config: Config, targetTag: string) {
   return prevRef
 }
 
-export default (di: Container) => ({
-  command: 'notes',
-  description: 'Create release notes for latest release tag based on commit messages between tags',
-  handler: async function pvmNotes() {
+export default (di: Container): CommandFactory => builder => builder.command(
+  'notes',
+  'Create release notes for latest release tag based on commit messages between tags',
+  {},
+  async function pvmNotes() {
     const config = di.get(CONFIG_TOKEN)
     const targetTagName = env.CI_COMMIT_TAG || lastReleaseTag(config)
     const platform = di.get(PLATFORM_TOKEN)
@@ -41,5 +40,5 @@ export default (di: Container) => ({
       return targetTagName
     }
     return false
-  },
-})
+  }
+)

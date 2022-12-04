@@ -1,9 +1,8 @@
 import { log } from '../lib/logger'
 
-// eslint-disable-next-line node/no-extraneous-import
-import type { Argv } from 'yargs'
 import type { Container } from '../lib/di'
 import { PLATFORM_TOKEN, VCS_PLATFORM_FACTORY_TOKEN, VCS_PLATFORM_TOKEN } from '../tokens'
+import type { CommandFactory } from '../types'
 
 function cliSubargsToMap(args: string[]): Map<string, string | true> {
   const map = new Map<string, string | true>()
@@ -20,10 +19,10 @@ function cliSubargsToMap(args: string[]): Map<string, string | true> {
   return map
 }
 
-export default (di: Container) => ({
-  command: 'vcs <command>',
-  description: 'cli for version control system',
-  builder: (yargs: Argv) => {
+export default (di: Container): CommandFactory => builder => builder.command(
+  'vcs <command>',
+  'cli for version control system',
+  (yargs) => {
     return yargs
       .command(
         'is-branch-actual',
@@ -85,6 +84,5 @@ export default (di: Container) => ({
 
       )
       .demandCommand()
-  },
-  handler: () => {},
-})
+  }
+)

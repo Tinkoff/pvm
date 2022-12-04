@@ -5,7 +5,7 @@ import {
   cwdShell, getContents, PlatformResult,
   PlatformInterface,
   env,
-  log, CONFIG_TOKEN, CWD_TOKEN, HOST_API_TOKEN,
+  log,
 } from '@pvm/pvm'
 import type {
   AddTagOptions,
@@ -16,6 +16,8 @@ import type {
 
   Container,
   HostApi,
+  ReleasePayload,
+  CreateReleasePayload,
 } from '@pvm/pvm'
 
 import { releasesIterator, updateRelease, createRelease, upsertRelease, addTagAndRelease } from './lib/api/releases'
@@ -69,12 +71,12 @@ export class GitlabPlatform extends PlatformInterface<MergeRequest, CommitContex
   protected cwd: string
   protected hostApi: HostApi
 
-  constructor({ di, globalFlags }: { di: Container, globalFlags: GlobalFlags }) {
-    super({ globalFlags })
+  constructor({ di, globalFlags, hostApi, config, cwd }: { di: Container, globalFlags: GlobalFlags, hostApi: HostApi, config: Config, cwd: string }) {
+    super({ name: GitlabPlatform.name, globalFlags })
 
-    this.config = di.get(CONFIG_TOKEN)
-    this.cwd = di.get(CWD_TOKEN)
-    this.hostApi = di.get(HOST_API_TOKEN)
+    this.config = config
+    this.cwd = cwd
+    this.hostApi = hostApi
     this.di = di
   }
 
@@ -91,7 +93,7 @@ export class GitlabPlatform extends PlatformInterface<MergeRequest, CommitContex
   }
 
   async createProjectLabel(label: string, color: string): Promise<unknown> {
-    return await createLabel(gitlabEnv.projectId, {
+    return await createLabel(this.di, gitlabEnv.projectId, {
       name: label,
       color,
     })
@@ -137,7 +139,7 @@ export class GitlabPlatform extends PlatformInterface<MergeRequest, CommitContex
           description: release.description,
         }]
       }
-    } catch (e) {
+    } catch (e: any) {
       if (e.statusCode === 404) {
         return [PlatformResult.NO_SUCH_TAG, null]
       }
@@ -147,11 +149,11 @@ export class GitlabPlatform extends PlatformInterface<MergeRequest, CommitContex
   }
 
   releasesIterator() {
-    return releasesIterator(this.config, gitlabEnv.projectId)
+    return releasesIterator(this.di, gitlabEnv.projectId)
   }
 
   releaseTagsIterator() {
-    return releaseTags(this.config, gitlabEnv.projectId)
+    return releaseTags(this.di, gitlabEnv.projectId)
   }
 
   requireMr(): MergeRequest {
@@ -166,7 +168,7 @@ export class GitlabPlatform extends PlatformInterface<MergeRequest, CommitContex
     this.currentMr = await findOpenSingleMr(this.di, this.getCurrentBranch())
   }
 
-  async addTagAndRelease(ref: string, tag_name: string, data): Promise<AlterReleaseResult> {
+  async addTagAndRelease(ref: string, tag_name: string, data: CreateReleasePayload): Promise<AlterReleaseResult> {
     const res = await addTagAndRelease(this.di, gitlabEnv.projectId, ref, {
       ...data, // name and description
       tag_name,
@@ -177,7 +179,7 @@ export class GitlabPlatform extends PlatformInterface<MergeRequest, CommitContex
     return res
   }
 
-  async createRelease(tag_name: string, data): Promise<AlterReleaseResult> {
+  async createRelease(tag_name: string, data: CreateReleasePayload): Promise<AlterReleaseResult> {
     const res = await createRelease(this.di, gitlabEnv.projectId, {
       ...data, // name and description
       tag_name,
@@ -188,14 +190,14 @@ export class GitlabPlatform extends PlatformInterface<MergeRequest, CommitContex
     return res
   }
 
-  async editRelease(tag_name, data): Promise<AlterReleaseResult> {
+  async editRelease(tag_name: string, data: ReleasePayload): Promise<AlterReleaseResult> {
     return await updateRelease(this.di, gitlabEnv.projectId, {
       ...data,
       tag_name,
     })
   }
 
-  async upsertRelease(tagName: string, data): Promise<AlterReleaseResult> {
+  async upsertRelease(tagName: string, data: ReleasePayload): Promise<AlterReleaseResult> {
     const res = await upsertRelease(this.di, gitlabEnv.projectId, {
       ...data,
       tag_name: tagName,
@@ -361,35 +363,39 @@ export class GitlabPlatform extends PlatformInterface<MergeRequest, CommitContex
   }
 
   static getPvmUpdateHintsFromString(text: string): Record<string, any> | null {
-    let parsedDescription
+    let tokens
     try {
       const lexer = new Lexer()
-      parsedDescription = lexer.lex(text)
+      tokens = lexer.lex(text)
     } catch (e) {
       log(`Failed to parse MR description`)
       log(e)
       return null
     }
 
-    const tomlCodeBlocks = parsedDescription.filter(block => block.type === 'code' && block.lang === 'toml')
-    if (!tomlCodeBlocks.length) {
-      log(`toml code not found in mr description`)
-      return null
-    }
+    let codeBlockFound = false
+    for (const token of tokens) {
+      if (token.type !== 'code' || token.lang !== 'toml') {
+        codeBlockFound = true
+        continue
+      }
 
-    for (const block of tomlCodeBlocks) {
       try {
-        const parsed = TOML.parse(block.text) as any
+        const parsed = TOML.parse(token.text) as any
         if (parsed.kind === PVM_UPDATE_HINTS_KIND) {
           delete parsed.kind
           return parsed
         }
       } catch (e) {
         log(`Failed to parse toml code block`)
-        log(block.text)
+        log(token.text)
         log(e)
         break
       }
+    }
+
+    if (!codeBlockFound) {
+      log(`toml code block not found in mr description`)
     }
 
     return null

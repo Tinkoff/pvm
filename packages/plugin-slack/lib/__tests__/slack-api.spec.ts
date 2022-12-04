@@ -16,7 +16,6 @@ describe('slack-api', () => {
       .post('/chat.postMessage')
       .reply(200, { ok: true })
 
-    // @ts-ignore
     await sendMessage({ text: 'hello world' }, {
       env: {
         PVM_SLACK_TOKEN: 'xoxb-test-token',

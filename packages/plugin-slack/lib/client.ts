@@ -3,7 +3,7 @@ import { AbstractMessengerClient, checkEnv, loggerFor, gracefullyTruncateText } 
 import { sendMessage } from './api'
 
 import slackifyMarkdown from 'slackify-markdown'
-import omitBy from 'lodash.omitby'
+import { typedObjectKeys } from '@pvm/pvm/lib/utils'
 
 const logger = loggerFor('pvm:slack')
 
@@ -15,7 +15,7 @@ export class SlackClient extends AbstractMessengerClient {
   }
 
   protected async internalSendMessage(message: Message): Promise<void> {
-    await sendMessage(omitBy({
+    const slackMessage: Record<string, any> = {
       username: message.author?.name,
       icon_emoji: message.author?.avatarEmoji,
       icon_url: message.author?.avatarUrl,
@@ -26,20 +26,30 @@ export class SlackClient extends AbstractMessengerClient {
           text: slackifyMarkdown(gracefullyTruncateText(message.content, MAX_TEXT_LENGTH)).trim(),
         },
       }],
-      attachments: message.attachments?.map(attachment => {
-        const slackified = {}
+      attachments: message.attachments?.map((attachment) => {
+        const slackified: { [p in keyof typeof attachment]: any } = {}
+        const attachmentFields = typedObjectKeys(attachment)
 
-        for (const field of Object.keys(attachment)) {
-          if (typeof attachment[field] !== 'string') {
+        for (const field of attachmentFields) {
+          const fieldValue = attachment[field]
+          if (typeof fieldValue !== 'string') {
             slackified[field] = attachment[field]
           } else {
-            slackified[field] = slackifyMarkdown(attachment[field]).trim()
+            slackified[field] = slackifyMarkdown(fieldValue).trim()
           }
         }
 
         return slackified
       }),
       channel: message.channel,
-    }, prop => prop === undefined))
+    }
+
+    for (const [k, v] of Object.entries(slackMessage)) {
+      if (v === undefined) {
+        delete slackMessage[k]
+      }
+    }
+
+    await sendMessage(slackMessage)
   }
 }

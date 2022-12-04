@@ -12,7 +12,7 @@ import { Repository } from '../repository'
 import type { Container } from '../../lib/di'
 
 // connected with type yargs.commands['pvm-publish].options.list.choices in ../cli/commands/pvm-packages.ts
-type PackagesType = 'about-to-update' | 'update' | 'changed' | 'changed-since-release' | 'affected' | 'released' | 'updated' | 'all'
+export type PackagesType = 'about-to-update' | 'update' | 'changed' | 'changed-since-release' | 'affected' | 'released' | 'updated' | 'all'
 
 interface GetPackagesOptions {
   filter?: string[],

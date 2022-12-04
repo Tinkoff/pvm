@@ -13,7 +13,7 @@ import type { Config, RecursivePartial } from '../types'
 import { cwdToGitRelativity } from '../lib/git/worktree'
 import { defaultConfig as rawDefaults } from '../pvm-defaults'
 
-const allLoaders = {
+const allLoaders: Record<string, (filepath: string, content: string) => any> = {
   ...defaultLoaders,
   '.toml': tomlLoader,
 }
@@ -112,7 +112,7 @@ function tomlLoader(_: string, content: string): TOML.JsonMap {
 
 const moduleName = 'pvm'
 
-const json5Loader = (_, contents: string): any => {
+const json5Loader = (_: any, contents: string): any => {
   return json5.parse(contents)
 }
 

@@ -1,5 +1,5 @@
 import { createToken } from '../lib/di'
-import type { Commit, Config, PvmReleaseType } from '../types'
+import type { Commit, Config, PvmReleaseType, ConventionalCommit } from '../types'
 import type { Pkg } from '../lib/pkg'
 import type { ChangedContext } from '../mechanics/update/changed-context'
 import type { VcsPlatform } from '../mechanics/vcs'
@@ -13,7 +13,7 @@ export const NOTIFY_SCRIPTS_PATH_TOKEN = createToken<() => Promise<string>>('NOT
 export const RELEASE_TYPE_BY_COMMITS_TOKEN = createToken<(gitCommits: Array<Commit>) => Promise<PvmReleaseType | null> >('RELEASE_TYPE_BY_COMMITS_TOKEN')
 export const RELEASE_TYPE_TOKEN = createToken<(pkg: Pkg, changedContext: ChangedContext) => Promise<PvmReleaseType | undefined> >('RELEASE_TYPE_TOKEN')
 export const COMMITS_TO_NOTES_TOKEN = createToken<(gitCommits: Array<Commit>, maybePkg: Pkg | undefined, config: Config) => Promise<string> >('COMMITS_TO_NOTES_TOKEN')
-export const RELEASE_TYPE_BUILDER_TOKEN = createToken<(gitCommits: Array<any>) => Promise<PvmReleaseType>>('RELEASE_TYPE_BUILDER_TOKEN')
+export const RELEASE_TYPE_BUILDER_TOKEN = createToken<(gitCommits: Array<ConventionalCommit>) => Promise<PvmReleaseType>>('RELEASE_TYPE_BUILDER_TOKEN')
 export const PRE_RELEASE_HOOK_TOKEN = createToken<(vcs: VcsPlatform, releaseContext: ReleaseContext) => Promise<void>>('PRE_RELEASE_HOOK_TOKEN', { multi: true })
 export const ATTRIBUTE_RELEASE_DATA_HOOK_TOKEN = createToken<(releaseData: ReleaseData, updateState: UpdateState | null) => Promise<ReleaseDataExt>>('ATTRIBUTE_RELEASE_DATA_HOOK_TOKEN', { multi: true })
 export const MARK_PR_HOOK_TOKEN = createToken<(platform: PlatformInterface<any, any>, updateState: UpdateState) => Promise<void>>('MARK_PR_HOOK_TOKEN', { multi: true })

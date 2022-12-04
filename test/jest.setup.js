@@ -1,14 +1,3 @@
-const initRepo = require('./initRepo')
-const { writeRepo } = require('./writeRepo')
-const { runScript, execScript } = require('./executors')
-const { writeConfig } = require('./helpers')
-
-global.initRepo = initRepo
-global.runScript = runScript
-global.execScript = execScript
-global.writeConfig = writeConfig
-global.writeRepo = writeRepo
-
 Object.assign(process.env, {
   PVM_CONFIG_SEARCH_FROM: __dirname,
   PVM_CONFIG_JIRA__URL: 'https://jira.example.com',

@@ -36,9 +36,9 @@ async function * httpPagesGen<T = any>(di: Container,
 }
 
 // https://docs.gitlab.com/ee/api/#pagination
-async function * pagesGen<T = any>(di: Container, url, queryArgs: QueryArgs = {}, fetchOpts: HttpReqOptions = {}): AsyncIterableIterator<T> {
+async function * pagesGen<T = any>(di: Container, url: string, queryArgs: QueryArgs = {}, fetchOpts: HttpReqOptions = {}): AsyncIterableIterator<T> {
   for await (const response of httpPagesGen<T>(di, url, queryArgs, fetchOpts)) {
-    const data = response.json
+    const data = response.json as any
     if (data) {
       const metaTarget = Array.isArray(data) ? data[0] : data
       if (typeof metaTarget === 'object' && metaTarget) {

@@ -1,3 +1,4 @@
+// @ts-ignore
 import parseMd from 'parse-md'
 import { logger, getNoteBody } from '@pvm/pvm'
 import crypto from 'crypto'
@@ -25,9 +26,10 @@ async function findNote(di: Container, iid: number, kind: string): Promise<MetaC
     }
     const { metadata, content } = parseResult
 
-    if (metadata && metadata.kind === kind) {
+    const typedMetadata = metadata as Record<string, string> | undefined
+    if (typedMetadata?.kind === kind) {
       return {
-        metadata,
+        metadata: typedMetadata,
         content,
         note,
       }

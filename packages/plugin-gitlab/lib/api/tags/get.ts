@@ -14,7 +14,7 @@ export interface GitlabTagResult {
 }
 
 // https://docs.gitlab.com/ee/api/tags.html#get-a-single-repository-tag
-async function getTag(di: Container, projectId, tagName: string): Promise<HttpResponseSuccess<GitlabTagResult>> {
+async function getTag(di: Container, projectId: string, tagName: string): Promise<HttpResponseSuccess<GitlabTagResult>> {
   return await glapi<GitlabTagResult>(di, `/projects/${encodeURIComponent(projectId)}/repository/tags/${encodeURIComponent(tagName)}`)
 }
 

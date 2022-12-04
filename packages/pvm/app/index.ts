@@ -171,11 +171,6 @@ export class Pvm {
     logger.debug('config.versioning.source is', nextConfig.versioning.source)
     logger.debug('config.versioning.unified_versions_for is', JSON.stringify(nextConfig.versioning.unified_versions_for))
 
-    nextConfig.executionContext = {
-      dryRun: false,
-      local: false,
-    }
-
     this.container.register(provide({
       useValue: nextConfig,
       provide: CONFIG_TOKEN,

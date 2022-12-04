@@ -120,9 +120,9 @@ describe('@pvm/container', () => {
   })
 
   it('should resolve provider against resolved config path', () => {
-    expect(new Pvm({
+    expect((new Pvm({
       cwd: path.join(__dirname, '__fixtures__', 'non-cwd-config-and-provider', 'pvm'),
       // @ts-ignore
-    }).container.get(CONFIG_TOKEN)['test-provider']).toBe(true)
+    }).container.get(CONFIG_TOKEN) as any)['test-provider']).toBe(true)
   })
 })

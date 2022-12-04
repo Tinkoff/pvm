@@ -4,14 +4,13 @@ import { releaseDataMaker } from '../../mechanics/releases/release-data'
 import { getUpdateState } from '../../mechanics/update'
 import { createReleaseContext } from '../../mechanics/update/release/release-context'
 
-// eslint-disable-next-line node/no-extraneous-import
-import type { Argv } from 'yargs'
 import type { Container } from '../../lib/di'
+import type { CommandFactory } from '../../types'
 
-export default (di: Container) => ({
-  command: 'probe',
-  description: 'Create ReleaseData artefact based on unreleased changes',
-  builder: (yargs: Argv) => {
+export default (di: Container): CommandFactory => builder => builder.command(
+  'probe',
+  'Create ReleaseData artefact based on unreleased changes',
+  (yargs) => {
     return yargs
       .option('output-path', {
         desc: 'Output path for ReleaseData artefact',
@@ -19,7 +18,7 @@ export default (di: Container) => ({
         default: 'releaseData.json',
       })
   },
-  handler: async function main(flags: Record<string, any>): Promise<void> {
+  async function main(flags): Promise<void> {
     const fs = require('fs')
     const cwd = process.cwd()
 
@@ -35,12 +34,12 @@ export default (di: Container) => ({
       })
 
       if (releaseData) {
-        const outputPath = path.resolve(cwd, flags.outputPath)
+        const outputPath = path.resolve(cwd, flags['output-path'])
         fs.writeFileSync(outputPath, JSON.stringify(releaseData))
         logger.info(`ReleaseData saved to "${flags.outputPath}"`)
       } else {
         logger.info(`ReleaseData has not been created`)
       }
     }
-  },
-})
+  }
+)

@@ -1,5 +1,6 @@
 import { releaseMessage } from '../lib/messages/message-builder'
 import { env } from '../lib/env'
+import initRepo from '../../../test/initRepo'
 
 describe('notifications/message-builder', () => {
   const ciPipelineUrl = env.CI_PIPELINE_URL
@@ -8,7 +9,6 @@ describe('notifications/message-builder', () => {
   })
 
   it('should take full tag for simple repositories', async () => {
-    // @ts-ignore
     const repo = await initRepo('simple-one')
 
     const message = releaseMessage({
@@ -23,12 +23,10 @@ describe('notifications/message-builder', () => {
       pvmConfig: repo.config,
     })
 
-    // @ts-ignore
     expect(message.content).toEqual('v0.1.0 has been released')
   })
 
   it('should get part of release tag in case of monorepository', async () => {
-    // @ts-ignore
     const repo = await initRepo('monorepo-new')
 
     const message = releaseMessage({
@@ -43,12 +41,10 @@ describe('notifications/message-builder', () => {
       pvmConfig: repo.config,
     })
 
-    // @ts-ignore
     expect(message.content).toEqual('moon has been released')
   })
 
   it('should add error info if publish failed partially', async () => {
-    // @ts-ignore
     const repo = await initRepo('monorepo-new')
 
     const message = releaseMessage({
@@ -77,7 +73,6 @@ describe('notifications/message-builder', () => {
   })
 
   it('should add error info if publish fully failed', async () => {
-    // @ts-ignore
     const repo = await initRepo('monorepo-new')
 
     const message = releaseMessage({
@@ -102,7 +97,6 @@ describe('notifications/message-builder', () => {
 
   it('should add pipeline url to error title', async () => {
     env.CI_PIPELINE_URL = 'test'
-    // @ts-ignore
     const repo = await initRepo('monorepo-new')
 
     const message = releaseMessage({

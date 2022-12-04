@@ -9,13 +9,14 @@ import '../node-boot'
 import type { Argv } from 'yargs'
 import type { CLI_EXTENSION_TOKEN } from '../../tokens'
 import type { GlobalFlags } from './global-flags'
+import type { ExtractTokenType } from '../../lib/di'
 
-function initCommands(yargs: Argv, commands: Array<typeof CLI_EXTENSION_TOKEN>) {
-  commands.forEach(command => {
-    if (Array.isArray(command)) {
-      command.forEach(c => yargs.command(c))
+function initCommands(yargs: Argv, commandBuilders: ExtractTokenType<typeof CLI_EXTENSION_TOKEN>[]) {
+  commandBuilders.forEach(builder => {
+    if (Array.isArray(builder)) {
+      builder.forEach(b => b(yargs))
     } else {
-      yargs.command(command)
+      builder(yargs)
     }
   })
 

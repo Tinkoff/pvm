@@ -1,15 +1,12 @@
-#!/usr/bin/env node
-
 import { upload, ArtifactsStorages } from '../../mechanics/artifacts/pub/artifacts'
 
-// eslint-disable-next-line node/no-extraneous-import
-import type { Argv } from 'yargs'
 import type { Container } from '../../lib/di'
+import type { CommandFactory } from '../../types'
 
-export default (di: Container) => ({
-  command: 'upload',
-  description: 'Upload ReleaseList artifact to remote storage',
-  builder: (yargs: Argv) => {
+export default (di: Container): CommandFactory => builder => builder.command(
+  'upload',
+  'Upload ReleaseList artifact to remote storage',
+  (yargs) => {
     return yargs
       .option('quiet', {
         desc: `Don't print warnings`,
@@ -23,11 +20,11 @@ export default (di: Container) => ({
       })
   },
 
-  handler: async function main(args: Record<string, any>): Promise<void> {
+  async function main(args: Record<string, any>): Promise<void> {
     await upload(di, {
       force: args.force,
       quiet: args.quiet,
       kind: ArtifactsStorages.ReleaseList,
     })
-  },
-})
+  }
+)

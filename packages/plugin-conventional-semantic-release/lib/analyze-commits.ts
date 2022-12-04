@@ -1,7 +1,11 @@
 import type { Commit } from 'conventional-commits-parser'
+// @ts-ignore
 import DEFAULT_RELEASE_RULES from '@semantic-release/commit-analyzer/lib/default-release-rules'
+// @ts-ignore
 import compareReleaseTypes from '@semantic-release/commit-analyzer/lib/compare-release-types'
+// @ts-ignore
 import RELEASE_TYPES from '@semantic-release/commit-analyzer/lib/default-release-types'
+// @ts-ignore
 import analyzeCommit from '@semantic-release/commit-analyzer/lib/analyze-commit'
 import { logger } from './logger'
 import type { PvmReleaseType } from '@pvm/pvm'

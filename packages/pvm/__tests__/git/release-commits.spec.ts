@@ -1,9 +1,9 @@
 import { getReleaseCommits, releaseCommitsAsString } from '../../lib/git/release-commits'
+import initRepo from '../../../../test/initRepo'
 
 describe('core/release-commits', () => {
   describe('getReleaseCommits', () => {
     it('should exclude release commits', async () => {
-      // @ts-ignore
       const repo = await initRepo('monorepo-new')
       await repo.tag('release-initial')
       repo.touch('src/a/nf', 'change a')
@@ -19,7 +19,6 @@ describe('core/release-commits', () => {
 
   describe('releaseCommitsAsString', () => {
     it('should exclude release commits', async () => {
-      // @ts-ignore
       const repo = await initRepo('monorepo-new')
       repo.touch('src/a/nf', 'change a')
       await repo.runScript('pvm update')

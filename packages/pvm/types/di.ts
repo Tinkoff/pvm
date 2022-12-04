@@ -1,6 +1,5 @@
 import type { Provider } from '../lib/di'
-import type { Config } from '../types'
-import type { RecursivePartial } from './utils'
+import type { Config, RecursivePartial } from '../types'
 
 export type PluginOptions = Record<string, any>
 

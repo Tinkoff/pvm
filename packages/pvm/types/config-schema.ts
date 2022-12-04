@@ -102,7 +102,7 @@ export interface Config {
      * List of groups, each group is a list of globs or just one glob string for workspace paths, where each of group have own unified versioning.
      * If you want unified versioning for whole repository, choose ['*'] value or better set `unified` setting to true.
      */
-    unified_versions_for: PkgFlexGlobs[],
+    unified_versions_for: Array<GlobPattern[] | string | '*'>,
     /**
      * Where do the versions come from. Also affects the way the versions are saved. See versioning section in documentation for more info.
      */
@@ -526,6 +526,10 @@ export interface Config {
      * dont want to duplicate it
      */
     clients_common_config: Partial<MessengerClientConfig>,
+    /**
+     * Default message values, each for specific messenger client. Its priority is higher than clients_common_config.
+     */
+    client_configs: Record<MessengerName, Partial<MessengerClientConfig>>,
   },
   /**
    * Options that need more attention in terms of the consequences of their activation.

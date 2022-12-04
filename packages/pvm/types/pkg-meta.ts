@@ -13,6 +13,7 @@ export interface MetaRepository {
 
 export interface PkgMeta {
   version?: string,
+  description?: string,
   initialVersion?: string,
   name: string,
   dependencies?: PkgDeps,

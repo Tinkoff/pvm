@@ -31,7 +31,7 @@
     "importsNotUsedAsValues": "error",
     "paths": {
       "@octokit/oauth-app": ["../type-overrides/octokit--oauth-app"],
-    }
+    },
   },
   "include": [
     "packages",

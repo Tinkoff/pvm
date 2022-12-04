@@ -59,7 +59,7 @@ export const users: User[] = [
 ]
 
 export function mapUsers(ids: number[], wrap: true): Array<{ user: User }>
-export function mapUsers(ids: number[], wrap: false | undefined): Array<User>
+export function mapUsers(ids: number[], wrap?: false): Array<User>
 export function mapUsers(ids: number[], wrap = true): Array<{ user: User } | User> {
   return ids.reduce((acc, id) => {
     const user = users.find(u => u.id === id)

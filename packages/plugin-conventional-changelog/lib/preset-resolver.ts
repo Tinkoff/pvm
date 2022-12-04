@@ -1,5 +1,5 @@
 
-function resolvePreset(preset): Record<string, any> {
+function resolvePreset(preset: ((cb: (err: any, result: any) => void) => Record<string, any>) | Record<string, any>): Record<string, any> {
   if (typeof preset === 'function') {
     return new Promise((resolve, reject) => {
       preset((err, result) => {

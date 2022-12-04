@@ -1,13 +1,18 @@
+// @ts-ignore
 import conventionalCommitsFilter from 'conventional-commits-filter'
+// @ts-ignore
 import conventionalChangelogPresetLoader from 'conventional-changelog-preset-loader'
+// @ts-ignore
 import conventionalChangelogWriter from 'conventional-changelog-writer'
+// @ts-ignore
 import mergeConfig from 'conventional-changelog-core/lib/merge-config'
+// @ts-ignore
 import streamFromArray from 'stream-from-array'
+// @ts-ignore
 import through from 'through2'
 import resolvePreset from './preset-resolver'
 import { parseCommit } from './common'
-import type { Commit } from 'conventional-commits-parser'
-import type { ReleasedProps } from '@pvm/pvm'
+import type { ReleasedProps, Commit, ConventionalCommit } from '@pvm/pvm'
 import {
   CONFIG_TOKEN,
   createToken,
@@ -26,12 +31,12 @@ import { releaseMessage } from './message-builder'
 
 export enum conventionalChangelogReleaseTypes {'major', 'minor', 'patch'}
 
-function parseCommits(commits, parserOpts): Array<ReturnType<typeof parseCommit>> {
+function parseCommits(commits: Commit[], parserOpts: Record<string, any>): Array<ConventionalCommit> {
   return commits.map(commit => {
     const rawData = `${commit.subject}\n${commit.body}`
     const parsed = parseCommit(rawData, parserOpts)
 
-    if ('commit' in commit && commit.commit.long) {
+    if ('commit' in commit && commit.commit?.long) {
       parsed.hash = commit.commit.long
     }
 
@@ -41,7 +46,7 @@ function parseCommits(commits, parserOpts): Array<ReturnType<typeof parseCommit>
 
 const commitsCache = new Map()
 
-function parseCommitsWithCache(commits, parserOpts): ReturnType<typeof parseCommits> {
+function parseCommitsWithCache(commits: Commit[], parserOpts: Record<string, any>): Array<ConventionalCommit> {
   if (commitsCache.has(commits)) {
     return commitsCache.get(commits)
   }
@@ -92,7 +97,7 @@ export type PluginOpts = {
    * ```
    * @param commits
    */
-  whatBump?: (commits: Array<Commit>) => PvmReleaseType,
+  whatBump?: (commits: Array<ConventionalCommit>) => PvmReleaseType,
 }
 
 const OPTS_TOKEN = createToken<Promise<{
@@ -187,17 +192,17 @@ export default declarePlugin({
             return new Promise((resolve, reject) => {
               let result = ''
 
-              const concatStream = through((chunk, _enc, cb) => {
+              const concatStream = through((chunk: string, _enc: void, cb: () => void) => {
                 result += chunk
                 cb()
-              }, cb => {
+              }, (cb: () => void) => {
                 resolve(result)
                 cb()
               })
 
               commitsStream
                 .pipe(conventionalChangelogWriter(mergedConfig.context, writerOpts))
-                .on('error', e => {
+                .on('error', (e: any) => {
                   reject(e)
                 })
                 .pipe(concatStream)

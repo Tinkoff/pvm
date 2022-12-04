@@ -48,7 +48,7 @@ async function createRelease(di: Container, projectId: string | number, data: Ed
 async function upsertRelease(di: Container, projectId: string | number, data: EditReleasePayload): Promise<AlterReleaseResult> {
   try {
     await createRelease(di, projectId, data)
-  } catch (e) {
+  } catch (e: any) {
     if (e.statusCode === 409) {
       // релиз уже есть, и нам нужно его отредактировать в этом случае
       return await updateRelease(di, projectId, data)

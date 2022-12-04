@@ -1,20 +1,19 @@
-#!/usr/bin/env node
 import { Repository } from '../mechanics/repository'
 import { logger } from '../lib/logger'
 import { lint } from '../mechanics/repository/linter'
 import type { Container } from '../lib/di'
+import type { CommandFactory } from '../types/cli'
 
-export default (di: Container) => ({
-  command: 'lint',
-  description: 'Checks that package versions correspond to the selected settings and policies in the project.',
-  builder: {
+export default (di: Container): CommandFactory => builder => builder.command(
+  'lint',
+  'Checks that package versions correspond to the selected settings and policies in the project.',
+  {
     fix: {
       default: false,
       desc: 'Automatically fix found bugs or versions if possible',
     },
   },
-
-  handler: async (flags) => {
+  async (flags) => {
     const repo = await Repository.init(di)
     const lintResult = lint(repo, {
       fix: flags.fix,
@@ -28,5 +27,5 @@ export default (di: Container) => ({
       })
       process.exitCode = 1
     }
-  },
-})
+  }
+)

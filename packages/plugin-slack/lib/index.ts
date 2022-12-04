@@ -11,7 +11,10 @@ export default declarePlugin({
     providers: [
       provide({
         provide: MESSENGER_CLIENT_TOKEN,
-        useFactory: ({ config }) => Notificator.createClient(SlackClient, config, opts),
+        useFactory: ({ config }) => Notificator.createClient(SlackClient, config, {
+          name: 'slack',
+          ...opts,
+        }),
         deps: {
           config: CONFIG_TOKEN,
           cwd: CWD_TOKEN,

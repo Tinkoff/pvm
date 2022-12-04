@@ -2,11 +2,12 @@
 
 import { setVersions } from '../mechanics/set-versions'
 import type { Container } from '../lib/di'
+import type { CommandFactory } from '../types'
 
-export default (di: Container) => ({
-  command: 'set-versions <versionOrReleaseType>',
-  description: 'Set given version for given packages',
-  builder: (yargs) => {
+export default (di: Container): CommandFactory => builder => builder.command(
+  'set-versions <versionOrReleaseType>',
+  'Set given version for given packages',
+  (yargs) => {
     return yargs
       .example('$0 set-versions minor -p src/components/*', 'Bump version for given packages')
       .example('$0 set-versions 0.0.1 -u', 'Set version 0.0.1 for all packages and also update dependencies')
@@ -39,7 +40,14 @@ export default (di: Container) => ({
       })
   },
 
-  handler: async function main(argv): Promise<void> {
-    return setVersions(di, argv)
-  },
-})
+  async function main(argv): Promise<void> {
+    return setVersions(di, {
+      bumpDependants: argv['bump-dependants'],
+      filterPath: argv['filter-path']?.map(String),
+      strategy: argv.strategy,
+      strategyOption: argv['strategy-option']?.map(String),
+      updateDependants: argv['update-dependants'],
+      versionOrReleaseType: argv.versionOrReleaseType as string,
+    })
+  }
+)

@@ -6,15 +6,14 @@ import { reduceReleaseList } from '../../mechanics/releases/release-list'
 import { getUpdateState } from '../../mechanics/update'
 import { createReleaseContext } from '../../mechanics/update/release/release-context'
 
-// eslint-disable-next-line node/no-extraneous-import
-import type { Argv } from 'yargs'
 import type { Container } from '../../lib/di'
 import { CONFIG_TOKEN, CWD_TOKEN } from '../../tokens'
+import type { CommandFactory } from '../../types'
 
-export default (di: Container) => ({
-  command: 'make',
-  description: 'Make ReleaseList artifact from git working tree',
-  builder: (yargs: Argv) => {
+export default (di: Container): CommandFactory => builder => builder.command(
+  'make',
+  'Make ReleaseList artifact from git working tree',
+  (yargs) => {
     return yargs
       .option('start-from', {
         desc: 'Git reference from wich start iteration',
@@ -36,14 +35,14 @@ export default (di: Container) => ({
         default: true,
       })
   },
-  handler: async function main(flags: Record<string, any>): Promise<void> {
+  async function main(flags): Promise<void> {
     const fs = require('fs')
     const cwd = di.get(CWD_TOKEN)
     const config = di.get(CONFIG_TOKEN)
 
     let releaseList = await makeReleasesFromWorkingTree(di, {
-      stopAtRef: flags.stopAt,
-      startFrom: flags.startFrom,
+      stopAtRef: flags['stop-at'],
+      startFrom: flags['start-from'],
     })
 
     if (flags.appendUpcomingRelease) {
@@ -71,5 +70,5 @@ export default (di: Container) => ({
     const outputPath = path.join(cwd, config.release_list.path)
     fs.writeFileSync(outputPath, JSON.stringify(releaseList))
     logger.info(`Release list saved to "${config.release_list.path}"`)
-  },
-})
+  }
+)

@@ -78,7 +78,7 @@ function chatPostMessage(message: SlackMessage, opts: SlackSendOpts = {}): Promi
   })
 }
 
-function readPvmEnv(name: string, env = defaultEnv): string | undefined {
+function readPvmEnv(name: string, env: Record<string, any> = defaultEnv): string | undefined {
   return env[name] ?? env[`PVM_${name}`]
 }
 

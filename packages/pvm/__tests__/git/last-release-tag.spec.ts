@@ -1,10 +1,10 @@
 
 import { lastReleaseTag } from '../../lib/git/last-release-tag'
+import initRepo from '../../../../test/initRepo'
 
 describe('last-release-tag', () => {
   // covers PVM-144
   it('should take lrt from master in case first-parent in merge commit leads to branch', async () => {
-    // @ts-ignore
     const repo = await initRepo('simple-one')
     await repo.tag('v0.1.0')
     const firstReleasedSha = repo.head

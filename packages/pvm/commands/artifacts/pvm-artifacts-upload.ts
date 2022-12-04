@@ -1,17 +1,14 @@
-#!/usr/bin/env node
-
 import type { ArtifactsTransferArgs } from '../../mechanics/artifacts/pub/artifacts'
 import { upload } from '../../mechanics/artifacts/pub/artifacts'
 import { cliArtifactsChoices } from './common'
 
-// eslint-disable-next-line node/no-extraneous-import
-import type { Argv } from 'yargs'
 import type { Container } from '../../lib/di'
+import type { CommandFactory } from '../../types/cli'
 
-export default (di: Container) => ({
-  command: 'upload <kind>',
-  description: 'Upload a given kind of artifacts from remote storage',
-  builder: (yargs: Argv) => {
+export default (di: Container): CommandFactory => builder => builder.command(
+  'upload <kind>',
+  'Upload a given kind of artifacts from remote storage',
+  (yargs) => {
     return yargs
       .positional('kind', {
         desc: 'Kind of artifact for uploading',
@@ -29,7 +26,7 @@ export default (di: Container) => ({
         default: false,
       })
   },
-  handler: async function main(args: Record<string, any>): Promise<void> {
+  async function main(args: Record<string, any>): Promise<void> {
     await upload(di, args as ArtifactsTransferArgs)
-  },
-})
+  }
+)

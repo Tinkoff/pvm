@@ -8,8 +8,8 @@ import notificationsCommand from './notifications/pvm-notification'
 import pkgsetCommand from './pvm-pkgset'
 import releasesCommand from './releases/pvm-releases'
 import updateCommand from './update/pvm-update'
+import localUpdateCommand from './update/pvm-update-local'
 import vcsCommand from './pvm-vcs'
-import vizCommand from './pvm-viz'
 import lintCommand from './pvm-lint'
 import markPrCommand from './pvm-mark-pr'
 import notesCommand from './pvm-notes'
@@ -35,8 +35,8 @@ export default declarePlugin({
             pkgsetCommand(di),
             releasesCommand(di),
             updateCommand(di),
+            localUpdateCommand(di),
             vcsCommand(di),
-            vizCommand(),
             lintCommand(di),
             markPrCommand(di),
             notesCommand(di),

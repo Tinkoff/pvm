@@ -2,6 +2,7 @@
 import path from 'path'
 import fs from 'fs'
 import { conventionalChangelogParserOpts } from './common'
+import type { Commit } from 'conventional-commits-parser'
 
 const resolveTemplate = (tplPath: string) =>
   fs.readFileSync(path.resolve(__dirname, tplPath), 'utf-8')
@@ -21,10 +22,10 @@ module.exports = new Promise((resolve) => {
       preset.writerOpts.headerPartial = resolveTemplate('./templates/header.hbs')
       preset.writerOpts.commitPartial = resolveTemplate('./templates/commit.hbs')
 
-      preset.writerOpts.transform = (commit, context) => {
+      preset.writerOpts.transform = (commit: Commit, context: any) => {
         const issues: string[] = []
 
-        commit.notes.forEach((note) => {
+        commit.notes.forEach((note: any) => {
           note.title = '💥 BREAKING CHANGES'
         })
 
@@ -67,7 +68,7 @@ module.exports = new Promise((resolve) => {
           if (url) {
             url = `${url}/issues/`
             // Issue URLs.
-            commit.subject = commit.subject.replace(/#([0-9]+)/g, (_, issue) => {
+            commit.subject = commit.subject.replace(/#([0-9]+)/g, (_: any, issue: string) => {
               issues.push(issue)
               return `[${issue}](${url}${issue})`
             })
@@ -76,7 +77,7 @@ module.exports = new Promise((resolve) => {
             // User URLs.
             commit.subject = commit.subject.replace(
               /\B@([a-z0-9](?:-?[a-z0-9/]){0,38})/g,
-              (_, username) => {
+              (_: any, username: string) => {
                 if (username.includes('/')) {
                   return `@${username}`
                 }
@@ -88,7 +89,7 @@ module.exports = new Promise((resolve) => {
         }
 
         // remove references that already appear in the subject
-        commit.references = commit.references.filter((reference) => {
+        commit.references = commit.references.filter((reference: { issue: string }) => {
           if (issues.indexOf(reference.issue) === -1) {
             return true
           }

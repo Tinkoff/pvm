@@ -2,7 +2,7 @@ import glapi from '../index'
 import type { Container } from '@pvm/pvm'
 
 // https://docs.gitlab.com/ee/api/tags.html#create-a-new-tag
-function createTag(di: Container, projectId, data) {
+function createTag(di: Container, projectId: string, data: Record<string, any>) {
   return glapi(di, `/projects/${encodeURIComponent(projectId)}/repository/tags`, {
     method: 'POST',
     body: data,

@@ -1,9 +1,9 @@
 import { addSuffixToSemverTagName } from '../../mechanics/update/release-name'
+import initRepo from '../../../../test/initRepo'
 
 describe('release-name', () => {
   describe('addSuffixToSemverTagName', () => {
     it('should add new suffixes', async () => {
-      // @ts-ignore
       const repo = await initRepo('simple-one', {
         versioning: {
           source: 'tag',

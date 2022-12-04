@@ -2,14 +2,12 @@ import padLines from './text/pad-lines'
 import { issueToMdLink } from './text/jira'
 import { stripServiceLabels } from './text/commits'
 
-import type { Commit } from '../types'
-
 function fixBody(body: string): string {
   // больше чем две пустые строки заставляют markdown оборвать контекст элемента списка
   return body.replace(/\n(?:\s*\n){2,}/gm, '\n\n')
 }
 
-function markdownifyCommits(commits: Commit[], opts: Record<string, any> = {}): string {
+function markdownifyCommits(commits: { subject: string, body: string }[], opts: Record<string, any> = {}): string {
   const {
     // какие коммиты выкидываем
     ignorePatterns = [

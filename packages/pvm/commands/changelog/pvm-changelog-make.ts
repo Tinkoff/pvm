@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import chalk from 'chalk'
 import { log } from '../../lib/logger'
 import { makeChangelog } from '../../mechanics/changelog'
@@ -9,15 +7,15 @@ import { getUpdateState } from '../../mechanics/update'
 import { createReleaseContext } from '../../mechanics/update/release/release-context'
 
 import type { ReleaseData } from '../../mechanics/releases/types'
-// eslint-disable-next-line node/no-extraneous-import
-import type { Argv } from 'yargs'
+
 import type { Container } from '../../lib/di'
 import { CONFIG_TOKEN } from '../../tokens'
+import type { CommandFactory } from '../../types/cli'
 
-export default (di: Container) => ({
-  command: 'make',
-  description: 'Generate changelogs from ReleaseList artifact',
-  builder: (yargs: Argv) => {
+export default (di: Container): CommandFactory => builder => builder.command(
+  'make',
+  'Generate changelogs from ReleaseList artifact',
+  (yargs) => {
     return yargs
       .option('append-upcoming-release', {
         desc: `Generate ReleasedData based on unreleased changes and count it in case incremental changelog renderering`,
@@ -25,7 +23,7 @@ export default (di: Container) => ({
         default: false,
       })
   },
-  handler: async function main(flags: Record<string, any>): Promise<void> {
+  async function main(flags): Promise<void> {
     log(chalk`{yellow Generating changelog}`)
     const config = di.get(CONFIG_TOKEN)
 
@@ -59,5 +57,5 @@ export default (di: Container) => ({
     }
 
     await storageManager.finish()
-  },
-})
+  }
+)

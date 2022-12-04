@@ -1,6 +1,6 @@
 import markdownifyCommits from '../lib/markdownify-commits'
 
-function genCommits(subjects) {
+function genCommits(subjects: string[]): { subject: string, body: string }[] {
   return subjects.map(s => {
     const delimIndex = s.indexOf('\n\n')
     const subject = delimIndex !== -1 ? s.substring(0, delimIndex) : s
