@@ -10,7 +10,7 @@ export async function run(di: Container, updateState: UpdateState): Promise<stri
     const changedPackagesSorted = sortByRelease(updatedPackages.keys(), updateState.getLikelyReleaseTypeFor.bind(updateState))
     const table = new MdUpdatedTable()
 
-    await di.get(UPDATE_MD_TABLE_EXTEND_TOKEN)?.forEach(ext => ext(table))
+    await di.get({ token: UPDATE_MD_TABLE_EXTEND_TOKEN, optional: true })?.forEach(ext => ext(table))
 
     for (const oldPkg of changedPackagesSorted) {
       const newPkg = updatedPackages.get(oldPkg)!

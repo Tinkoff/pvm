@@ -504,7 +504,7 @@ describe('pvm/publish', () => {
       const repo = await initRepo('simple-one', {
         plugins_v2: [
           {
-            plugin: '@pvm/slack',
+            plugin: require.resolve('@pvm/plugin-slack'),
           },
         ],
       })
@@ -542,7 +542,7 @@ describe('pvm/publish', () => {
       const repo = await initRepo('simple-one', {
         plugins_v2: [
           {
-            plugin: '@pvm/slack',
+            plugin: require.resolve('@pvm/plugin-slack'),
           },
         ],
       })
@@ -566,7 +566,7 @@ describe('pvm/publish', () => {
       const repo = await initRepo('simple-one', {
         plugins_v2: [
           {
-            plugin: '@pvm/slack',
+            plugin: require.resolve('@pvm/plugin-slack'),
           },
         ],
       })
@@ -588,7 +588,7 @@ describe('pvm/publish', () => {
       const repo = await initRepo('monorepo-new', {
         plugins_v2: [
           {
-            plugin: '@pvm/slack',
+            plugin: require.resolve('@pvm/plugin-slack'),
           },
         ],
       })

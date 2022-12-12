@@ -4,6 +4,8 @@ import type { RepoTestApi } from '../types'
 import initRepo from '../initRepo'
 import { runScript } from '../executors'
 import { writeRepo } from '../writeRepo'
+import conventionalChangelogPlugin from '@pvm/plugin-conventional-changelog'
+import semanticReleasePlugin from '@pvm/plugin-conventional-semantic-release'
 
 function ccTagNotes(repo: RepoTestApi, tagName: string) {
   const notes = repo.tagNotes(tagName)
@@ -35,6 +37,9 @@ describe('pvm-plugin/conventional-changelog', () => {
           show_date: false,
         },
       },
+      plugins_v2: [{
+        plugin: conventionalChangelogPlugin,
+      }],
     })
     await makeConvCommits(repo)
     await repo.linkNodeModules()
@@ -62,6 +67,9 @@ describe('pvm-plugin/conventional-changelog', () => {
           show_date: false,
         },
       },
+      plugins_v2: [{
+        plugin: conventionalChangelogPlugin,
+      }],
     })
     await makeConvCommits(repo)
     await repo.linkNodeModules()
@@ -86,6 +94,9 @@ describe('pvm-plugin/conventional-changelog', () => {
           },
         },
       },
+      plugins_v2: [{
+        plugin: "${require.resolve('@pvm/plugin-conventional-changelog')}"
+      }]
     }`, { configFormat: 'js' })
     await repo.linkNodeModules()
 
@@ -106,7 +117,13 @@ describe('pvm-plugin/conventional-changelog', () => {
     it('should not create release on chore: commit', async () => {
       const repoPath = writeRepo({ name: 'release-type-builder', spec: 'src/a@1.0.0,src/b@1.0.0' })
 
-      const repo = await initRepo(repoPath)
+      const repo = await initRepo(repoPath, {
+        plugins_v2: [{
+          plugin: conventionalChangelogPlugin,
+        }, {
+          plugin: semanticReleasePlugin,
+        }],
+      })
       await repo.updatePkg('.', {
         dependencies: {
           '@pvm/plugin-conventional-changelog': 'not meant to be installed',
@@ -123,7 +140,13 @@ describe('pvm-plugin/conventional-changelog', () => {
     it('should create patch release on fix: commit', async () => {
       const repoPath = writeRepo({ name: 'release-type-builder', spec: 'src/a@1.0.0,src/b@1.0.0' })
 
-      const repo = await initRepo(repoPath)
+      const repo = await initRepo(repoPath, {
+        plugins_v2: [{
+          plugin: conventionalChangelogPlugin,
+        }, {
+          plugin: semanticReleasePlugin,
+        }],
+      })
       await repo.updatePkg('.', {
         dependencies: {
           '@pvm/plugin-conventional-changelog': 'not meant to be installed',
@@ -147,7 +170,7 @@ describe('pvm-plugin/conventional-changelog', () => {
       const repo = await initRepo(repoPath, {
         plugins_v2: [
           {
-            plugin: '@pvm/plugin-conventional-semantic-release',
+            plugin: semanticReleasePlugin,
             options: {
               releaseRules: [
                 {
@@ -191,6 +214,9 @@ describe('pvm-plugin/conventional-changelog', () => {
         versioning: {
           unified_versions_for: ['*'],
         },
+        plugins_v2: [{
+          plugin: conventionalChangelogPlugin,
+        }],
       })
 
       await repo.tag('v1.0.0', 'initial release')
@@ -234,6 +260,9 @@ describe('pvm-plugin/conventional-changelog', () => {
             show_date: false,
           },
         },
+        plugins_v2: [{
+          plugin: conventionalChangelogPlugin,
+        }],
       })
       await makeConvCommits(repo)
       await repo.linkNodeModules()

@@ -29,12 +29,12 @@ export class GitBranchStorage implements StorageImpl {
   _workingDir: string | undefined
   gitPrepared = false
   config: Config
-  resolvePushRemote: typeof RESOLVE_PUSH_REMOTE_TOKEN
+  resolvePushRemote: typeof RESOLVE_PUSH_REMOTE_TOKEN | null
   globalFlags: GlobalFlags
 
   constructor({ di, branch }: { di: Container, branch: string }) {
     this.config = di.get(CONFIG_TOKEN)
-    this.resolvePushRemote = di.get(RESOLVE_PUSH_REMOTE_TOKEN)
+    this.resolvePushRemote = di.get({ token: RESOLVE_PUSH_REMOTE_TOKEN, optional: true })
     this.globalFlags = di.get(GLOBAL_FLAGS_TOKEN)
     this.cwd = di.get(CWD_TOKEN)
     this.branch = branch
