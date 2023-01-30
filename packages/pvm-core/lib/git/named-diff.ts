@@ -7,7 +7,9 @@ export interface NamedDiffShellOpts {
 }
 
 function namedDiff(revArgs: string, shellOpts: NamedDiffShellOpts): NamedDiff {
-  const nameStats = wdShell(shellOpts.cwd, `git diff --name-status ${revArgs}`).split('\n')
+  const nameStats = wdShell(shellOpts.cwd, `git diff --name-status ${revArgs}`, {
+    maxBuffer: 1024 * 1024 * 10,
+  }).split('\n')
   const result = Object.create(null)
 
   for (const line of nameStats) {
