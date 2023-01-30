@@ -3,6 +3,18 @@ id: index
 title: Change Log
 ---
 
+## v0.56.17
+**2023.01.30**
+
+
+
+### 🐛 Bug Fixes
+
+* increase max buffer limit for diff calc ([#9d4743c](https://github.com/Tinkoff/pvm/commit/9d4743c605b2b657dfc9ec5920b0b802f7fbeeee))
+
+
+
+
 ## v0.56.16
 **2022.11.15**
 
