@@ -88,7 +88,6 @@
     "verdaccio": "^5.1.6",
     "get-port": "^5.1.1",
     "handlebars": "^4.7.7",
-    "yargs": "^15.4.1",
-    "type-fest": "^3.3.0"
+    "yargs": "^15.4.1"
   }
 }
