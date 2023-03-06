@@ -41,6 +41,9 @@ module.exports = {
       'how-to/local-releases',
       'how-to/update-hints',
     ],
+    'Troubleshooting': [
+      'troubleshooting/eneedauth',
+    ],
   },
   'API': [
     {
