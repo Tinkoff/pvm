@@ -3,9 +3,9 @@ id: eneedauth
 title: ENEEDAUTH
 ---
 
-## Ошибка
+## Error
 
-Ошибка при публикации пакетов:
+Publication failure:
 
 ```
 Error: Command "npm publish ./package --tag latest --registry https://registry.npmjs.org/ --unsafe-perm"
@@ -15,10 +15,10 @@ npm ERR! need auth This command requires you to be logged in to https://registry
 npm ERR! need auth You need to authorize this machine using `npm adduser`   
 ```
 
-## Причина
+## Reason
 
-В Node.js 18.14.0 версии обновили npm до версии 9.3.1 - https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V18.md#auth, что сломало авторизацию при публикации
+In Node.js after 18.14.0 version npm was upgraded to major 9.3.1 version - https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V18.md#auth, which broke authorization logic in pvm
 
-## Решение
+## Solution
 
-До решения проблемы на стороне pvm зафиксируйте образ Node.js для публикации на 18.13 версии - `node:18.13.0`
+Stick to  18.13 node version - `node:18.13.0` until https://github.com/Tinkoff/pvm/issues/75
