@@ -17,7 +17,7 @@ npm ERR! need auth You need to authorize this machine using `npm adduser`
 
 ## Причина
 
-В Node.js 18 версии обновили npm до версии 9.3.1 - https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V18.md#auth, что сломало авторизацию при публикации
+В Node.js 18.14.0 версии обновили npm до версии 9.3.1 - https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V18.md#auth, что сломало авторизацию при публикации
 
 ## Решение
 
