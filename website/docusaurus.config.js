@@ -82,6 +82,10 @@ const siteConfig = {
           label: 'How-To',
         },
         {
+          to: 'docs/troubleshooting/eneedauth',
+          label: 'Troubleshooting',
+        },
+        {
           label: 'References',
           to: `docs/api/modules/pvm_pvm`,
         },
