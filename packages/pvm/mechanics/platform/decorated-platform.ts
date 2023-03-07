@@ -13,10 +13,8 @@ import type { GlobalFlags } from '../../lib/cli/global-flags'
 import { logDryRun } from '../../lib/utils'
 
 export class DecoratedPlatform extends PlatformInterface<any, any> {
-  dryRun: boolean
   protected platform: PlatformInterface<any, any>
   protected vcs: AbstractVcs<any>
-  protected localMode: boolean
   protected cwd: string
   protected hostApi: HostApi
 
@@ -24,8 +22,6 @@ export class DecoratedPlatform extends PlatformInterface<any, any> {
     super({ name: platform.name, globalFlags })
     this.platform = platform
     this.vcs = vcs
-    this.dryRun = globalFlags.getFlag('dryRun')
-    this.localMode = globalFlags.getFlag('localMode')
     this.cwd = cwd
     this.hostApi = hostApi
     this.name = this.platform.name

@@ -114,6 +114,9 @@ export default (di: Container): CommandFactory => builder => builder.command(
       }
     }
 
-    await di.get(MARK_PR_HOOK_TOKEN)?.forEach(hook => hook(platform, updateState))
+    await di.get({
+      token: MARK_PR_HOOK_TOKEN,
+      optional: true,
+    })?.forEach(hook => hook(platform, updateState))
   }
 )

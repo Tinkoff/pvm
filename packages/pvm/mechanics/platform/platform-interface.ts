@@ -16,11 +16,19 @@ import type { GlobalFlags } from '../../lib/cli/global-flags'
 
 export abstract class PlatformInterface<MergeRequest, CommitContext> implements FileCommitApi<CommitContext> {
   name: string
-  dryRun: boolean
+  protected globalFlags: GlobalFlags
 
   constructor({ name, globalFlags }: { name: string, globalFlags: GlobalFlags }) {
-    this.dryRun = globalFlags.getFlag('dryRun')
+    this.globalFlags = globalFlags
     this.name = name
+  }
+
+  get dryRun() {
+    return this.globalFlags.getFlag('dryRun')
+  }
+
+  get localMode() {
+    return this.globalFlags.getFlag('localMode')
   }
 
   protected abstract cwd: string
