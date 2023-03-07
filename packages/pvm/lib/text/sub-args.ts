@@ -1,7 +1,7 @@
 import mri from 'mri'
 
 function toUpper(str: string): string {
-  return str.replace(/-[a-z]/g, m => m.charAt(1).toUpperCase());
+  return str.replace(/-[a-z]/g, m => m.charAt(1).toUpperCase())
 }
 
 export function parseSubArgsDashedCase(opts: string[] = []) {

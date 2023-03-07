@@ -1,6 +1,6 @@
 import log from './log'
 import { logger } from '../logger'
-import type { Commit } from "../../types"
+import type { Commit } from '../../types'
 
 interface CommitsOptions {
   _?: string[],

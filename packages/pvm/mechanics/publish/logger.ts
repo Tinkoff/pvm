@@ -1,4 +1,4 @@
-import { loggerFor } from "../../lib/logger"
+import { loggerFor } from '../../lib/logger'
 import stream from 'stream'
 
 export const logger = loggerFor('pvm:publish')

@@ -3,7 +3,7 @@ function interpolate(str: string, ...args: any[]): string {
   return str.replace(/%(\d)/g, (_, offset: string) => {
     const offsetNum = Number(offset)
     return args[offsetNum - 1] || ''
-  });
+  })
 }
 
 export function enpl(forms: string[], count: number, ...args: any[]): string {

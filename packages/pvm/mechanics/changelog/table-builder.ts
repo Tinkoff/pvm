@@ -1,4 +1,4 @@
-import now from "../../lib/now"
+import now from '../../lib/now'
 
 export interface TableBuilderOpts {
   locale: string,

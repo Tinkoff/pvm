@@ -1,5 +1,5 @@
-import type { Repository } from "../repository"
-import type { HintsContext } from "../repository/repository"
+import type { Repository } from '../repository'
+import type { HintsContext } from '../repository/repository'
 
 // сейчас то же что и HintsContext но возможно расширится в будущем
 export type UpdateContext = HintsContext

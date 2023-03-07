@@ -1,5 +1,5 @@
 import semver from 'semver'
-import { PkgSet } from "../../../lib/pkg-set"
+import { PkgSet } from '../../../lib/pkg-set'
 import type { UpdateState } from '../update-state'
 
 interface AnalyzeResult {

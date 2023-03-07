@@ -1,7 +1,7 @@
-import type { AppliedPkg, Pkg } from "../../../lib/pkg"
-import { loadPkg } from "../../../lib/pkg"
-import { isStubVersion } from "../../../lib/tag-meta"
-import type { Repository } from "../../repository"
+import type { AppliedPkg, Pkg } from '../../../lib/pkg'
+import { loadPkg } from '../../../lib/pkg'
+import { isStubVersion } from '../../../lib/tag-meta'
+import type { Repository } from '../../repository'
 
 function lowerCaseSentence(sentence: string): string {
   return sentence.charAt(0).toLowerCase() + sentence.substr(1)

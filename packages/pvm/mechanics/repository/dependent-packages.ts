@@ -1,5 +1,5 @@
-import { PkgSet } from "../../lib/pkg-set"
-import type { Pkg } from "../../lib/pkg"
+import { PkgSet } from '../../lib/pkg-set'
+import type { Pkg } from '../../lib/pkg'
 
 type PkgNode = {
   parents: Set<PkgNode>,

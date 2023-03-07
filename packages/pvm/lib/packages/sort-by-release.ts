@@ -1,6 +1,6 @@
 import { cmpReleaseTypes } from '../semver-extra'
 
-import type { SemverReleaseType } from "../../types"
+import type { SemverReleaseType } from '../../types'
 import type { Pkg } from '../pkg'
 
 function sortByRelease(packages: Iterable<Pkg>, resolveReleaseTypeFor: (p: Pkg) => SemverReleaseType | null): Pkg[] {

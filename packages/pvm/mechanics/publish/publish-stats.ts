@@ -1,5 +1,5 @@
-import type { PkgFailStats, PkgSkippedStats, PkgSuccessStats, PublishedStats } from "../../types"
-import { cmpStr } from "../../lib/utils/string"
+import type { PkgFailStats, PkgSkippedStats, PkgSuccessStats, PublishedStats } from '../../types'
+import { cmpStr } from '../../lib/utils/string'
 import chalk from 'chalk'
 import CliTable from 'cli-table'
 

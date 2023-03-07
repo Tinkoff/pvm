@@ -1,7 +1,7 @@
-import { wdShell } from "../../lib/shell"
-import namedDiff from "../../lib/git/named-diff"
-import type { DiffStats } from "../../types"
-import { mergeBase } from "../../lib/git/merge-base"
+import { wdShell } from '../../lib/shell'
+import namedDiff from '../../lib/git/named-diff'
+import type { DiffStats } from '../../types'
+import { mergeBase } from '../../lib/git/merge-base'
 
 export interface ChangedFilesOpts {
   from?: string,

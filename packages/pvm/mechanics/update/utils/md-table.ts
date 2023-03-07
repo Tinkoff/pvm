@@ -1,7 +1,7 @@
 import semver from 'semver'
 import { UpdateReasonType } from '../update-state'
 
-import type { Pkg } from "../../../lib/pkg"
+import type { Pkg } from '../../../lib/pkg'
 import type { UpdateState } from '../update-state'
 export interface ColumnBuilder<T> {
   title: string,
