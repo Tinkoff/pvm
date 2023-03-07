@@ -53,9 +53,9 @@ export class DecoratedPlatform extends PlatformInterface<any, any> {
     }
   }
 
-  beginMrAttribution(): void {
+  async beginMrAttribution(): Promise<void> {
     if (!this.localMode) {
-      this.platform.beginMrAttribution()
+      await this.platform.beginMrAttribution()
     }
   }
 
