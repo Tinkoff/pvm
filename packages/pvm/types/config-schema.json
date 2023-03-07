@@ -53,10 +53,7 @@
                             "$ref": "#/definitions/ChangelogRendererBuiltin"
                         },
                         {
-                            "$ref": "#/definitions/ChangelogRendererCommonJs"
-                        },
-                        {
-                            "$ref": "#/definitions/ChangelogRendererByPlugin"
+                            "$ref": "#/definitions/ChangelogRendererCustom"
                         }
                     ],
                     "description": "Настройка рендерера"
@@ -100,28 +97,11 @@
             },
             "type": "object"
         },
-        "ChangelogRendererByPlugin": {
+        "ChangelogRendererCustom": {
             "properties": {
-                "providesPath": {
-                    "type": "string"
-                },
                 "type": {
                     "enum": [
-                        "by-plugin"
-                    ],
-                    "type": "string"
-                }
-            },
-            "type": "object"
-        },
-        "ChangelogRendererCommonJs": {
-            "properties": {
-                "path": {
-                    "type": "string"
-                },
-                "type": {
-                    "enum": [
-                        "commonjs"
+                        "custom"
                     ],
                     "type": "string"
                 }
@@ -134,19 +114,6 @@
                     "enum": [
                         "external"
                     ],
-                    "type": "string"
-                }
-            },
-            "type": "object"
-        },
-        "MessengerClientLoadConfig": {
-            "properties": {
-                "name": {
-                    "description": "Name of client. Used in matching with `MessengerName` in `messaging.target` and in `messaging.defaults`. Also\nused in logging errors.",
-                    "type": "string"
-                },
-                "pkg": {
-                    "description": "Path to module or file which exports MessengerClient field. MessengerClient should inherit from AbstractMessengerClient\nin order to guarantee fit to use cases and to be compatible with current version of pvm.",
                     "type": "string"
                 }
             },
@@ -168,10 +135,7 @@
                             "$ref": "#/definitions/ChangelogRendererBuiltin"
                         },
                         {
-                            "$ref": "#/definitions/ChangelogRendererCommonJs"
-                        },
-                        {
-                            "$ref": "#/definitions/ChangelogRendererByPlugin"
+                            "$ref": "#/definitions/ChangelogRendererCustom"
                         }
                     ],
                     "description": "Настройка рендерера"
@@ -207,150 +171,144 @@
             },
             "type": "object"
         },
-        "PluginConfig": {
+        "PartialObjectDeep<ArtifactLimitDef,Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "properties": {
-                "options": {
-                    "$ref": "#/definitions/PluginOptions"
+                "type": {
+                    "enum": [
+                        "size",
+                        "time"
+                    ],
+                    "type": "string"
                 },
-                "plugin": {
-                    "anyOf": [
-                        {
-                            "allOf": [
-                                {
-                                    "properties": {
-                                        "name": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "type": "object"
-                                },
-                                {
-                                    "properties": {
-                                        "factory": {
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            ]
-                        },
-                        {
-                            "allOf": [
-                                {
-                                    "properties": {
-                                        "name": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "type": "object"
-                                },
-                                {
-                                    "$ref": "#/definitions/{configExt:RecursivePartial<Config>;}"
-                                }
-                            ]
-                        },
-                        {
-                            "allOf": [
-                                {
-                                    "properties": {
-                                        "name": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "type": "object"
-                                },
-                                {
-                                    "properties": {
-                                        "configExt": {
-                                            "$ref": "#/definitions/RecursivePartial<Config>"
-                                        },
-                                        "factory": {
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            ]
-                        },
-                        {
-                            "type": [
-                                "string",
-                                "object"
-                            ]
-                        }
-                    ]
+                "value": {
+                    "type": "string"
                 }
             },
             "type": "object"
         },
-        "PluginOptions": {
-            "type": "object"
-        },
-        "Record<string,Partial<MessengerClientConfig>>": {
-            "type": "object"
-        },
-        "Record<string,Record<string,string>>": {
-            "type": "object"
-        },
-        "Record<string,string>": {
-            "type": "object"
-        },
-        "RecursivePartial<Config>": {
+        "PartialObjectDeep<BranchStorageDef,Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "properties": {
-                "changelog": {
-                    "allOf": [
+                "branch": {
+                    "type": "string"
+                },
+                "dest": {
+                    "type": "string"
+                },
+                "type": {
+                    "enum": [
+                        "branch"
+                    ],
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "PartialObjectDeep<Changelog&{for_packages:Omit<Changelog,\"path\"|\"storage\">&{output_dir:string;};},Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
+            "properties": {
+                "enabled": {
+                    "description": "Включает рендер чейнджлога",
+                    "type": "boolean"
+                },
+                "for_packages": {
+                    "$ref": "#/definitions/PartialObjectDeep<Omit<Changelog,\"path\"|\"storage\">&{output_dir:string;},Opts>",
+                    "description": "Changelog settings for packages individually"
+                },
+                "front_matter": {
+                    "description": "Контент, который нужно поместить в начало файла чейнджлога",
+                    "type": "string"
+                },
+                "path": {
+                    "description": "Путь до генерируемого файла чейнджлога",
+                    "type": "string"
+                },
+                "renderer": {
+                    "anyOf": [
                         {
-                            "$ref": "#/definitions/Changelog"
+                            "$ref": "#/definitions/PartialObjectDeep<ChangelogRendererBuiltin,Opts>"
                         },
                         {
-                            "properties": {
-                                "for_packages": {
-                                    "allOf": [
-                                        {
-                                            "$ref": "#/definitions/Omit<Changelog,\"path\"|\"storage\">"
-                                        },
-                                        {
-                                            "properties": {
-                                                "output_dir": {
-                                                    "description": "Output dir for individual package changelog files",
-                                                    "type": "string"
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    ],
-                                    "description": "Changelog settings for packages individually"
-                                }
-                            },
-                            "type": "object"
+                            "$ref": "#/definitions/PartialObjectDeep<ChangelogRendererCustom,Opts>"
                         }
                     ],
+                    "description": "Настройка рендерера"
+                },
+                "skip_empty": {
+                    "description": "Не помещать записи без изменений в чейнджлог",
+                    "type": "boolean"
+                },
+                "storage": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/PartialObjectDeep<RepoStorageDef,Opts>"
+                        },
+                        {
+                            "$ref": "#/definitions/PartialObjectDeep<BranchStorageDef,Opts>"
+                        },
+                        {
+                            "$ref": "#/definitions/PartialObjectDeep<ExternalStorageDef,Opts>"
+                        }
+                    ],
+                    "description": "Storage settings"
+                }
+            },
+            "type": "object"
+        },
+        "PartialObjectDeep<ChangelogRendererBuiltin,Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
+            "properties": {
+                "show_date": {
+                    "type": "boolean"
+                },
+                "tag_head_level": {
+                    "type": "number"
+                },
+                "type": {
+                    "enum": [
+                        "builtin.list",
+                        "builtin.list-with-packages"
+                    ],
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "PartialObjectDeep<ChangelogRendererCustom,Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
+            "properties": {
+                "type": {
+                    "enum": [
+                        "custom"
+                    ],
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "PartialObjectDeep<Config,Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
+            "properties": {
+                "changelog": {
+                    "$ref": "#/definitions/PartialObjectDeep<Changelog&{for_packages:Omit<Changelog,\"path\"|\"storage\">&{output_dir:string;};},Opts>",
                     "description": "Changelog generator settings"
                 },
-                "configLookupDir": {
-                    "type": "string"
-                },
                 "core": {
-                    "$ref": "#/definitions/RecursivePartial<{deps_keys:string[];}>"
-                },
-                "cwd": {
-                    "type": "string"
+                    "$ref": "#/definitions/PartialObjectDeep<{deps_keys:(\"dependencies\"|\"devDependencies\"|\"peerDependencies\"|\"optionalDependencies\")[];},Opts>"
                 },
                 "dangerously_opts": {
-                    "$ref": "#/definitions/RecursivePartial<{always_changed_workspaces?:string[];}>",
+                    "$ref": "#/definitions/PartialObjectDeep<{always_changed_workspaces?:string[];},Opts>",
                     "description": "Options that need more attention in terms of the consequences of their activation."
                 },
-                "executionContext": {
-                    "$ref": "#/definitions/RecursivePartial<{dryRun:boolean;local:boolean;}>"
-                },
                 "git": {
-                    "$ref": "#/definitions/RecursivePartial<{push:{try_load_ssh_keys:boolean;default_branch:string;};}>"
+                    "$ref": "#/definitions/PartialObjectDeep<{push:{try_load_ssh_keys:boolean;default_branch:string;};},Opts>"
                 },
                 "github": {
-                    "$ref": "#/definitions/RecursivePartial<{auth_strategy?:\"authApp\"|\"authToken\"|\"authAction\";api_url?:string;}>"
+                    "$ref": "#/definitions/PartialObjectDeep<{auth_strategy?:\"authApp\"|\"authToken\"|\"authAction\";api_url?:string;},Opts>"
                 },
                 "gitlab": {
-                    "$ref": "#/definitions/RecursivePartial<{default_url:string;api_prefix:string;authorization_type:\"bearer\"|\"private-token\";api_url?:string;url?:string;}>"
+                    "$ref": "#/definitions/PartialObjectDeep<{default_url:string;api_prefix:string;authorization_type:\"bearer\"|\"private-token\";api_url?:string;url?:string;},Opts>"
                 },
                 "include": {
                     "description": "External configuration paths",
@@ -360,23 +318,23 @@
                     "type": "array"
                 },
                 "jira": {
-                    "$ref": "#/definitions/RecursivePartial<{url?:string;}>"
+                    "$ref": "#/definitions/PartialObjectDeep<{url?:string;},Opts>"
                 },
                 "mark_pr": {
-                    "$ref": "#/definitions/RecursivePartial<{analyze_update:boolean;packages_table:boolean;attach_changelog:boolean;packages_as_labels:boolean;packages_graph:boolean;renderer:ChangelogRenderer;}>"
+                    "$ref": "#/definitions/PartialObjectDeep<{analyze_update:boolean;packages_table:boolean;attach_changelog:boolean;packages_as_labels:boolean;packages_graph:boolean;renderer:ChangelogRenderer;},Opts>"
                 },
                 "notifications": {
-                    "$ref": "#/definitions/RecursivePartial<{target:string|string[];clients:MessengerClientLoadConfig[];clients_common_config:Partial<MessengerClientConfig>;client_configs:Record<string,Partial<MessengerClientConfig>>;}>",
+                    "$ref": "#/definitions/PartialObjectDeep<{target:string|string[];clients_common_config:Partial<MessengerClientConfig>;client_configs:Record<string,Partial<MessengerClientConfig>>;},Opts>",
                     "description": "How to deal with messages."
                 },
                 "packages": {
-                    "$ref": "#/definitions/RecursivePartial<{indent?:number;}>"
+                    "$ref": "#/definitions/PartialObjectDeep<{indent?:number;},Opts>"
                 },
                 "pkgset": {
-                    "$ref": "#/definitions/RecursivePartial<{ignore_files:string[];affected_files:{if_changed:string[];then_affected:PkgFlexGlobs;}[];}>"
+                    "$ref": "#/definitions/PartialObjectDeep<{ignore_files:string[];affected_files:{if_changed:string[];then_affected:PkgFlexGlobs;}[];},Opts>"
                 },
                 "plugins": {
-                    "$ref": "#/definitions/RecursivePartial<{local_plugins:string[];options:Record<string,Record<string,string>>;}>"
+                    "$ref": "#/definitions/PartialObjectDeep<{local_plugins:string[];options:Record<string,Record<string,string>>;},Opts>"
                 },
                 "plugins_v2": {
                     "items": {
@@ -385,45 +343,91 @@
                     "type": "array"
                 },
                 "publish": {
-                    "$ref": "#/definitions/RecursivePartial<{registry?:string;disabled_for:string[];enabled_only_for:string[];path_subdir?:string;path_mapping?:Record<string,string>;email?:string;cli_args?:string;process_npm_token?:boolean;include_monorepo_root:boolean;}>"
+                    "$ref": "#/definitions/PartialObjectDeep<{registry?:string;disabled_for:string[];enabled_only_for:string[];path_subdir?:string;path_mapping?:Record<string,string>;email?:string;cli_args?:string;process_npm_token?:boolean;include_monorepo_root:boolean;},Opts>"
                 },
                 "release": {
-                    "$ref": "#/definitions/RecursivePartial<{ensure_branch_up_to_date:boolean;tag_only:boolean;}>"
+                    "$ref": "#/definitions/PartialObjectDeep<{ensure_branch_up_to_date:boolean;tag_only:boolean;},Opts>"
                 },
                 "release_list": {
-                    "$ref": "#/definitions/RecursivePartial<{enabled:boolean;path:string;limit:ArtifactLimitDef;storage:StorageDef;}>"
+                    "$ref": "#/definitions/PartialObjectDeep<{enabled:boolean;path:string;limit:ArtifactLimitDef;storage:StorageDef;},Opts>"
                 },
                 "slack_notification": {
-                    "$ref": "#/definitions/RecursivePartial<Record<string,string>>",
+                    "$ref": "#/definitions/PartialObjectDeep<Record<string,string>,Opts>",
                     "description": "See https://api.slack.com/methods/chat.postMessage#arguments"
                 },
                 "tagging": {
-                    "$ref": "#/definitions/RecursivePartial<{release_tag_package:string;annotation_lookup_depth:number;suffixes:string|string[];generic_tag:{prefix:string;date_format:string;suffixes?:string|string[];};for_packages:{enabled:boolean;as_release:boolean;strip_namespace:boolean;};}>"
+                    "$ref": "#/definitions/PartialObjectDeep<{release_tag_package:string;annotation_lookup_depth:number;suffixes:string|string[];generic_tag:{prefix:string;date_format:string;suffixes?:string|string[];};for_packages:{enabled:boolean;as_release:boolean;strip_namespace:boolean;};},Opts>"
                 },
                 "templates": {
-                    "$ref": "#/definitions/RecursivePartial<{'pkg-update-deps':string;'release-commit':string;failed_vcs_push:string;}>",
+                    "$ref": "#/definitions/PartialObjectDeep<{[key:string]:string;'pkg-update-deps':string;'release-commit':string;failed_vcs_push:string;},Opts>",
                     "description": "Templates\nSee https://mozilla.github.io/nunjucks/templating.html for template engine docs\nSee packages/pvm-template/lib/env.ts for extra filters and variables"
                 },
                 "templating": {
-                    "$ref": "#/definitions/RecursivePartial<{use_short_names:boolean;setup_script?:string;filters:{cutList:{maxLen:number;};};vars:{[key:string]:string|number;releaseLink?:string;};}>"
+                    "$ref": "#/definitions/PartialObjectDeep<{use_short_names:boolean;setup_script?:string;filters:{cutList:{maxLen:number;};};vars:{[key:string]:string|number;releaseLink?:string;};},Opts>"
                 },
                 "update": {
-                    "$ref": "#/definitions/RecursivePartial<{default_release_type:\"patch\"|\"minor\"|\"major\";include_root:boolean|\"auto\";include_uncommited:boolean;update_dependants:boolean|{match:string;release_type:\"none\"|SemverReleaseType|\"as-dep\";}[];no_release_ref:string|false;dependants_release_type:SemverReleaseType|\"as-dep\";hints_file:string;workspace_release_files:boolean;autolint:boolean;respect_zero_major_version:boolean;commit_via_platform:boolean;push_remote:string;retry_via_platform_if_failed_via_vcs:boolean;release_type_overrides:{type:\"none\"|SemverReleaseType;files_match:string[];}[];graph:{title:string;strip_namespace:boolean;};}>"
+                    "$ref": "#/definitions/PartialObjectDeep<{default_release_type:\"minor\"|\"major\"|\"patch\";include_root:boolean|\"auto\";include_uncommited:boolean;update_dependants:boolean|{match:string;release_type:\"none\"|SemverReleaseType|\"as-dep\";}[];no_release_ref:string|false;dependants_release_type:SemverReleaseType|\"as-dep\";hints_file:string;workspace_release_files:boolean;autolint:boolean;respect_zero_major_version:boolean;commit_via_platform:boolean;push_remote:string;retry_via_platform_if_failed_via_vcs:boolean;release_type_overrides:{type:\"none\"|SemverReleaseType;files_match:string[];}[];graph:{title:string;strip_namespace:boolean;};},Opts>"
                 },
                 "vcs": {
-                    "$ref": "#/definitions/RecursivePartial<{builtin_type:\"auto\"|\"git\"|\"fs\";}>",
+                    "$ref": "#/definitions/PartialObjectDeep<{builtin_type:\"auto\"|\"git\"|\"fs\";},Opts>",
                     "description": "Version control system settings"
                 },
                 "versioning": {
-                    "$ref": "#/definitions/RecursivePartial<{unified:boolean|string[];unified_versions_for:PkgFlexGlobs[];source:\"file\"|\"package\"|\"tag\";source_file:string;independent_packages:string[];}>"
+                    "$ref": "#/definitions/PartialObjectDeep<{unified:boolean|string[];unified_versions_for:(string|string[])[];source:\"file\"|\"tag\"|\"package\";source_file:string;independent_packages:string[];},Opts>"
                 }
             },
             "type": "object"
         },
-        "RecursivePartial<Partial<MessengerClientConfig>>": {
+        "PartialObjectDeep<ExternalStorageDef,Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
+            "properties": {
+                "type": {
+                    "enum": [
+                        "external"
+                    ],
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "PartialObjectDeep<Omit<Changelog,\"path\"|\"storage\">&{output_dir:string;},Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
+            "properties": {
+                "enabled": {
+                    "description": "Включает рендер чейнджлога",
+                    "type": "boolean"
+                },
+                "front_matter": {
+                    "description": "Контент, который нужно поместить в начало файла чейнджлога",
+                    "type": "string"
+                },
+                "output_dir": {
+                    "description": "Output dir for individual package changelog files",
+                    "type": "string"
+                },
+                "renderer": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/PartialObjectDeep<ChangelogRendererBuiltin,Opts>"
+                        },
+                        {
+                            "$ref": "#/definitions/PartialObjectDeep<ChangelogRendererCustom,Opts>"
+                        }
+                    ],
+                    "description": "Настройка рендерера"
+                },
+                "skip_empty": {
+                    "description": "Не помещать записи без изменений в чейнджлог",
+                    "type": "boolean"
+                }
+            },
+            "type": "object"
+        },
+        "PartialObjectDeep<Partial<MessengerClientConfig>,Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "properties": {
                 "author": {
-                    "$ref": "#/definitions/RecursivePartial<{name?:string;avatarEmoji?:string;avatarUrl?:string;}>",
+                    "$ref": "#/definitions/PartialObjectDeep<{name?:string;avatarEmoji?:string;avatarUrl?:string;},Opts>",
                     "description": "Displayed post author customization (not supported in all messengers)"
                 },
                 "channel": {
@@ -433,16 +437,35 @@
             },
             "type": "object"
         },
-        "RecursivePartial<Record<string,Partial<MessengerClientConfig>>>": {
+        "PartialObjectDeep<Record<string,Partial<MessengerClientConfig>>,Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "type": "object"
         },
-        "RecursivePartial<Record<string,Record<string,string>>>": {
+        "PartialObjectDeep<Record<string,Record<string,string>>,Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "type": "object"
         },
-        "RecursivePartial<Record<string,string>>": {
+        "PartialObjectDeep<Record<string,string>,Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "type": "object"
         },
-        "RecursivePartial<{'pkg-update-deps':string;'release-commit':string;failed_vcs_push:string;}>": {
+        "PartialObjectDeep<RepoStorageDef,Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
+            "properties": {
+                "dest": {
+                    "type": "string"
+                },
+                "type": {
+                    "enum": [
+                        "repo"
+                    ],
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "PartialObjectDeep<{[key:string]:string;'pkg-update-deps':string;'release-commit':string;failed_vcs_push:string;},Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "properties": {
                 "failed_vcs_push": {
                     "description": "If vcs push failed then render error message for slack with this template",
@@ -459,7 +482,8 @@
             },
             "type": "object"
         },
-        "RecursivePartial<{[key:string]:string|number;releaseLink?:string;}>": {
+        "PartialObjectDeep<{[key:string]:string|number;releaseLink?:string;},Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "properties": {
                 "releaseLink": {
                     "type": "string"
@@ -467,10 +491,11 @@
             },
             "type": "object"
         },
-        "RecursivePartial<{always_changed_workspaces?:string[];}>": {
+        "PartialObjectDeep<{always_changed_workspaces?:string[];},Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "properties": {
                 "always_changed_workspaces": {
-                    "description": "A glob mask array that defines the packets that the system will interpret as always modified.\nThe mask will be applied to the path of the packages (workspaces).\nThis setting will affect the following places:\n- getPackages method in '@pvm/pvm' (except 'released' and 'updated' types)\n- getUpdateState method in '@pvm/update', which affects pvm-update or pvm-release commands",
+                    "description": "A glob mask array that defines the packets that the system will interpret as always modified.\nThe mask will be applied to the path of the packages (workspaces).\nThis setting will affect the following places:\n- getPackages method in '@pvm/pvm' (except 'released' and 'updated' types)\n- pvm-update or pvm-release commands and update mechanic",
                     "items": {
                         "type": "string"
                     },
@@ -479,7 +504,8 @@
             },
             "type": "object"
         },
-        "RecursivePartial<{analyze_update:boolean;packages_table:boolean;attach_changelog:boolean;packages_as_labels:boolean;packages_graph:boolean;renderer:ChangelogRenderer;}>": {
+        "PartialObjectDeep<{analyze_update:boolean;packages_table:boolean;attach_changelog:boolean;packages_as_labels:boolean;packages_graph:boolean;renderer:ChangelogRenderer;},Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "properties": {
                 "analyze_update": {
                     "description": "Enable various checks of repo packages. In particular check sync of versions between packages. Mark-pr will print warnings\nin case of problems detected.",
@@ -504,13 +530,10 @@
                 "renderer": {
                     "anyOf": [
                         {
-                            "$ref": "#/definitions/ChangelogRendererBuiltin"
+                            "$ref": "#/definitions/PartialObjectDeep<ChangelogRendererBuiltin,Opts>"
                         },
                         {
-                            "$ref": "#/definitions/ChangelogRendererCommonJs"
-                        },
-                        {
-                            "$ref": "#/definitions/ChangelogRendererByPlugin"
+                            "$ref": "#/definitions/PartialObjectDeep<ChangelogRendererCustom,Opts>"
                         }
                     ],
                     "description": "Changelog render settings"
@@ -518,7 +541,8 @@
             },
             "type": "object"
         },
-        "RecursivePartial<{auth_strategy?:\"authApp\"|\"authToken\"|\"authAction\";api_url?:string;}>": {
+        "PartialObjectDeep<{auth_strategy?:\"authApp\"|\"authToken\"|\"authAction\";api_url?:string;},Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "properties": {
                 "api_url": {
                     "description": "Optional url of github server",
@@ -537,7 +561,8 @@
             },
             "type": "object"
         },
-        "RecursivePartial<{builtin_type:\"auto\"|\"git\"|\"fs\";}>": {
+        "PartialObjectDeep<{builtin_type:\"auto\"|\"git\"|\"fs\";},Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "properties": {
                 "builtin_type": {
                     "description": "Version system type",
@@ -551,15 +576,17 @@
             },
             "type": "object"
         },
-        "RecursivePartial<{cutList:{maxLen:number;};}>": {
+        "PartialObjectDeep<{cutList:{maxLen:number;};},Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "properties": {
                 "cutList": {
-                    "$ref": "#/definitions/RecursivePartial<{maxLen:number;}>"
+                    "$ref": "#/definitions/PartialObjectDeep<{maxLen:number;},Opts>"
                 }
             },
             "type": "object"
         },
-        "RecursivePartial<{default_release_type:\"patch\"|\"minor\"|\"major\";include_root:boolean|\"auto\";include_uncommited:boolean;update_dependants:boolean|{match:string;release_type:\"none\"|SemverReleaseType|\"as-dep\";}[];no_release_ref:string|false;dependants_release_type:SemverReleaseType|\"as-dep\";hints_file:string;workspace_release_files:boolean;autolint:boolean;respect_zero_major_version:boolean;commit_via_platform:boolean;push_remote:string;retry_via_platform_if_failed_via_vcs:boolean;release_type_overrides:{type:\"none\"|SemverReleaseType;files_match:string[];}[];graph:{title:string;strip_namespace:boolean;};}>": {
+        "PartialObjectDeep<{default_release_type:\"minor\"|\"major\"|\"patch\";include_root:boolean|\"auto\";include_uncommited:boolean;update_dependants:boolean|{match:string;release_type:\"none\"|SemverReleaseType|\"as-dep\";}[];no_release_ref:string|false;dependants_release_type:SemverReleaseType|\"as-dep\";hints_file:string;workspace_release_files:boolean;autolint:boolean;respect_zero_major_version:boolean;commit_via_platform:boolean;push_remote:string;retry_via_platform_if_failed_via_vcs:boolean;release_type_overrides:{type:\"none\"|SemverReleaseType;files_match:string[];}[];graph:{title:string;strip_namespace:boolean;};},Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "properties": {
                 "autolint": {
                     "description": "Lint and fix packages package.json files before update and commit them",
@@ -589,7 +616,7 @@
                     "type": "string"
                 },
                 "graph": {
-                    "$ref": "#/definitions/RecursivePartial<{title:string;strip_namespace:boolean;}>",
+                    "$ref": "#/definitions/PartialObjectDeep<{title:string;strip_namespace:boolean;},Opts>",
                     "description": "Updated packages graph settings"
                 },
                 "hints_file": {
@@ -696,7 +723,8 @@
             },
             "type": "object"
         },
-        "RecursivePartial<{default_url:string;api_prefix:string;authorization_type:\"bearer\"|\"private-token\";api_url?:string;url?:string;}>": {
+        "PartialObjectDeep<{default_url:string;api_prefix:string;authorization_type:\"bearer\"|\"private-token\";api_url?:string;url?:string;},Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "properties": {
                 "api_prefix": {
                     "description": "Gitlab api path",
@@ -725,11 +753,18 @@
             },
             "type": "object"
         },
-        "RecursivePartial<{deps_keys:string[];}>": {
+        "PartialObjectDeep<{deps_keys:(\"dependencies\"|\"devDependencies\"|\"peerDependencies\"|\"optionalDependencies\")[];},Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "properties": {
                 "deps_keys": {
                     "description": "Dependency lists that should be updated and used when package version updates",
                     "items": {
+                        "enum": [
+                            "dependencies",
+                            "devDependencies",
+                            "optionalDependencies",
+                            "peerDependencies"
+                        ],
                         "type": "string"
                     },
                     "type": "array"
@@ -737,18 +772,8 @@
             },
             "type": "object"
         },
-        "RecursivePartial<{dryRun:boolean;local:boolean;}>": {
-            "properties": {
-                "dryRun": {
-                    "type": "boolean"
-                },
-                "local": {
-                    "type": "boolean"
-                }
-            },
-            "type": "object"
-        },
-        "RecursivePartial<{enabled:boolean;as_release:boolean;strip_namespace:boolean;}>": {
+        "PartialObjectDeep<{enabled:boolean;as_release:boolean;strip_namespace:boolean;},Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "properties": {
                 "as_release": {
                     "description": "Add as release in source code platform. Otherwise only as git tag.",
@@ -765,14 +790,15 @@
             },
             "type": "object"
         },
-        "RecursivePartial<{enabled:boolean;path:string;limit:ArtifactLimitDef;storage:StorageDef;}>": {
+        "PartialObjectDeep<{enabled:boolean;path:string;limit:ArtifactLimitDef;storage:StorageDef;},Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "properties": {
                 "enabled": {
                     "description": "Enable storing releases meta-info in specified storage (right now only git repository is supported)",
                     "type": "boolean"
                 },
                 "limit": {
-                    "$ref": "#/definitions/ArtifactLimitDef",
+                    "$ref": "#/definitions/PartialObjectDeep<ArtifactLimitDef,Opts>",
                     "description": "How to limit entries count in release list"
                 },
                 "path": {
@@ -782,13 +808,13 @@
                 "storage": {
                     "anyOf": [
                         {
-                            "$ref": "#/definitions/RepoStorageDef"
+                            "$ref": "#/definitions/PartialObjectDeep<RepoStorageDef,Opts>"
                         },
                         {
-                            "$ref": "#/definitions/BranchStorageDef"
+                            "$ref": "#/definitions/PartialObjectDeep<BranchStorageDef,Opts>"
                         },
                         {
-                            "$ref": "#/definitions/ExternalStorageDef"
+                            "$ref": "#/definitions/PartialObjectDeep<ExternalStorageDef,Opts>"
                         }
                     ],
                     "description": "Storage settings"
@@ -796,7 +822,8 @@
             },
             "type": "object"
         },
-        "RecursivePartial<{ensure_branch_up_to_date:boolean;tag_only:boolean;}>": {
+        "PartialObjectDeep<{ensure_branch_up_to_date:boolean;tag_only:boolean;},Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "properties": {
                 "ensure_branch_up_to_date": {
                     "description": "Before pushing changes, check for upstream branch is still actual",
@@ -809,7 +836,8 @@
             },
             "type": "object"
         },
-        "RecursivePartial<{ignore_files:string[];affected_files:{if_changed:string[];then_affected:PkgFlexGlobs;}[];}>": {
+        "PartialObjectDeep<{ignore_files:string[];affected_files:{if_changed:string[];then_affected:PkgFlexGlobs;}[];},Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "properties": {
                 "affected_files": {
                     "items": {
@@ -853,7 +881,8 @@
             },
             "type": "object"
         },
-        "RecursivePartial<{indent?:number;}>": {
+        "PartialObjectDeep<{indent?:number;},Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "properties": {
                 "indent": {
                     "description": "Ident for package.json write",
@@ -862,7 +891,8 @@
             },
             "type": "object"
         },
-        "RecursivePartial<{local_plugins:string[];options:Record<string,Record<string,string>>;}>": {
+        "PartialObjectDeep<{local_plugins:string[];options:Record<string,Record<string,string>>;},Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "properties": {
                 "local_plugins": {
                     "items": {
@@ -871,12 +901,13 @@
                     "type": "array"
                 },
                 "options": {
-                    "$ref": "#/definitions/RecursivePartial<Record<string,Record<string,string>>>"
+                    "$ref": "#/definitions/PartialObjectDeep<Record<string,Record<string,string>>,Opts>"
                 }
             },
             "type": "object"
         },
-        "RecursivePartial<{maxLen:number;}>": {
+        "PartialObjectDeep<{maxLen:number;},Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "properties": {
                 "maxLen": {
                     "description": "Max list length, passed to cutList template filter",
@@ -885,7 +916,8 @@
             },
             "type": "object"
         },
-        "RecursivePartial<{name?:string;avatarEmoji?:string;avatarUrl?:string;}>": {
+        "PartialObjectDeep<{name?:string;avatarEmoji?:string;avatarUrl?:string;},Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "properties": {
                 "avatarEmoji": {
                     "type": "string"
@@ -899,7 +931,8 @@
             },
             "type": "object"
         },
-        "RecursivePartial<{prefix:string;date_format:string;suffixes?:string|string[];}>": {
+        "PartialObjectDeep<{prefix:string;date_format:string;suffixes?:string|string[];},Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "properties": {
                 "date_format": {
                     "description": "Date follows after prefix, delimited by '-' symbol",
@@ -925,15 +958,17 @@
             },
             "type": "object"
         },
-        "RecursivePartial<{push:{try_load_ssh_keys:boolean;default_branch:string;};}>": {
+        "PartialObjectDeep<{push:{try_load_ssh_keys:boolean;default_branch:string;};},Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "properties": {
                 "push": {
-                    "$ref": "#/definitions/RecursivePartial<{try_load_ssh_keys:boolean;default_branch:string;}>"
+                    "$ref": "#/definitions/PartialObjectDeep<{try_load_ssh_keys:boolean;default_branch:string;},Opts>"
                 }
             },
             "type": "object"
         },
-        "RecursivePartial<{registry?:string;disabled_for:string[];enabled_only_for:string[];path_subdir?:string;path_mapping?:Record<string,string>;email?:string;cli_args?:string;process_npm_token?:boolean;include_monorepo_root:boolean;}>": {
+        "PartialObjectDeep<{registry?:string;disabled_for:string[];enabled_only_for:string[];path_subdir?:string;path_mapping?:Record<string,string>;email?:string;cli_args?:string;process_npm_token?:boolean;include_monorepo_root:boolean;},Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "properties": {
                 "cli_args": {
                     "description": "Additional cli args string. Passed \"as is\" to `npm publish` command",
@@ -963,7 +998,7 @@
                     "type": "boolean"
                 },
                 "path_mapping": {
-                    "$ref": "#/definitions/RecursivePartial<Record<string,string>>",
+                    "$ref": "#/definitions/PartialObjectDeep<Record<string,string>,Opts>",
                     "description": "By default publish path for each package and package path itself is same thing.\\nBut you can replace the beginning of each package path to another string via providing this argument.\\nExample: 'src/components' => 'lib/components'\""
                 },
                 "path_subdir": {
@@ -981,17 +1016,18 @@
             },
             "type": "object"
         },
-        "RecursivePartial<{release_tag_package:string;annotation_lookup_depth:number;suffixes:string|string[];generic_tag:{prefix:string;date_format:string;suffixes?:string|string[];};for_packages:{enabled:boolean;as_release:boolean;strip_namespace:boolean;};}>": {
+        "PartialObjectDeep<{release_tag_package:string;annotation_lookup_depth:number;suffixes:string|string[];generic_tag:{prefix:string;date_format:string;suffixes?:string|string[];};for_packages:{enabled:boolean;as_release:boolean;strip_namespace:boolean;};},Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "properties": {
                 "annotation_lookup_depth": {
                     "description": "How deep to look for the version in the release tags annotations, if no version for the package can be found",
                     "type": "integer"
                 },
                 "for_packages": {
-                    "$ref": "#/definitions/RecursivePartial<{enabled:boolean;as_release:boolean;strip_namespace:boolean;}>"
+                    "$ref": "#/definitions/PartialObjectDeep<{enabled:boolean;as_release:boolean;strip_namespace:boolean;},Opts>"
                 },
                 "generic_tag": {
-                    "$ref": "#/definitions/RecursivePartial<{prefix:string;date_format:string;suffixes?:string|string[];}>",
+                    "$ref": "#/definitions/PartialObjectDeep<{prefix:string;date_format:string;suffixes?:string|string[];},Opts>",
                     "description": "To be used only if all conditions are met:\n1. Value `versioning.unified` = false.\n2. Value `tagging.release_tag_package` is not set.\n3. Repository can have packages of different versions according to pvm settings."
                 },
                 "release_tag_package": {
@@ -1015,21 +1051,15 @@
             },
             "type": "object"
         },
-        "RecursivePartial<{target:string|string[];clients:MessengerClientLoadConfig[];clients_common_config:Partial<MessengerClientConfig>;client_configs:Record<string,Partial<MessengerClientConfig>>;}>": {
+        "PartialObjectDeep<{target:string|string[];clients_common_config:Partial<MessengerClientConfig>;client_configs:Record<string,Partial<MessengerClientConfig>>;},Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "properties": {
                 "client_configs": {
-                    "$ref": "#/definitions/RecursivePartial<Record<string,Partial<MessengerClientConfig>>>",
+                    "$ref": "#/definitions/PartialObjectDeep<Record<string,Partial<MessengerClientConfig>>,Opts>",
                     "description": "Default message values, each for specific messenger client. Its priority is higher than clients_common_config."
                 },
-                "clients": {
-                    "description": "Messenger client load configs",
-                    "items": {
-                        "$ref": "#/definitions/MessengerClientLoadConfig"
-                    },
-                    "type": "array"
-                },
                 "clients_common_config": {
-                    "$ref": "#/definitions/RecursivePartial<Partial<MessengerClientConfig>>",
+                    "$ref": "#/definitions/PartialObjectDeep<Partial<MessengerClientConfig>,Opts>",
                     "description": "Common config which applied to all messenger clients. For example channel name is same in several messengers and you\ndont want to duplicate it"
                 },
                 "target": {
@@ -1049,7 +1079,8 @@
             },
             "type": "object"
         },
-        "RecursivePartial<{title:string;strip_namespace:boolean;}>": {
+        "PartialObjectDeep<{title:string;strip_namespace:boolean;},Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "properties": {
                 "strip_namespace": {
                     "type": "boolean"
@@ -1060,7 +1091,8 @@
             },
             "type": "object"
         },
-        "RecursivePartial<{try_load_ssh_keys:boolean;default_branch:string;}>": {
+        "PartialObjectDeep<{try_load_ssh_keys:boolean;default_branch:string;},Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "properties": {
                 "default_branch": {
                     "description": "Default push branch if you try to\n\ntodo: ask reason for this setting",
@@ -1073,7 +1105,8 @@
             },
             "type": "object"
         },
-        "RecursivePartial<{unified:boolean|string[];unified_versions_for:PkgFlexGlobs[];source:\"file\"|\"package\"|\"tag\";source_file:string;independent_packages:string[];}>": {
+        "PartialObjectDeep<{unified:boolean|string[];unified_versions_for:(string|string[])[];source:\"file\"|\"tag\"|\"package\";source_file:string;independent_packages:string[];},Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "properties": {
                 "independent_packages": {
                     "description": "Packages who always use independent versioning regardless of `unified_versions_for` or `unified` settings.",
@@ -1120,9 +1153,6 @@
                                 "type": "array"
                             },
                             {
-                                "enum": [
-                                    "*"
-                                ],
                                 "type": "string"
                             }
                         ]
@@ -1132,7 +1162,8 @@
             },
             "type": "object"
         },
-        "RecursivePartial<{url?:string;}>": {
+        "PartialObjectDeep<{url?:string;},Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "properties": {
                 "url": {
                     "description": "jira url. If set, then jira-task ids will be transformed into links.",
@@ -1141,10 +1172,11 @@
             },
             "type": "object"
         },
-        "RecursivePartial<{use_short_names:boolean;setup_script?:string;filters:{cutList:{maxLen:number;};};vars:{[key:string]:string|number;releaseLink?:string;};}>": {
+        "PartialObjectDeep<{use_short_names:boolean;setup_script?:string;filters:{cutList:{maxLen:number;};};vars:{[key:string]:string|number;releaseLink?:string;};},Opts>": {
+            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "properties": {
                 "filters": {
-                    "$ref": "#/definitions/RecursivePartial<{cutList:{maxLen:number;};}>"
+                    "$ref": "#/definitions/PartialObjectDeep<{cutList:{maxLen:number;};},Opts>"
                 },
                 "setup_script": {
                     "description": "Path to script that can add templates extra variables, filters etc. (See https://mozilla.github.io/nunjucks/templating.html and nunjucks.Environment for more)",
@@ -1155,9 +1187,97 @@
                     "type": "boolean"
                 },
                 "vars": {
-                    "$ref": "#/definitions/RecursivePartial<{[key:string]:string|number;releaseLink?:string;}>"
+                    "$ref": "#/definitions/PartialObjectDeep<{[key:string]:string|number;releaseLink?:string;},Opts>"
                 }
             },
+            "type": "object"
+        },
+        "PluginConfig": {
+            "properties": {
+                "options": {
+                    "$ref": "#/definitions/PluginOptions"
+                },
+                "plugin": {
+                    "anyOf": [
+                        {
+                            "allOf": [
+                                {
+                                    "properties": {
+                                        "name": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                },
+                                {
+                                    "properties": {
+                                        "factory": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            ]
+                        },
+                        {
+                            "allOf": [
+                                {
+                                    "properties": {
+                                        "name": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                },
+                                {
+                                    "$ref": "#/definitions/{configExt:PartialObjectDeep<Config,Opts>;}"
+                                }
+                            ]
+                        },
+                        {
+                            "allOf": [
+                                {
+                                    "properties": {
+                                        "name": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                },
+                                {
+                                    "properties": {
+                                        "configExt": {
+                                            "$ref": "#/definitions/PartialObjectDeep<Config,Opts>"
+                                        },
+                                        "factory": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            ]
+                        },
+                        {
+                            "type": [
+                                "string",
+                                "object"
+                            ]
+                        }
+                    ]
+                }
+            },
+            "type": "object"
+        },
+        "PluginOptions": {
+            "type": "object"
+        },
+        "Record<string,Partial<MessengerClientConfig>>": {
+            "type": "object"
+        },
+        "Record<string,Record<string,string>>": {
+            "type": "object"
+        },
+        "Record<string,string>": {
             "type": "object"
         },
         "RepoStorageDef": {
@@ -1174,10 +1294,10 @@
             },
             "type": "object"
         },
-        "{configExt:RecursivePartial<Config>;}": {
+        "{configExt:PartialObjectDeep<Config,Opts>;}": {
             "properties": {
                 "configExt": {
-                    "$ref": "#/definitions/RecursivePartial<Config>"
+                    "$ref": "#/definitions/PartialObjectDeep<Config,Opts>"
                 }
             },
             "type": "object"
@@ -1220,6 +1340,12 @@
                 "deps_keys": {
                     "description": "Dependency lists that should be updated and used when package version updates",
                     "items": {
+                        "enum": [
+                            "dependencies",
+                            "devDependencies",
+                            "optionalDependencies",
+                            "peerDependencies"
+                        ],
                         "type": "string"
                     },
                     "type": "array"
@@ -1231,7 +1357,7 @@
             "description": "Options that need more attention in terms of the consequences of their activation.",
             "properties": {
                 "always_changed_workspaces": {
-                    "description": "A glob mask array that defines the packets that the system will interpret as always modified.\nThe mask will be applied to the path of the packages (workspaces).\nThis setting will affect the following places:\n- getPackages method in '@pvm/pvm' (except 'released' and 'updated' types)\n- getUpdateState method in '@pvm/update', which affects pvm-update or pvm-release commands",
+                    "description": "A glob mask array that defines the packets that the system will interpret as always modified.\nThe mask will be applied to the path of the packages (workspaces).\nThis setting will affect the following places:\n- getPackages method in '@pvm/pvm' (except 'released' and 'updated' types)\n- pvm-update or pvm-release commands and update mechanic",
                     "items": {
                         "type": "string"
                     },
@@ -1350,10 +1476,7 @@
                             "$ref": "#/definitions/ChangelogRendererBuiltin"
                         },
                         {
-                            "$ref": "#/definitions/ChangelogRendererCommonJs"
-                        },
-                        {
-                            "$ref": "#/definitions/ChangelogRendererByPlugin"
+                            "$ref": "#/definitions/ChangelogRendererCustom"
                         }
                     ],
                     "description": "Changelog render settings"
@@ -1367,13 +1490,6 @@
                 "client_configs": {
                     "$ref": "#/definitions/Record<string,Partial<MessengerClientConfig>>",
                     "description": "Default message values, each for specific messenger client. Its priority is higher than clients_common_config."
-                },
-                "clients": {
-                    "description": "Messenger client load configs",
-                    "items": {
-                        "$ref": "#/definitions/MessengerClientLoadConfig"
-                    },
-                    "type": "array"
                 },
                 "clients_common_config": {
                     "$ref": "#/definitions/Partial<MessengerClientConfig>",
@@ -1637,6 +1753,9 @@
             "type": "object"
         },
         "templates": {
+            "additionalProperties": {
+                "type": "string"
+            },
             "description": "Templates\nSee https://mozilla.github.io/nunjucks/templating.html for template engine docs\nSee packages/pvm-template/lib/env.ts for extra filters and variables",
             "properties": {
                 "failed_vcs_push": {
@@ -1902,9 +2021,6 @@
                                 "type": "array"
                             },
                             {
-                                "enum": [
-                                    "*"
-                                ],
                                 "type": "string"
                             }
                         ]

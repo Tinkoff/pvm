@@ -1,4 +1,4 @@
-import type { MessengerClientConfig } from './index'
+import type { MessengerClientConfig } from './messages'
 import type { PluginConfig } from './di'
 
 type GlobPattern = string

@@ -1,5 +1,6 @@
-import type { Provider } from '../lib/di'
-import type { Config, RecursivePartial } from '../types'
+import type { Provider } from '@tinkoff/dippy'
+import type { Config } from './config-schema'
+import type { RecursivePartial } from './helpers'
 
 export type PluginOptions = Record<string, any>
 
