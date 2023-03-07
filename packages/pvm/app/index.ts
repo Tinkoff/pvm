@@ -102,7 +102,7 @@ export class Pvm {
     return this.container.get(NOTIFICATOR_TOKEN)
   }
 
-  public getPkgSet(strategy: string, opts: Record<string, any>): ReturnType<typeof pkgset> {
+  public getPkgSet(strategy: string, opts: Record<string, any> = {}): ReturnType<typeof pkgset> {
     opts.cwd = opts.cwd ?? this.cwd
 
     return pkgset(this.container, strategy, opts)

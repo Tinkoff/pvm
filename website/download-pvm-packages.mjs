@@ -1,15 +1,15 @@
-import fs from "fs";
+import fs from "fs-extra";
 import path from "path";
 import fetch from "node-fetch";
-import { pkgset } from "../packages/pvm/mechanics/pkgset/pkgset";
-import drainItems from "../packages/pvm/lib/iter/drain-items";
 import {fileURLToPath} from 'url';
+import { Pvm } from '@pvm/pvm'
 
 const __filename = fileURLToPath(import.meta.url);
 
-const pvmPackages = (await drainItems.default(pkgset('all', {
+const pvm = new Pvm({
   cwd: path.join(path.dirname(__filename), '..')
-}))).filter(pkg => !pkg.meta.private).map(pkg => ({
+})
+const pvmPackages = (await pvm.getPackages('all')).filter(pkg => !pkg.meta.private).map(pkg => ({
   name: pkg.name,
   version: pkg.version,
   tgz: `${pkg.shortName}-${pkg.version}.tgz`,
@@ -18,10 +18,8 @@ const pvmPackages = (await drainItems.default(pkgset('all', {
 console.log('@pvm/* packages', JSON.stringify(pvmPackages, null, 2))
 
 const artifactsPath = 'build/artifacts'
-if (!fs.existsSync(artifactsPath)) {
-  fs.mkdirSync(artifactsPath)
-}
-fs.writeFileSync(path.join(artifactsPath, 'packages.json'), JSON.stringify(pvmPackages))
+
+fs.outputFileSync(path.join(artifactsPath, 'packages.json'), JSON.stringify(pvmPackages))
 pvmPackages.forEach(async ({ name, tgz }) => {
   const pkgTarPath = path.join(artifactsPath, tgz)
   const pkgTarUrl = `https://registry.npmjs.org/${name}/-/${tgz}`

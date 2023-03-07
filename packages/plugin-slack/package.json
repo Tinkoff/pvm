@@ -8,8 +8,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "resolve-from": "^5.0.0",
-    "slackify-markdown": "4.3.1",
-    "lodash.omitby": "^4.6.0"
+    "slackify-markdown": "4.3.1"
   },
   "peerDependencies": {
     "@pvm/pvm": "^0.0.0-stub"

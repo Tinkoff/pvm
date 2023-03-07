@@ -74,7 +74,7 @@ ${versions.map(p => p.split('/')[1]).join('\n')}`)
           GL_TOKEN: '___gl___',
           PVM_TESTING_ENV: process.env.PVM_TESTING_ENV ?? 'true',
           NPM_TOKEN: '123',
-          PVM_CONFIG_PLUGINS_V2: JSON.stringify([{ plugin: require.resolve('@pvm/gitlab/plugin') }]),
+          PVM_CONFIG_PLUGINS_V2: JSON.stringify([{ plugin: require.resolve('@pvm/plugin-gitlab') }]),
           PVM_CONFIG_GITLAB__URL: `http://localhost:${gitlabApp.httpServer.address().port}`,
         },
       })
