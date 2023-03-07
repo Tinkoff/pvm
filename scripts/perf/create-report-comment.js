@@ -1,5 +1,4 @@
-const { Pvm } = require('@pvm/pvm')
-const { PLATFORM_TOKEN } = require('@pvm/tokens-core')
+const { Pvm, PLATFORM_TOKEN } = require('@pvm/pvm')
 const fs = require('fs')
 
 async function main() {

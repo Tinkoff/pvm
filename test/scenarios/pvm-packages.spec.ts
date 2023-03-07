@@ -18,8 +18,8 @@ describe('pvm-packages', () => {
       plugins_v2: [{
         plugin: () => ({
           providers: [
-            require('${require.resolve('@pvm/di').replace(/\\/g, '/')}').provide({
-              provide: require('${require.resolve('@pvm/tokens-core').replace(/\\/g, '/')}').PLATFORM_TOKEN,
+            require('${require.resolve('@pvm/pvm').replace(/\\/g, '/')}').provide({
+              provide: require('${require.resolve('@pvm/pvm').replace(/\\/g, '/')}').PLATFORM_TOKEN,
               useValue: null,
             }),
           ],
