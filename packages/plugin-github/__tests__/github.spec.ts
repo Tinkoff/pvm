@@ -314,7 +314,7 @@ async function prepareRepository() {
       },
     },
     hostApi: repo.di.get(HOST_API_TOKEN),
-    globalFlags: repo.dir.get(GLOBAL_FLAGS_TOKEN),
+    globalFlags: repo.di.get(GLOBAL_FLAGS_TOKEN),
     cwd: repo.dir,
   })
   const headCommit = (await repo.execScript('git rev-parse HEAD')).stdout.trim()

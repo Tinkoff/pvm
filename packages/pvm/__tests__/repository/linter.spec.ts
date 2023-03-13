@@ -6,7 +6,7 @@ import { versioningFile } from '../../lib/dedicated-versions-file'
 import initRepo from '../../../../test/initRepo'
 
 async function getRepository(testRepo: any): Promise<Repository> {
-  return await Repository.init(testRepo.dir)
+  return await Repository.init(testRepo.di)
 }
 
 const fallbackVersion = '0.0.1'

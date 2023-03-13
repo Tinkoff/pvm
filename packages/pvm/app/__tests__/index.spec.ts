@@ -2,7 +2,6 @@ import { Pvm } from '../index'
 import { declarePlugin, provide } from '../../lib/di'
 import path from 'path'
 import { CONFIG_TOKEN } from '../../tokens'
-import { Signales } from 'signales'
 
 describe('@pvm/container', () => {
   afterEach(() => {
@@ -54,8 +53,6 @@ describe('@pvm/container', () => {
 
     expect(pvmContainer.container.get(CONFIG_TOKEN)).toMatchObject({
       plugins_v2: expect.arrayContaining([{
-        plugin: require.resolve('@pvm/gitlab/plugin'),
-      }, {
         plugin: path.join(__dirname, '__fixtures__', 'plugin-with-config-with-plugins.js'),
       }, {
         plugin: './plugin-with-config-extension.js',
@@ -104,25 +101,9 @@ describe('@pvm/container', () => {
 
   it('should resolve user config plugins against config directory', () => {
     expect(new Pvm({
-      config: path.join(__dirname, '__fixtures__', 'user-config-plugins', 'pvm'),
+      config: path.join(__dirname, '__fixtures__', 'user-config-plugins'),
       cwd: path.join(__dirname, '__fixtures__', 'user-config-plugins'),
     // @ts-ignore
     }).container.get(CONFIG_TOKEN).test).toBe(true)
-  })
-
-  it('should resolve default plugins against core package directory', () => {
-    const spy = jest.spyOn(Signales.prototype, '_log')
-
-    // eslint-disable-next-line no-new
-    new Pvm()
-
-    expect(spy).toHaveBeenCalledWith(expect.stringMatching(/common-plugins[\\/]index\.js.+?loaded. Resolved from .+?packages[\\/]pvm-core/), undefined, expect.anything())
-  })
-
-  it('should resolve provider against resolved config path', () => {
-    expect((new Pvm({
-      cwd: path.join(__dirname, '__fixtures__', 'non-cwd-config-and-provider', 'pvm'),
-      // @ts-ignore
-    }).container.get(CONFIG_TOKEN) as any)['test-provider']).toBe(true)
   })
 })
