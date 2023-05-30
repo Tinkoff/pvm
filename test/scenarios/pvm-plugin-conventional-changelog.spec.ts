@@ -4,8 +4,6 @@ import type { RepoTestApi } from '../types'
 import initRepo from '../initRepo'
 import { runScript } from '../executors'
 import { writeRepo } from '../writeRepo'
-import conventionalChangelogPlugin from '@pvm/plugin-conventional-changelog'
-import semanticReleasePlugin from '@pvm/plugin-conventional-semantic-release'
 
 function ccTagNotes(repo: RepoTestApi, tagName: string) {
   const notes = repo.tagNotes(tagName)
@@ -38,7 +36,7 @@ describe('pvm-plugin/conventional-changelog', () => {
         },
       },
       plugins_v2: [{
-        plugin: conventionalChangelogPlugin,
+        plugin: require.resolve('@pvm/plugin-conventional-changelog'),
       }],
     })
     await makeConvCommits(repo)
@@ -68,7 +66,7 @@ describe('pvm-plugin/conventional-changelog', () => {
         },
       },
       plugins_v2: [{
-        plugin: conventionalChangelogPlugin,
+        plugin: require.resolve('@pvm/plugin-conventional-changelog'),
       }],
     })
     await makeConvCommits(repo)
@@ -85,17 +83,13 @@ describe('pvm-plugin/conventional-changelog', () => {
       update: {
         default_release_type: 'none'
       },
-      plugins: {
-        options: {
-          '@pvm/plugin-conventional-changelog': {
-            whatBump: (commits) => {
-              return commits.every(c => c.type === 'chore') ? null : 'patch'
-            },
-          },
-        },
-      },
       plugins_v2: [{
-        plugin: "${require.resolve('@pvm/plugin-conventional-changelog')}"
+        plugin: "${require.resolve('@pvm/plugin-conventional-changelog').replace(/\\/g, '/')}",
+        options: {
+          whatBump: (commits) => {
+            return commits.every(c => c.type === 'chore') ? null : 'patch'
+          },
+        }
       }]
     }`, { configFormat: 'js' })
     await repo.linkNodeModules()
@@ -119,9 +113,9 @@ describe('pvm-plugin/conventional-changelog', () => {
 
       const repo = await initRepo(repoPath, {
         plugins_v2: [{
-          plugin: conventionalChangelogPlugin,
+          plugin: require.resolve('@pvm/plugin-conventional-changelog'),
         }, {
-          plugin: semanticReleasePlugin,
+          plugin: require.resolve('@pvm/plugin-conventional-semantic-release'),
         }],
       })
       await repo.updatePkg('.', {
@@ -142,9 +136,9 @@ describe('pvm-plugin/conventional-changelog', () => {
 
       const repo = await initRepo(repoPath, {
         plugins_v2: [{
-          plugin: conventionalChangelogPlugin,
+          plugin: require.resolve('@pvm/plugin-conventional-changelog'),
         }, {
-          plugin: semanticReleasePlugin,
+          plugin: require.resolve('@pvm/plugin-conventional-semantic-release'),
         }],
       })
       await repo.updatePkg('.', {
@@ -168,18 +162,20 @@ describe('pvm-plugin/conventional-changelog', () => {
       const repoPath = writeRepo({ name: 'release-type-builder', spec: 'src/a@1.0.0,src/b@1.0.0' })
 
       const repo = await initRepo(repoPath, {
-        plugins_v2: [
-          {
-            plugin: semanticReleasePlugin,
-            options: {
-              releaseRules: [
-                {
-                  type: 'fix',
-                  release: 'major',
-                },
-              ],
-            },
+        plugins_v2: [{
+          plugin: require.resolve('@pvm/plugin-conventional-changelog'),
+        },
+        {
+          plugin: require.resolve('@pvm/plugin-conventional-semantic-release'),
+          options: {
+            releaseRules: [
+              {
+                type: 'fix',
+                release: 'major',
+              },
+            ],
           },
+        },
         ],
       })
 
@@ -215,7 +211,7 @@ describe('pvm-plugin/conventional-changelog', () => {
           unified_versions_for: ['*'],
         },
         plugins_v2: [{
-          plugin: conventionalChangelogPlugin,
+          plugin: require.resolve('@pvm/plugin-conventional-changelog'),
         }],
       })
 
@@ -261,7 +257,7 @@ describe('pvm-plugin/conventional-changelog', () => {
           },
         },
         plugins_v2: [{
-          plugin: conventionalChangelogPlugin,
+          plugin: require.resolve('@pvm/plugin-conventional-changelog'),
         }],
       })
       await makeConvCommits(repo)

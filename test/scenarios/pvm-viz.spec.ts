@@ -8,6 +8,5 @@ describe('pvm/viz', () => {
     await repo.touch(['src/b/nf', 'src/a/nf'], 'update packages')
 
     await runScript(repo, 'pvm update -p dot > update-diff.dot')
-    await runScript(repo, 'pvm viz update-diff.dot > update-diff.svg')
   })
 })

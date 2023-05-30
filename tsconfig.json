@@ -27,7 +27,7 @@
     "module": "CommonJS",
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "sourceMap": false,
+    "sourceMap": true,
     "importsNotUsedAsValues": "error",
     "paths": {
       "@octokit/oauth-app": ["../type-overrides/octokit--oauth-app"],

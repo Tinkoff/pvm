@@ -127,10 +127,6 @@ export const defaultConfig: ConfigSchema = {
     process_npm_token: true,
     include_monorepo_root: false,
   },
-  plugins: {
-    local_plugins: [],
-    options: {},
-  },
   plugins_v2: [
     { plugin: require.resolve('./commands') },
   ],

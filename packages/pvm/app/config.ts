@@ -28,22 +28,22 @@ function parseConfig(filepath: string, content: string): Record<string, unknown>
   return loader(filepath, content)
 }
 
-export function mergeDefaults<T extends Record<string, any>>(a: T, b: Record<string, any>): T {
-  const result = { ...a }
+export function mergeDeep<T extends Record<string, any>>(a: T, b: Record<string, any>): T {
+  const result = { ...b }
 
-  Object.keys(b).forEach((key: keyof T & string) => {
+  Object.keys(a).forEach((key: keyof T & string) => {
     if (result[key] === void 0) {
-      if (Array.isArray(b[key])) {
-        result[key] = [...b[key]] as any
-      } else if (isPlainObject(b[key])) {
-        result[key] = { ...b[key] }
+      if (Array.isArray(a[key])) {
+        result[key] = [...a[key]] as any
+      } else if (isPlainObject(a[key])) {
+        result[key] = { ...a[key] }
       } else {
-        result[key] = b[key]
+        result[key] = a[key]
       }
     } else if (Array.isArray(a[key]) && Array.isArray(b[key])) {
-      result[key] = result[key].concat(b[key])
+      result[key] = a[key].concat(result[key])
     } else if (isPlainObject(a[key]) && isPlainObject(b[key])) {
-      result[key] = mergeDefaults(a[key], b[key])
+      result[key] = mergeDeep(a[key], b[key])
     }
   })
 

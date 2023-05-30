@@ -408,13 +408,6 @@ export interface Config {
      */
     renderer: ChangelogRenderer,
   },
-  /**
-   * @deprecated please use [plugins_v2](/api/interfaces/pvm_pvm.Config.md#plugins_v2)
-   */
-  plugins: {
-    local_plugins: string[],
-    options: Record<string, Record<string, string>>,
-  },
   plugins_v2: PluginConfig[],
   templating: {
     /**

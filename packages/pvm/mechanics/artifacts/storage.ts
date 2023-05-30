@@ -8,7 +8,7 @@ import type { Config, StorageDef } from '../../types'
 
 import type { StorageImpl } from './storage.h'
 import type { Container } from '../../lib/di'
-import { CONFIG_TOKEN, GLOBAL_FLAGS_TOKEN } from '../../tokens'
+import { CONFIG_TOKEN, GLOBAL_FLAGS_TOKEN, VCS_PLATFORM_TOKEN } from '../../tokens'
 
 const finalizedMap = new WeakMap<StorageImpl, boolean>()
 const storagesPool = new Map<string, StorageImpl>()
@@ -97,7 +97,7 @@ export class Storage {
 
 function createStorageImpl(deps: InitStorageDeps, storageDef: StorageDef): StorageImpl {
   if (storageDef.type === 'repo') {
-    return new VcsStorage()
+    return new VcsStorage(deps.di.get(VCS_PLATFORM_TOKEN))
   } else if (storageDef.type === 'branch') {
     return new GitBranchStorage({ di: deps.di, branch: storageDef.branch })
   } else if (storageDef.type === 'external') {

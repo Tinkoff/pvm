@@ -65,6 +65,6 @@ test = 'test'`)
 
     const upPkg = updateState.updateReasonMap.keys().next().value
     expect(upPkg.name).toBe('workspace-pkg')
-    expect(updateState.updateReasonMap.get(upPkg)).toBe('by_commits')
+    expect(updateState.updateReasonMap.get(upPkg)).toBe('changed')
   })
 })

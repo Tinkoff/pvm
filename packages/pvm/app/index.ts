@@ -3,8 +3,7 @@ import type { PluginConfig, PluginFactory, Config, RecursivePartial, PluginDecla
 import { Container, DI_TOKEN, provide } from '../lib/di'
 import { CONFIG_TOKEN, CWD_TOKEN, NOTIFICATOR_TOKEN, REPOSITORY_FACTORY_TOKEN } from '../tokens'
 import {
-  loadRawConfig,
-  mergeDefaults,
+  loadRawConfig, mergeDeep,
   migrateDeprecated,
   readEnv,
   validateAgainstSchema,
@@ -60,9 +59,9 @@ export class Pvm {
       provide: DI_TOKEN,
     }))
 
-    this.initConfigAndPlugins(config, plugins)
-
     providers.forEach(p => this.container.register(p))
+
+    this.initConfigAndPlugins(config, plugins)
   }
 
   /**
@@ -139,30 +138,29 @@ export class Pvm {
   }
 
   protected initConfigAndPlugins(config: RecursivePartial<Config> | string | null | undefined, plugins: PluginConfig[] = []) {
-    const configExtensions:RecursivePartial<Config>[] = []
-    // Env config
-    configExtensions.push(readEnv())
-
-    // User defined config
-    const userConfig: { config: RecursivePartial<Config>, filepath: string | null } = (typeof config === 'string' || !config) ? loadRawConfig(this.configDir) : { config: config ?? {}, filepath: null }
-    configExtensions.push(this.setupConfigDirs(userConfig.config, this.cwd, this.configDir))
-    let nextConfig = this.mergeConfigExtensions(configExtensions)
-
-    // Config extensions from plugins
-    let nextConfigExtensions = this.registerPlugins(plugins ?? [], this.configDir)
-    nextConfig = mergeDefaults(nextConfig, this.mergeConfigExtensions(nextConfigExtensions))
-
-    // Config extensions from user defined plugins
-    nextConfigExtensions = this.registerPlugins(nextConfig.plugins_v2 ?? [], this.configDir)
-    nextConfig = mergeDefaults(nextConfig, this.mergeConfigExtensions(nextConfigExtensions))
-
+    let nextConfigExtensions: RecursivePartial<Config>[] = []
+    // Config extensions from default config itself
+    let nextConfig = defaultConfig as Config
     if (defaultConfig.plugins_v2) {
       nextConfigExtensions = this.registerPlugins(defaultConfig.plugins_v2, path.dirname(require.resolve('../pvm-defaults')))
       // Config extensions from default config plugins
-      nextConfig = mergeDefaults(nextConfig, this.mergeConfigExtensions(nextConfigExtensions))
+      nextConfig = this.mergeConfigExtensions(nextConfig, ...nextConfigExtensions)
     }
-    // Config extensions from default config itself
-    nextConfig = mergeDefaults(nextConfig, defaultConfig)
+
+    // User defined config
+    const userConfig: { config: RecursivePartial<Config>, filepath: string | null } = (typeof config === 'string' || !config) ? loadRawConfig(this.configDir) : { config: config ?? {}, filepath: null }
+    const userConfigWithDirs = this.setupConfigDirs(userConfig.config, this.cwd, this.configDir)
+    nextConfigExtensions = this.registerPlugins(userConfigWithDirs.plugins_v2 ?? [], this.configDir)
+    nextConfig = this.mergeConfigExtensions(nextConfig, ...nextConfigExtensions, userConfigWithDirs)
+
+    // Config extensions from plugins
+    nextConfigExtensions = this.registerPlugins(plugins ?? [], this.configDir)
+    nextConfig = this.mergeConfigExtensions(nextConfig, ...nextConfigExtensions)
+
+    // Env config
+    const envConfig = readEnv() as any
+    const envConfigExtensions = this.registerPlugins(envConfig.plugins_v2 ?? [], this.cwd)
+    nextConfig = this.mergeConfigExtensions(nextConfig, envConfig, ...envConfigExtensions)
 
     migrateDeprecated(nextConfig)
 
@@ -177,8 +175,8 @@ export class Pvm {
     }))
   }
 
-  protected mergeConfigExtensions(configExtensions: RecursivePartial<Config>[]): Config {
-    return configExtensions.reduce((acc, extension) => mergeDefaults(acc, extension), {} as Config) as Config
+  protected mergeConfigExtensions(...configExtensions: RecursivePartial<Config>[]): Config {
+    return configExtensions.reduce((acc, extension) => mergeDeep(acc, extension), {} as Config) as Config
   }
 
   protected registerPlugins(plugins: PluginConfig[], resolveRoot: string): RecursivePartial<Config>[] {

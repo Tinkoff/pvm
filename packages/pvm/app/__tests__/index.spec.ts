@@ -1,7 +1,7 @@
 import { Pvm } from '../index'
 import { declarePlugin, provide } from '../../lib/di'
 import path from 'path'
-import { CONFIG_TOKEN } from '../../tokens'
+import { CLI_TOKEN, CONFIG_TOKEN } from '../../tokens'
 
 describe('@pvm/container', () => {
   afterEach(() => {
@@ -97,6 +97,36 @@ describe('@pvm/container', () => {
     })
 
     expect(pvmContainer.container.get(CONFIG_TOKEN).mark_pr.analyze_update).toBe(false)
+  })
+
+  it('user plugins should override di core providers', () => {
+    const pvmContainer = new Pvm({
+      config: {
+        mark_pr: {
+          analyze_update: false,
+        },
+        plugins_v2: [{
+          plugin: declarePlugin({
+            factory: () => {
+              return {
+                providers: [
+                  provide({
+                    provide: CLI_TOKEN,
+                    useValue: {
+                      test: true,
+                    } as any,
+                  }),
+                ],
+              }
+            },
+          }),
+        }],
+      },
+    })
+
+    expect(pvmContainer.container.get(CLI_TOKEN)).toEqual({
+      test: true,
+    })
   })
 
   it('should resolve user config plugins against config directory', () => {

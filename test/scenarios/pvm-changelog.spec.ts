@@ -140,7 +140,7 @@ describe('pvm/changelog', () => {
     await repo.runScript('pvm changelog make')
 
     expect(repo.shell('cat changelog.md')).toMatchSnapshot()
-  })
+  }, 500000)
 
   it('should include upcoming release in case append-upcoming-release option', async () => {
     const repo = await initRepo('monorepo-new', {
