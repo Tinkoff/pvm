@@ -3,6 +3,7 @@ import type { Config, RecursivePartial } from '@pvm/pvm'
 
 import { CacheTag, taggedCacheManager } from '../packages/pvm/lib/memoize'
 import os from 'os'
+import cp from 'child_process'
 import { getGitConfigTools } from './gitConfig'
 import type { User } from './fixtures/users'
 import { getUser, mapUsers } from './fixtures/users'
@@ -37,10 +38,21 @@ function processPackageRoot(repoDir: string) {
   }
 }
 
+function linkNodeModules(cwd: string) {
+  const source = path.resolve('node_modules')
+  const target = path.join(cwd, 'node_modules')
+  if (os.platform() === 'win32') {
+    cp.execSync(`mklink /D "${target}" "${source}"`)
+  } else {
+    cp.execSync(`ln -s "${source}" "${target}"`)
+  }
+}
+
 const initRepo = async (name: string, config?: RecursivePartial<Config> | string, repoOpts: {
   cwd?: string,
   configFormat?: 'json' | 'toml' | 'js'
   empty?: boolean
+  linkNodeModules?: boolean
 } = {}): Promise<RepoTestApi> => {
   let fullRepoDir = name
   let projectRoot = repoOpts.cwd ?? fullRepoDir
@@ -99,6 +111,10 @@ const initRepo = async (name: string, config?: RecursivePartial<Config> | string
     return new Pvm({
       cwd: projectRoot,
     })
+  }
+
+  if (repoOpts.linkNodeModules) {
+    await linkNodeModules(projectRoot)
   }
 
   let repoApp = makePvmApp()
@@ -264,13 +280,7 @@ const initRepo = async (name: string, config?: RecursivePartial<Config> | string
       return loadPkg(this.config, pkgPath, { cwd: this.cwd, ref: ref })
     },
     async linkNodeModules() {
-      const source = path.resolve('node_modules')
-      const target = path.join(this.cwd, 'node_modules')
-      if (os.platform() === 'win32') {
-        await runScript(this, `mklink /D "${target}" "${source}"`)
-      } else {
-        await runScript(this, `ln -s "${source}" "${target}"`)
-      }
+      linkNodeModules(this.cwd)
     },
     async commit(message) {
       if (!message) {

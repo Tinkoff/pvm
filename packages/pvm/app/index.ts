@@ -184,9 +184,6 @@ export class Pvm {
     for (const pluginConfig of plugins) {
       const { factory, configExt, resolvedPath } = this.resolvePlugin(pluginConfig, resolveRoot)
 
-      if (factory ? this.registeredPlugins.has(factory) : this.registeredPlugins.has(configExt)) {
-        throw new Error(`Plugin ${typeof pluginConfig.plugin === 'string' ? pluginConfig.plugin : pluginConfig.plugin.name} resolved from ${resolveRoot} already registered`)
-      }
       this.registeredPlugins.add(factory ?? configExt)
       const pluginProviders = factory ? factory(pluginConfig.options || {}).providers : []
       for (const provider of pluginProviders) {

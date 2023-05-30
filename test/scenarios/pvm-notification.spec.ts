@@ -1,7 +1,6 @@
 import type { SlackMock } from '../slack-mock'
 import { runMessengerMocker } from '../slack-mock'
 
-import path from 'path'
 import { execScript, runScript } from '../executors'
 import initRepo from '../initRepo'
 import type { Message } from '@pvm/pvm'
@@ -38,13 +37,13 @@ describe('pvm-notification', () => {
           },
         },
         plugins_v2: [{
-          plugin: '@pvm/plugin-slack',
+          plugin: require.resolve('@pvm/plugin-slack'),
           options: {
             name: 'slack',
           },
         },
         {
-          plugin: '@pvm/plugin-slack',
+          plugin: require.resolve('@pvm/plugin-slack'),
           options: {
             name: 'another_slack',
           },
@@ -82,9 +81,9 @@ describe('pvm-notification', () => {
 
     it('should send all messages and throw error if some failed', async () => {
       const slackRequests = collectSlackRequests(slackMocker)
-      const repo = await initRepo('simple-one')
-      await repo.linkNodeModules()
-      const failingMessengerClientPath = await createFailingMessengerClient(repo)
+      const repo = await initRepo('simple-one', {}, {
+        linkNodeModules: true,
+      })
       await repo.updateConfig({
         notifications: {
           target: 'all',
@@ -98,13 +97,13 @@ describe('pvm-notification', () => {
           },
         },
         plugins_v2: [{
-          plugin: '@pvm/plugin-slack',
+          plugin: require.resolve('./__fixtures__/failing-slack-plugin'),
           options: {
-            name: failingMessengerClientPath,
+            name: 'failing_slack',
           },
         },
         {
-          plugin: '@pvm/plugin-slack',
+          plugin: require.resolve('@pvm/plugin-slack'),
           options: {
             name: 'another_slack',
           },
@@ -135,13 +134,13 @@ describe('pvm-notification', () => {
           },
         },
         plugins_v2: [{
-          plugin: '@pvm/plugin-slack',
+          plugin: require.resolve('@pvm/plugin-slack'),
           options: {
             name: 'slack',
           },
         },
         {
-          plugin: '@pvm/plugin-slack',
+          plugin: require.resolve('@pvm/plugin-slack'),
           options: {
             name: 'another_slack',
           },
@@ -168,21 +167,29 @@ describe('pvm-notification', () => {
   describe('target = first_available', () => {
     it('should work', async () => {
       const slackRequests = collectSlackRequests(slackMocker)
-      const repo = await initRepo('simple-one')
-      await repo.linkNodeModules()
-      const notReadyMessageClientPath = await createNotReadyMessageClient(repo)
+      const repo = await initRepo('simple-one', {}, {
+        linkNodeModules: true,
+      })
       await repo.updateConfig({
         notifications: {
           target: 'all',
+          client_configs: {
+            slack: {
+              channel: 'c1',
+            },
+            another_slack: {
+              channel: 'c2',
+            },
+          },
         },
         plugins_v2: [{
-          plugin: notReadyMessageClientPath,
+          plugin: require.resolve('./__fixtures__/not-ready-slack-plugin'),
           options: {
             name: 'slack',
           },
         },
         {
-          plugin: '@pvm/plugin-slack',
+          plugin: require.resolve('@pvm/plugin-slack'),
           options: {
             name: 'another_slack',
           },
@@ -220,13 +227,13 @@ describe('pvm-notification', () => {
           },
         },
         plugins_v2: [{
-          plugin: '@pvm/plugin-slack',
+          plugin: require.resolve('@pvm/plugin-slack'),
           options: {
             name: 'slack',
           },
         },
         {
-          plugin: '@pvm/plugin-slack',
+          plugin: require.resolve('@pvm/plugin-slack'),
           options: {
             name: 'another_slack',
           },
@@ -262,13 +269,13 @@ describe('pvm-notification', () => {
           },
         },
         plugins_v2: [{
-          plugin: '@pvm/plugin-slack',
+          plugin: require.resolve('@pvm/plugin-slack'),
           options: {
             name: 'slack',
           },
         },
         {
-          plugin: '@pvm/plugin-slack',
+          plugin: require.resolve('@pvm/plugin-slack'),
           options: {
             name: 'another_slack',
           },
@@ -306,13 +313,13 @@ describe('pvm-notification', () => {
         repo = await initRepo('simple-one', {
           plugins_v2: [
             {
-              plugin: '@pvm/plugin-slack',
+              plugin: require.resolve('@pvm/plugin-slack'),
               options: {
                 channel: 'c1',
               },
             },
             {
-              plugin: '@pvm/plugin-slack',
+              plugin: require.resolve('@pvm/plugin-slack'),
               options: {
                 name: 'another_slack',
                 channel: 'c2',
@@ -405,7 +412,7 @@ describe('pvm-notification', () => {
         repo = await initRepo('simple-one', {
           plugins_v2: [
             {
-              plugin: '@pvm/plugin-mattermost',
+              plugin: require.resolve('@pvm/plugin-mattermost'),
               options: {
                 channel: 'm1',
               },
@@ -532,7 +539,7 @@ describe('pvm-notification', () => {
         repo = await initRepo('simple-one', {
           plugins_v2: [
             {
-              plugin: '@pvm/plugin-slack',
+              plugin: require.resolve('@pvm/plugin-slack'),
               options: {
                 channel: 'c1',
               },
@@ -546,7 +553,7 @@ describe('pvm-notification', () => {
         const repo = await initRepo('simple-one', {
           plugins_v2: [
             {
-              plugin: '@pvm/plugin-slack',
+              plugin: require.resolve('@pvm/plugin-slack'),
             },
           ],
         })
@@ -653,36 +660,6 @@ function collectSlackRequests(slackMocker: SlackMock, cb: ({ body, res, reqIndex
     reqIndex++
   })
   return slackRequests
-}
-
-async function createFailingMessengerClient(repo: RepoTestApi) {
-  const fileName = 'broken_messenger_client.js'
-  await repo.writeFile(fileName, `
-const AbstractMessengerClient = require('@pvm/notifications').AbstractMessengerClient
-module.exports.MessengerClient = class Client extends AbstractMessengerClient {
-  isReady() { return true }
-  async internalSendMessage() {
-    throw new Error('Send failed')
-  }
-}
-    `)
-
-  return path.join(repo.cwd, fileName)
-}
-
-async function createNotReadyMessageClient(repo: RepoTestApi) {
-  const fileName = 'broken_messenger_client.js'
-  await repo.writeFile(fileName, `
-const AbstractMessengerClient = require('@pvm/notifications').AbstractMessengerClient
-module.exports.MessengerClient = class Client extends AbstractMessengerClient {
-  isReady() { return false }
-  internalSendMessage() {
-
-  }
-}
-    `)
-
-  return path.join(repo.cwd, fileName)
 }
 
 function testCLIFactory(contextReceiver: () => { repo: RepoTestApi, slackMocker: SlackMock }) {
