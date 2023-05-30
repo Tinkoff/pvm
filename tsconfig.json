@@ -43,7 +43,5 @@
     "tools",
     "docs",
     "declarations",
-//    "**/test/**/*.ts",
-//    "**/*.spec.ts"
   ]
 }
