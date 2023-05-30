@@ -333,9 +333,6 @@
                 "pkgset": {
                     "$ref": "#/definitions/PartialObjectDeep<{ignore_files:string[];affected_files:{if_changed:string[];then_affected:PkgFlexGlobs;}[];},Opts>"
                 },
-                "plugins": {
-                    "$ref": "#/definitions/PartialObjectDeep<{local_plugins:string[];options:Record<string,Record<string,string>>;},Opts>"
-                },
                 "plugins_v2": {
                     "items": {
                         "$ref": "#/definitions/PluginConfig"
@@ -438,10 +435,6 @@
             "type": "object"
         },
         "PartialObjectDeep<Record<string,Partial<MessengerClientConfig>>,Opts>": {
-            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
-            "type": "object"
-        },
-        "PartialObjectDeep<Record<string,Record<string,string>>,Opts>": {
             "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "type": "object"
         },
@@ -891,21 +884,6 @@
             },
             "type": "object"
         },
-        "PartialObjectDeep<{local_plugins:string[];options:Record<string,Record<string,string>>;},Opts>": {
-            "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
-            "properties": {
-                "local_plugins": {
-                    "items": {
-                        "type": "string"
-                    },
-                    "type": "array"
-                },
-                "options": {
-                    "$ref": "#/definitions/PartialObjectDeep<Record<string,Record<string,string>>,Opts>"
-                }
-            },
-            "type": "object"
-        },
         "PartialObjectDeep<{maxLen:number;},Opts>": {
             "description": "Same as `PartialDeep`, but accepts only `object`s as inputs. Internal helper for `PartialDeep`.",
             "properties": {
@@ -1274,9 +1252,6 @@
         "Record<string,Partial<MessengerClientConfig>>": {
             "type": "object"
         },
-        "Record<string,Record<string,string>>": {
-            "type": "object"
-        },
         "Record<string,string>": {
             "type": "object"
         },
@@ -1561,20 +1536,6 @@
                         "type": "string"
                     },
                     "type": "array"
-                }
-            },
-            "type": "object"
-        },
-        "plugins": {
-            "properties": {
-                "local_plugins": {
-                    "items": {
-                        "type": "string"
-                    },
-                    "type": "array"
-                },
-                "options": {
-                    "$ref": "#/definitions/Record<string,Record<string,string>>"
                 }
             },
             "type": "object"
