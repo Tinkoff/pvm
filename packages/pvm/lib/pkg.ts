@@ -244,12 +244,12 @@ export class Pkg {
       return false
     }
 
-    if (config.tagging.release_tag_package) {
-      return this.name === config.tagging.release_tag_package
-    }
-
     if (config.versioning.unified) {
       return isPkgFromMainUnifiedGroup(this._config, this)
+    }
+
+    if (config.tagging.release_tag_package) {
+      return this.name === config.tagging.release_tag_package
     }
 
     return true
