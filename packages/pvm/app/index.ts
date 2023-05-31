@@ -35,14 +35,13 @@ export class Pvm {
   container: Container
   cwd: string
   configDir: string
-  registeredPlugins = new Set<any>()
+  pluginFactories = new Map<any, PluginFactory | undefined>()
 
   constructor(opts: {
     config?: RecursivePartial<Config> | string | null,
-    plugins?: PluginConfig[],
     cwd?: string,
   } = {}) {
-    const { config, cwd = process.cwd(), plugins = [] } = opts ?? {}
+    const { config, cwd = process.cwd() } = opts ?? {}
 
     this.cwd = cwd
     this.configDir = typeof config === 'string' ? config : cwd
@@ -61,7 +60,7 @@ export class Pvm {
 
     providers.forEach(p => this.container.register(p))
 
-    this.initConfigAndPlugins(config, plugins)
+    this.initConfigAndPlugins(config)
   }
 
   /**
@@ -137,30 +136,36 @@ export class Pvm {
     return upload(this.container, args)
   }
 
-  protected initConfigAndPlugins(config: RecursivePartial<Config> | string | null | undefined, plugins: PluginConfig[] = []) {
+  /**
+   * Configuration sources priority (from less prioritized):
+   * 1. Builtin default pvm config
+   * 2. Constructor provided plugins
+   * 3. User defined config and plugins
+   * 4. Config from environment variables
+   *
+   * General logic is - collect config and plugins from less prioritized sources to more prioritized. Resolve
+   * plugins recursively in-depth from each source and deep merge them in order they resolved. Plugins
+   * registered in di after all configurations merged so use allowed to modify plugin configurations introduced
+   * at less prioritized sources.
+   */
+  protected initConfigAndPlugins(config: RecursivePartial<Config> | string | null | undefined): void {
     let nextConfigExtensions: RecursivePartial<Config>[] = []
     // Config extensions from default config itself
-    let nextConfig = defaultConfig as Config
-    if (defaultConfig.plugins_v2) {
-      nextConfigExtensions = this.registerPlugins(defaultConfig.plugins_v2, path.dirname(require.resolve('../pvm-defaults')))
-      // Config extensions from default config plugins
+    let nextConfig = this.getDefaultConfig()
+    if (nextConfig.plugins_v2) {
+      nextConfigExtensions = this.resolvePlugins(nextConfig.plugins_v2, path.dirname(require.resolve('../pvm-defaults')))
       nextConfig = this.mergeConfigExtensions(nextConfig, ...nextConfigExtensions)
     }
 
     // User defined config
     const userConfig: { config: RecursivePartial<Config>, filepath: string | null } = (typeof config === 'string' || !config) ? loadRawConfig(this.configDir) : { config: config ?? {}, filepath: null }
-    const userConfigWithDirs = this.setupConfigDirs(userConfig.config, this.cwd, this.configDir)
-    nextConfigExtensions = this.registerPlugins(userConfigWithDirs.plugins_v2 ?? [], this.configDir)
-    nextConfig = this.mergeConfigExtensions(nextConfig, ...nextConfigExtensions, userConfigWithDirs)
-
-    // Config extensions from plugins
-    nextConfigExtensions = this.registerPlugins(plugins ?? [], this.configDir)
-    nextConfig = this.mergeConfigExtensions(nextConfig, ...nextConfigExtensions)
+    nextConfigExtensions = this.resolvePlugins(userConfig.config.plugins_v2 ?? [], this.configDir)
+    nextConfig = this.mergeConfigExtensions(nextConfig, ...nextConfigExtensions, userConfig.config)
 
     // Env config
     const envConfig = readEnv() as any
-    const envConfigExtensions = this.registerPlugins(envConfig.plugins_v2 ?? [], this.cwd)
-    nextConfig = this.mergeConfigExtensions(nextConfig, envConfig, ...envConfigExtensions)
+    const envConfigExtensions = this.resolvePlugins(envConfig.plugins_v2 ?? [], this.cwd)
+    nextConfig = this.mergeConfigExtensions(nextConfig, ...envConfigExtensions, envConfig)
 
     migrateDeprecated(nextConfig)
 
@@ -173,32 +178,55 @@ export class Pvm {
       useValue: nextConfig,
       provide: CONFIG_TOKEN,
     }))
+
+    this.registerPlugins(nextConfig)
+  }
+
+  /**
+   * Used to extend default config when extending Pvm class and want to provide additional
+   * defaults for end user
+   */
+  protected getDefaultConfig(): Config {
+    return {
+      ...defaultConfig,
+      cwd: this.cwd,
+      configLookupDir: this.configDir,
+    }
   }
 
   protected mergeConfigExtensions(...configExtensions: RecursivePartial<Config>[]): Config {
     return configExtensions.reduce((acc, extension) => mergeDeep(acc, extension), {} as Config) as Config
   }
 
-  protected registerPlugins(plugins: PluginConfig[], resolveRoot: string): RecursivePartial<Config>[] {
+  protected resolvePlugins(plugins: PluginConfig[], resolveRoot: string): RecursivePartial<Config>[] {
     let configExtensions: RecursivePartial<Config>[] = []
     for (const pluginConfig of plugins) {
       const { factory, configExt, resolvedPath } = this.resolvePlugin(pluginConfig, resolveRoot)
 
-      this.registeredPlugins.add(factory ?? configExt)
-      const pluginProviders = factory ? factory(pluginConfig.options || {}).providers : []
-      for (const provider of pluginProviders) {
-        this.container.register(provider)
-      }
+      // if subsequent config extension overrides plugin config its options will be extended and
+      // factory override previous one
+      this.pluginFactories.set(pluginConfig.plugin, factory)
+
       log.info(chalk`plugin {blue ${resolvedPath}} loaded. Resolved from ${resolveRoot}`)
 
       if (configExt) {
         configExtensions.push(configExt)
         if (configExt.plugins_v2) {
-          configExtensions = configExtensions.concat(this.registerPlugins(configExt.plugins_v2, path.dirname(resolvedPath)))
+          configExtensions = configExtensions.concat(this.resolvePlugins(configExt.plugins_v2, path.dirname(resolvedPath)))
         }
       }
     }
     return configExtensions
+  }
+
+  protected registerPlugins(config: Config): void {
+    for (const pluginConfig of config.plugins_v2) {
+      const factory = this.pluginFactories.get(pluginConfig.plugin)
+      const pluginProviders = factory ? factory(pluginConfig.options || {}).providers : []
+      for (const provider of pluginProviders) {
+        this.container.register(provider)
+      }
+    }
   }
 
   protected resolvePlugin(pluginConfig: PluginConfig, resolveRoot: string): { factory?: PluginFactory, configExt?: RecursivePartial<Config>, resolvedPath: string } {
@@ -211,12 +239,5 @@ export class Pvm {
     const opts = isPlainObject(pluginConfig.plugin) ? pluginConfig.plugin : { factory: pluginConfig.plugin }
 
     return { ...opts, resolvedPath: resolveRoot }
-  }
-
-  private setupConfigDirs(resultConfig: RecursivePartial<Config>, cwd: string, configLookupDir: string) {
-    resultConfig.cwd = cwd
-    resultConfig.configLookupDir = configLookupDir
-
-    return resultConfig
   }
 }
