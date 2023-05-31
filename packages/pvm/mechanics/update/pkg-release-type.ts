@@ -92,12 +92,12 @@ export async function markReleaseType(pkg: Pkg, updateState: UpdateState, opts: 
   }
 
   if (!releaseType && updateConfig.workspace_release_files) {
-    const updated = releaseTypesInDescOrderWithAliases.some(releaseType => {
-      const releaseFile = path.join(pkg.absPath, releaseType)
+    const updated = releaseTypesInDescOrderWithAliases.some(releaseFileName => {
+      const releaseFile = path.join(pkg.absPath, releaseFileName)
       if (fs.existsSync(releaseFile)) {
-        releaseType = fileReleaseAliases[releaseType] || releaseType
+        releaseType = fileReleaseAliases[releaseFileName] || releaseFileName
 
-        updateState.releaseFilesMap.set(pkg, releaseType)
+        updateState.releaseFilesMap.set(pkg, releaseFileName)
         return true
       }
       return false
