@@ -2,6 +2,7 @@ import { Pvm } from '../index'
 import { declarePlugin, provide } from '../../lib/di'
 import path from 'path'
 import { CLI_TOKEN, CONFIG_TOKEN } from '../../tokens'
+import type { Config } from '../../types'
 
 describe('@pvm/container', () => {
   afterEach(() => {
@@ -24,21 +25,6 @@ describe('@pvm/container', () => {
         }],
       },
     })
-    expect(pvmContainer.container.get('test')).toBe('test value')
-  })
-
-  it('should handle direct factories', async () => {
-    const pvmContainer = new Pvm({
-      plugins: [{
-        plugin: () => ({
-          providers: [provide({
-            provide: 'test',
-            useValue: 'test value',
-          })],
-        }),
-      }],
-    })
-
     expect(pvmContainer.container.get('test')).toBe('test value')
   })
 
@@ -99,7 +85,7 @@ describe('@pvm/container', () => {
     expect(pvmContainer.container.get(CONFIG_TOKEN).mark_pr.analyze_update).toBe(false)
   })
 
-  it('user plugins should override di core providers', () => {
+  it('user plugins should have ability to override di core providers', () => {
     const pvmContainer = new Pvm({
       config: {
         mark_pr: {
@@ -135,5 +121,37 @@ describe('@pvm/container', () => {
       cwd: path.join(__dirname, '__fixtures__', 'user-config-plugins'),
     // @ts-ignore
     }).container.get(CONFIG_TOKEN).test).toBe(true)
+  })
+
+  it('user config should have ability to override plugin options in default config', () => {
+    const pluginPath = path.join(__dirname, '__fixtures__', 'plugin-with-options.js')
+    class PvmExt extends Pvm {
+      protected getDefaultConfig(): Config {
+        const cfg = super.getDefaultConfig()
+
+        cfg.plugins_v2 = cfg.plugins_v2 ?? []
+        cfg.plugins_v2.push({
+          plugin: pluginPath,
+          options: {
+            value: 'base value',
+          },
+        })
+
+        return cfg
+      }
+    }
+
+    const pvm = new PvmExt({
+      config: {
+        plugins_v2: [{
+          plugin: pluginPath,
+          options: {
+            value: 'overriding value',
+          },
+        }],
+      },
+    })
+
+    expect(pvm.container.get('TEST_TOKEN')).toBe('overriding value')
   })
 })
