@@ -4,5 +4,5 @@ title: Configuration default values
 ---
 
 ```typescript
-@cli-inline cat packages/pvm-core/pvm-defaults.ts
+@cli-inline cat packages/pvm/pvm-defaults.ts
 ```

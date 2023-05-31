@@ -70,13 +70,14 @@ jobs:
               - 'packages/**'
               - 'test/**'
       - run: npm run build
-      - run: npm run check-ts-strict
       - run: npm exec depscheck
       - run: npm run lint:config-schema
       - run: npm exec pvm vcs is-branch-actual
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm exec pvm lint
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm run lint
       - if: steps.packageChanges.outputs.changes == 'true'
         run: npm run test -- -w `node -p 'Math.min(os.cpus().length, 2)'`

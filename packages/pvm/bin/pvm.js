@@ -1,5 +1,5 @@
 #!/usr/bin/env node
 
-const { getApp } = require('@pvm/core/lib/config/get-config')
+const { Pvm } = require('../app')
 
-getApp().runCli()
+Pvm.runCli(Pvm)

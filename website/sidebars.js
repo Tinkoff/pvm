@@ -31,7 +31,7 @@ module.exports = {
   },
   'Configuration': [
     'config/configuration',
-    'api/interfaces/pvm_types.Env',
+    'api/interfaces/pvm_pvm.Env',
   ],
   'Справочник': {
     'How To': [

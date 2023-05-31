@@ -1,0 +1,13 @@
+{
+  "name": "@pvm/plugin-conventional-semantic-release",
+  "version": "0.0.0-stub",
+  "main": "lib/index.js",
+  "dependencies": {
+    "@semantic-release/commit-analyzer": "^8.0.1",
+    "conventional-commits-parser": "^3.2.1"
+  },
+  "peerDependencies": {
+    "semantic-release": ">=16.0.0",
+    "@pvm/pvm": "^0.0.0-stub"
+  }
+}

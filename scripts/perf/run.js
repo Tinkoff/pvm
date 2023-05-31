@@ -2,7 +2,7 @@ const got = require('got')
 const fs = require('fs-extra')
 const path = require('path')
 const Handlebars = require('handlebars')
-const initRepo = require('../../test/initRepo')
+const initRepo = require('../../test/initRepo').default
 const { writeRepo } = require('../../test/writeRepo')
 const { start, stop } = require('../../test/gl-api-mock')
 const yargs = require('yargs')
@@ -74,7 +74,7 @@ ${versions.map(p => p.split('/')[1]).join('\n')}`)
           GL_TOKEN: '___gl___',
           PVM_TESTING_ENV: process.env.PVM_TESTING_ENV ?? 'true',
           NPM_TOKEN: '123',
-          PVM_CONFIG_PLUGINS_V2: JSON.stringify([{ plugin: require.resolve('@pvm/gitlab/plugin') }]),
+          PVM_CONFIG_PLUGINS_V2: JSON.stringify([{ plugin: require.resolve('@pvm/plugin-gitlab') }]),
           PVM_CONFIG_GITLAB__URL: `http://localhost:${gitlabApp.httpServer.address().port}`,
         },
       })
