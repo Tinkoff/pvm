@@ -11,12 +11,11 @@ export class Notificator {
   private messengers: MessengerClients
   private config: Config
 
-  constructor({ config, messengerClients }: { config: Config, messengerClients: Array<AbstractMessengerClient>}) {
+  constructor({ config, messengerClients }: { config: Config, messengerClients: Array<AbstractMessengerClient> | null}) {
     this.config = config
     this.messengers = new MessengerClients()
 
-    const clients = messengerClients
-    clients.forEach(client => {
+    messengerClients?.forEach(client => {
       this.messengers.register(client.name, client)
     })
   }

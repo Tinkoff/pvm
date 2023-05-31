@@ -8,7 +8,10 @@ export default [
     useClass: Notificator,
     deps: {
       config: CONFIG_TOKEN,
-      messengerClients: MESSENGER_CLIENT_TOKEN,
+      messengerClients: {
+        token: MESSENGER_CLIENT_TOKEN,
+        optional: true,
+      },
     },
   }),
 ]
