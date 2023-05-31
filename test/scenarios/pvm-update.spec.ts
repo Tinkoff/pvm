@@ -1568,8 +1568,14 @@ c@0.1.0`)
           autolint: false,
           respect_zero_major_version: true,
         },
+        plugins_v2: [
+          {
+            plugin: '@pvm/plugin-conventional-changelog',
+          },
+        ],
+      }, {
+        linkNodeModules: true,
       })
-      await repo.linkNodeModules()
 
       await repo.tag('v0.1.0', `release
 ---

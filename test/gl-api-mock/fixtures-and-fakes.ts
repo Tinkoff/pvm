@@ -40,15 +40,15 @@ router.get('/projects/:projectId/repository/commits/:id/merge_requests', async (
         username: 'pushkin',
         name: 'Alexander Pushkin',
       },
-      ...res.locals.mergeRequestForCommit?.[req.params.id],
+      ...res.app.locals.mergeRequestForCommit?.[req.params.id],
     },
   ])
-  delete res.locals.mergeRequestForCommit?.[req.params.id]
+  delete res.app.locals.mergeRequestForCommit?.[req.params.id]
 })
 
 router.post('/merge-request-for-commit/:commitId', (req, res) => {
-  res.locals.mergeRequestForCommit = res.locals.mergeRequestForCommit || {}
-  res.locals.mergeRequestForCommit[req.params.commitId] = req.body
+  res.app.locals.mergeRequestForCommit = res.app.locals.mergeRequestForCommit || {}
+  res.app.locals.mergeRequestForCommit[req.params.commitId] = req.body
   res.status(200)
   res.send()
 })

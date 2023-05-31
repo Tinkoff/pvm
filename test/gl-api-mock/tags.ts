@@ -34,7 +34,7 @@ router.get('/projects/:id/repository/tags', async (req, res, next) => {
   stats.tags[req.params.id] = stats.tags[req.params.id] || { reqsCount: 0 }
   stats.tags[req.params.id].reqsCount += 1
   try {
-    const tags = await getTags(res.locals.repoDir, false)
+    const tags = await getTags(res.app.locals.repoDir, false)
 
     const pagingOpts = {
       sortMap: {
@@ -43,7 +43,7 @@ router.get('/projects/:id/repository/tags', async (req, res, next) => {
       toComparable: (a: any) => new Date(a),
     }
 
-    res.locals.sendPaginated(paginate(tags, pagingQuery(req.query), pagingOpts))
+    res.app.locals.sendPaginated(paginate(tags, pagingQuery(req.query), pagingOpts))
   } catch (e) {
     next(e)
   }
@@ -51,7 +51,7 @@ router.get('/projects/:id/repository/tags', async (req, res, next) => {
 
 router.get('/projects/:id/repository/tags/:tag_name', async (req, res, next) => {
   try {
-    const tags = await getTags(res.locals.repoDir, false)
+    const tags = await getTags(res.app.locals.repoDir, false)
     const tag = tags.find(tag => tag.name === req.params.tag_name)
     if (tag) {
       res.json(tag)
@@ -66,7 +66,7 @@ router.get('/projects/:id/repository/tags/:tag_name', async (req, res, next) => 
 // https://docs.gitlab.com/ee/api/tags.html#create-a-new-tag
 router.post('/projects/:id/repository/tags', async (req, res, next) => {
   try {
-    const spawnOpts = { cwd: res.locals.repoDir }
+    const spawnOpts = { cwd: res.app.locals.repoDir }
     const gitShell = (cmd: string, opts = {}) => shell(cmd, Object.assign(opts, spawnOpts))
     const gitConfigTools = getGitConfigTools(gitShell)
 
@@ -85,7 +85,7 @@ router.post('/projects/:id/repository/tags', async (req, res, next) => {
       _: ['HEAD', '-n1'],
     }, spawnOpts)
 
-    const tag = commits.reduce(commitsToTags(res.locals.repoDir), []).filter(t => t.name === tag_name)[0]
+    const tag = commits.reduce(commitsToTags(res.app.locals.repoDir), []).filter(t => t.name === tag_name)[0]
 
     res.json(tag)
   } catch (e) {
@@ -96,12 +96,12 @@ router.post('/projects/:id/repository/tags', async (req, res, next) => {
 // https://docs.gitlab.com/ee/api/releases/#create-a-release
 const releaseRoute: RequestHandler = async (req, res, next) => {
   try {
-    const currentRelease = tagNotes(res.locals.repoDir, req.body.tag_name)
+    const currentRelease = tagNotes(res.app.locals.repoDir, req.body.tag_name)
     if (currentRelease && req.method === 'POST') {
       res.sendStatus(409)
       return
     }
-    await setTagNotes(res.locals.repoDir, req.body.tag_name, req.body.description)
+    await setTagNotes(res.app.locals.repoDir, req.body.tag_name, req.body.description)
 
     res.json({
       tag_name: req.body.tag_name,

@@ -25,7 +25,7 @@ function sendp(res: Response, paginated: [any[], Record<string, string>]) {
 }
 
 app.use((_req, res, next) => {
-  res.locals.sendPaginated = (paginated: [any[], Record<string, string>]) => sendp(res, paginated)
+  res.app.locals.sendPaginated = (paginated: [any[], Record<string, string>]) => sendp(res, paginated)
   next()
 })
 

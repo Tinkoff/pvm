@@ -119,24 +119,19 @@ const initRepo = async (name: string, config?: RecursivePartial<Config> | string
 
   let repoApp = makePvmApp()
 
-  const repoConfig = repoApp.getConfig()
-
   const repoTestApi: RepoTestApi = {
     dir: projectRoot,
     cwd: projectRoot,
     data: repoData,
-    get config() {
-      return repoConfig
-    },
-    get di() {
-      return repoApp.container
-    },
+    config: repoApp.getConfig(),
+    di: repoApp.container,
     async updateConfig(config) {
       if (repoOpts.configFormat === 'js') {
         throw new Error('Config update impossible for js format. Consider to use writeConfig instead')
       }
       await writeConfig({ dir: this.cwd }, config, repoOpts.configFormat)
       repoApp = makePvmApp()
+      this.config = repoApp.getConfig()
     },
     async syncConfig() {
       repoApp = makePvmApp()
@@ -169,7 +164,7 @@ const initRepo = async (name: string, config?: RecursivePartial<Config> | string
     },
     shell: gitShell,
     lastReleaseTag() {
-      return lastReleaseTag(repoConfig)
+      return lastReleaseTag(this.config)
     },
     getUpdateState() {
       return repoApp.getUpdateState()

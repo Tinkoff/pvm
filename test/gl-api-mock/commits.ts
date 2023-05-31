@@ -10,7 +10,7 @@ repoRouterPlugin(router)
 
 router.get('/projects/:id/repository/commits', async (req, res, next) => {
   try {
-    const commits = await getCommits(res.locals.repoDir, req.query.ref_name as string)
+    const commits = await getCommits(res.app.locals.repoDir, req.query.ref_name as string)
 
     const pagingOpts = {
       sortMap: {
@@ -19,7 +19,7 @@ router.get('/projects/:id/repository/commits', async (req, res, next) => {
       toComparable: (a: any) => new Date(a),
     }
 
-    res.locals.sendPaginated(paginate(commits, pagingQuery(req.query), pagingOpts))
+    res.app.locals.sendPaginated(paginate(commits, pagingQuery(req.query), pagingOpts))
   } catch (e) {
     next(e)
   }
@@ -28,7 +28,7 @@ router.get('/projects/:id/repository/commits', async (req, res, next) => {
 // https://docs.gitlab.com/ee/api/commits.html#create-a-commit-with-multiple-files-and-actions
 router.post('/projects/:id/repository/commits', async (req, res, next) => {
   try {
-    const commit = await addCommit(res.locals.repoDir, req.body)
+    const commit = await addCommit(res.app.locals.repoDir, req.body)
 
     res.json(commit)
   } catch (e) {
