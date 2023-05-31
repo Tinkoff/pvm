@@ -1,5 +1,5 @@
 [versioning]
-unified = ['/packages/*', '/src/**/*']
+unified = ['/packages/*']
 source = 'tag'
 
 [changelog]
@@ -35,17 +35,6 @@ strip_namespace = false
 [notifications]
 target = 'all'
 
-[[notifications.clients]]
-name = 'mattermost'
-pkg = '@pvm/mattermost'
-
-[notifications.client_configs.mattermost]
-team = 'tinkoff'
-
-[notifications.clients_common_config]
-channel = 'pvm-github'
-author = { name = 'pvm minion (github)', avatarEmoji = ':deciduous_tree:' }
-
 [[plugins_v2]]
 plugin = '@pvm/plugin-github'
 
@@ -54,4 +43,4 @@ plugin = '@pvm/plugin-conventional-changelog'
 
 [[plugins_v2]]
 plugin = '@pvm/plugin-mattermost'
-options = { team = 'tinkoff' }
+options = { team = 'tinkoff', channel = 'pvm-github', author = { name = 'pvm minion (github)', avatarEmoji = ':deciduous_tree:' } }
