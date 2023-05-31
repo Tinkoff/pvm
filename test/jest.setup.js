@@ -1,14 +1,3 @@
-const initRepo = require('./initRepo')
-const { writeRepo } = require('./writeRepo')
-const { runScript, execScript } = require('./executors')
-const { writeConfig } = require('./helpers')
-
-global.initRepo = initRepo
-global.runScript = runScript
-global.execScript = execScript
-global.writeConfig = writeConfig
-global.writeRepo = writeRepo
-
 Object.assign(process.env, {
   PVM_CONFIG_SEARCH_FROM: __dirname,
   PVM_CONFIG_JIRA__URL: 'https://jira.example.com',
@@ -20,5 +9,5 @@ Object.assign(process.env, {
   PVM_TESTING_ENV: process.env.PVM_TESTING_ENV ?? 'true',
   NPM_TOKEN: '123',
   PVM_LL: process.env.PVM_LL || 'debug',
-  PVM_CONFIG_PLUGINS_V2: JSON.stringify([{ plugin: require.resolve('@pvm/gitlab/plugin') }]),
+  PVM_CONFIG_PLUGINS_V2: JSON.stringify([{ plugin: require.resolve('@pvm/plugin-gitlab') }]),
 })

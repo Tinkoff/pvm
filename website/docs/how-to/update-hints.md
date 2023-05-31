@@ -25,7 +25,7 @@ leave until one not delete it manually. In this case hints can be placed in merg
 `update-hints.toml` is a special file that is commited as usual and merged in merge request.
 Below is full example of hints content
 ```toml
-@cli-inline cat packages/pvm-update/cli/hints_file.txt
+@cli-inline cat packages/pvm/commands/update/hints_file.txt
 ```
 
 ## Merge request description update hints

@@ -16,7 +16,7 @@ import {
 } from '@pvm/gitlab'
 import { readCodeOwners } from '@pvm/cowners'
 import { changedFiles } from '@pvm/pkgset/lib/changed-files'
-import drainItems from '@pvm/core/lib/iter/drain-items'
+import drainItems from '@pvm/pvm'
 
 async function main() {
   const codeOwners = await readCodeOwners()

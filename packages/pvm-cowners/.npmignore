@@ -1,4 +1,0 @@
-*.ts
-!*.d.ts
-__tests__
-__snapshots__

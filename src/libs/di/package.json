@@ -1,9 +1,0 @@
-{
-  "name": "@pvm/di",
-  "version": "0.0.0-stub",
-  "exports": "./index.js",
-  "dependencies": {
-    "@pvm/types": "0.0.0-stub",
-    "@tinkoff/dippy": "^0.8.6"
-  }
-}

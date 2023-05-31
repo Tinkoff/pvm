@@ -1,7 +1,7 @@
 const { start } = require('./gl-api-mock')
 const fs = require('fs')
 const path = require('path')
-const shell = require('../packages/pvm-core/lib/shell').cwdShell
+const shell = require('../packages/pvm/lib/shell').cwdShell
 const { reposDir } = require('./repos-dir')
 
 async function setup() {

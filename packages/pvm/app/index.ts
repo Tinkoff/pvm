@@ -1,0 +1,222 @@
+import path from 'path'
+import type { PluginConfig, PluginFactory, Config, RecursivePartial, PluginDeclaration } from '../types'
+import { Container, DI_TOKEN, provide } from '../lib/di'
+import { CONFIG_TOKEN, CWD_TOKEN, NOTIFICATOR_TOKEN, REPOSITORY_FACTORY_TOKEN } from '../tokens'
+import {
+  loadRawConfig, mergeDeep,
+  migrateDeprecated,
+  readEnv,
+  validateAgainstSchema,
+} from './config'
+import { defaultConfig } from '../pvm-defaults'
+import { logger, loggerFor } from '../lib/logger'
+import chalk from 'chalk'
+import { getNewTag } from '../mechanics/add-tag/get-new-tag'
+import { loadPkg } from '../lib/pkg'
+import getFiles from '../mechanics/files/files'
+import type { Notificator } from '../mechanics/notifications'
+import { pkgset } from '../mechanics/pkgset/pkgset'
+import { getPackages } from '../mechanics/packages'
+import { getCurrentRelease } from '../mechanics/releases'
+import type { Repository } from '../mechanics/repository'
+import { getUpdateState } from '../mechanics/update'
+import { download, upload } from '../mechanics/artifacts/pub/artifacts'
+import { runCli } from './run-cli'
+import providers from './providers'
+
+const log = loggerFor('pvm:app')
+
+export function isPlainObject(x: unknown): x is Record<string, unknown> {
+  return !!x && !Array.isArray(x) && typeof x === 'object'
+}
+
+// todo: get rid of container passing down to functions
+export class Pvm {
+  container: Container
+  cwd: string
+  configDir: string
+  registeredPlugins = new Set<any>()
+
+  constructor(opts: {
+    config?: RecursivePartial<Config> | string | null,
+    plugins?: PluginConfig[],
+    cwd?: string,
+  } = {}) {
+    const { config, cwd = process.cwd(), plugins = [] } = opts ?? {}
+
+    this.cwd = cwd
+    this.configDir = typeof config === 'string' ? config : cwd
+
+    this.container = new Container()
+
+    this.container.register(provide({
+      provide: CWD_TOKEN,
+      useValue: cwd,
+    }))
+
+    this.container.register(provide({
+      useValue: this.container,
+      provide: DI_TOKEN,
+    }))
+
+    providers.forEach(p => this.container.register(p))
+
+    this.initConfigAndPlugins(config, plugins)
+  }
+
+  /**
+   * Runs cli. Used to start pvm as cli app.
+   */
+  static runCli(Class: typeof Pvm, argv: string[] = process.argv): void {
+    return runCli(Class, argv)
+  }
+
+  /**
+   * Return next release tag name based on previous releases
+   */
+  public getNewTag(targetRef: string): Promise<string | null> {
+    return getNewTag(this.container, targetRef)
+  }
+
+  /**
+   * Returns result config which will be used in pvm
+   */
+  public getConfig(): Config {
+    return this.container.get(CONFIG_TOKEN)
+  }
+
+  public loadPkg(pkgPath: Parameters<typeof loadPkg>[1], opts: Parameters<typeof loadPkg>[2] = {}): ReturnType<typeof loadPkg> {
+    opts.cwd = opts.cwd ?? this.cwd
+
+    return loadPkg(this.container.get(CONFIG_TOKEN), pkgPath, opts)
+  }
+
+  public getFiles(filesGlob: string | string[], opts: Record<string, any> = {}): Promise<string[]> {
+    opts.cwd = opts.cwd ?? this.cwd
+
+    return getFiles(this.container, filesGlob, opts)
+  }
+
+  public getNotificator(): Notificator {
+    return this.container.get(NOTIFICATOR_TOKEN)
+  }
+
+  public getPkgSet(strategy: string, opts: Record<string, any> = {}): ReturnType<typeof pkgset> {
+    opts.cwd = opts.cwd ?? this.cwd
+
+    return pkgset(this.container, strategy, opts)
+  }
+
+  public getPackages(type: Parameters<typeof getPackages>[1] = 'all', opts: Parameters<typeof getPackages>[2] = {}): ReturnType<typeof getPackages> {
+    opts.cwd = opts.cwd ?? this.cwd
+
+    return getPackages(this.container, type, opts)
+  }
+
+  public getCurrentRelease(opts: Parameters<typeof getCurrentRelease>[1] = {}): ReturnType<typeof getCurrentRelease> {
+    opts.cwd = opts.cwd ?? this.cwd
+
+    return getCurrentRelease(this.container, opts)
+  }
+
+  public getRepository(ref?: string): Repository {
+    return this.container.get(REPOSITORY_FACTORY_TOKEN)({ ref })
+  }
+
+  public getUpdateState(opts: Parameters<typeof getUpdateState>[1] = {}): ReturnType<typeof getUpdateState> {
+    opts.cwd = opts.cwd ?? this.cwd
+
+    return getUpdateState(this.container, opts)
+  }
+
+  public downloadArtifacts(args: Parameters<typeof download>[1]): ReturnType<typeof download> {
+    return download(this.container, args)
+  }
+
+  public uploadArtifacts(args: Parameters<typeof upload>[1]): ReturnType<typeof upload> {
+    return upload(this.container, args)
+  }
+
+  protected initConfigAndPlugins(config: RecursivePartial<Config> | string | null | undefined, plugins: PluginConfig[] = []) {
+    let nextConfigExtensions: RecursivePartial<Config>[] = []
+    // Config extensions from default config itself
+    let nextConfig = defaultConfig as Config
+    if (defaultConfig.plugins_v2) {
+      nextConfigExtensions = this.registerPlugins(defaultConfig.plugins_v2, path.dirname(require.resolve('../pvm-defaults')))
+      // Config extensions from default config plugins
+      nextConfig = this.mergeConfigExtensions(nextConfig, ...nextConfigExtensions)
+    }
+
+    // User defined config
+    const userConfig: { config: RecursivePartial<Config>, filepath: string | null } = (typeof config === 'string' || !config) ? loadRawConfig(this.configDir) : { config: config ?? {}, filepath: null }
+    const userConfigWithDirs = this.setupConfigDirs(userConfig.config, this.cwd, this.configDir)
+    nextConfigExtensions = this.registerPlugins(userConfigWithDirs.plugins_v2 ?? [], this.configDir)
+    nextConfig = this.mergeConfigExtensions(nextConfig, ...nextConfigExtensions, userConfigWithDirs)
+
+    // Config extensions from plugins
+    nextConfigExtensions = this.registerPlugins(plugins ?? [], this.configDir)
+    nextConfig = this.mergeConfigExtensions(nextConfig, ...nextConfigExtensions)
+
+    // Env config
+    const envConfig = readEnv() as any
+    const envConfigExtensions = this.registerPlugins(envConfig.plugins_v2 ?? [], this.cwd)
+    nextConfig = this.mergeConfigExtensions(nextConfig, envConfig, ...envConfigExtensions)
+
+    migrateDeprecated(nextConfig)
+
+    validateAgainstSchema(nextConfig)
+
+    logger.debug('config.versioning.source is', nextConfig.versioning.source)
+    logger.debug('config.versioning.unified_versions_for is', JSON.stringify(nextConfig.versioning.unified_versions_for))
+
+    this.container.register(provide({
+      useValue: nextConfig,
+      provide: CONFIG_TOKEN,
+    }))
+  }
+
+  protected mergeConfigExtensions(...configExtensions: RecursivePartial<Config>[]): Config {
+    return configExtensions.reduce((acc, extension) => mergeDeep(acc, extension), {} as Config) as Config
+  }
+
+  protected registerPlugins(plugins: PluginConfig[], resolveRoot: string): RecursivePartial<Config>[] {
+    let configExtensions: RecursivePartial<Config>[] = []
+    for (const pluginConfig of plugins) {
+      const { factory, configExt, resolvedPath } = this.resolvePlugin(pluginConfig, resolveRoot)
+
+      this.registeredPlugins.add(factory ?? configExt)
+      const pluginProviders = factory ? factory(pluginConfig.options || {}).providers : []
+      for (const provider of pluginProviders) {
+        this.container.register(provider)
+      }
+      log.info(chalk`plugin {blue ${resolvedPath}} loaded. Resolved from ${resolveRoot}`)
+
+      if (configExt) {
+        configExtensions.push(configExt)
+        if (configExt.plugins_v2) {
+          configExtensions = configExtensions.concat(this.registerPlugins(configExt.plugins_v2, path.dirname(resolvedPath)))
+        }
+      }
+    }
+    return configExtensions
+  }
+
+  protected resolvePlugin(pluginConfig: PluginConfig, resolveRoot: string): { factory?: PluginFactory, configExt?: RecursivePartial<Config>, resolvedPath: string } {
+    if (typeof pluginConfig.plugin === 'string') {
+      const pluginPath = require.resolve(pluginConfig.plugin, { paths: [resolveRoot] })
+      const pluginModule = require(pluginPath)
+      return { ...((pluginModule.__esModule ? pluginModule.default : pluginModule) as PluginDeclaration), resolvedPath: pluginPath }
+    }
+
+    const opts = isPlainObject(pluginConfig.plugin) ? pluginConfig.plugin : { factory: pluginConfig.plugin }
+
+    return { ...opts, resolvedPath: resolveRoot }
+  }
+
+  private setupConfigDirs(resultConfig: RecursivePartial<Config>, cwd: string, configLookupDir: string) {
+    resultConfig.cwd = cwd
+    resultConfig.configLookupDir = configLookupDir
+
+    return resultConfig
+  }
+}

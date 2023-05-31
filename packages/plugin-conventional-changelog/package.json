@@ -1,0 +1,24 @@
+{
+  "name": "@pvm/plugin-conventional-changelog",
+  "version": "0.0.0-stub",
+  "main": "lib/index.js",
+  "repository": "git@github.com:Tinkoff/pvm.git",
+  "author": "Andrey Rublev <box@anru.me>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "conventional-changelog-angular": "^5.0.10",
+    "conventional-changelog-core": "^4.2.2",
+    "conventional-changelog-preset-loader": "^2.3.4",
+    "conventional-changelog-writer": "^5.0.0",
+    "conventional-commits-filter": "^2.0.7",
+    "conventional-commits-parser": "^3.2.1",
+    "stream-from-array": "^1.0.0",
+    "through2": "^4.0.2"
+  },
+  "peerDependencies": {
+    "@pvm/pvm": "^0.0.0-stub"
+  },
+  "devDependencies": {
+    "@types/conventional-commits-parser": "^3.0.1"
+  }
+}

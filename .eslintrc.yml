@@ -42,6 +42,7 @@ rules:
   no-unreachable-loop: off
   no-use-before-define: ["error", { "functions": false, "classes": false }]
   "@typescript-eslint/consistent-type-imports": ["error", { "prefer": "type-imports" }]
+
 overrides:
   - files: [ '*.spec.ts' ]
     globals:
@@ -49,6 +50,9 @@ overrides:
       execScript: true
       initRepo: true
       writeConfig: true
+  - files: ['*.ts']
+    rules:
+      no-redeclare: off
 
 env:
   node: true

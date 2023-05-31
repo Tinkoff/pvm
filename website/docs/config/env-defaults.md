@@ -3,7 +3,7 @@ id: env-defaults
 title: Env variables default values
 ---
 
-Default [env](api/interfaces/pvm_types.Env.md) values
+Default [env](api/interfaces/pvm_pvm.Env.md) values
 ```typescript
-@cli-inline cat packages/pvm-core/env-defaults.ts
+@cli-inline cat packages/pvm/env-defaults.ts
 ```
