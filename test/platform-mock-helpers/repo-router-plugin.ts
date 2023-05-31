@@ -6,11 +6,11 @@ export default function repoRouterPlugin(router: any) {
   router.param('id', function(req: any, res: any, next: any) {
     const { reposDir } = req.app.locals
 
-    res.locals.repoDir = path.join(reposDir, req.params.id)
-    res.locals.repoData = dataFor(res.locals.repoDir)
+    res.app.locals.repoDir = path.join(reposDir, req.params.id)
+    res.app.locals.repoData = dataFor(res.app.locals.repoDir)
 
-    if (!fs.existsSync(res.locals.repoDir)) {
-      next(new Error(`There is no directory ${res.locals.repoDir}`))
+    if (!fs.existsSync(res.app.locals.repoDir)) {
+      next(new Error(`There is no directory ${res.app.locals.repoDir}`))
     } else {
       next()
     }
