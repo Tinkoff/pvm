@@ -15,15 +15,15 @@ digraph p {
   edge [color=grey fontname=Helvetica]
 
   subgraph cluster_0 {
-    label=legend color=\\"#eeeeee\\" style=filled
-    new[tooltip=\\"release-type: new\\" shape=ellipse color=\\"#11ccbb\\"]
+    label=legend color="#eeeeee" style=filled
+    new[tooltip="release-type: new" shape=ellipse color="#11ccbb"]
   }
 
   subgraph cluster_1 {
     penwidth=0;
-    label=\\"Packages about to update\\";
+    label="Packages about to update";
 
-    new[label=\\"new@1.0.0\\" tooltip=\\"release-type: new\\" shape=ellipse color=\\"#11ccbb\\"]
+    new[label="new@1.0.0" tooltip="release-type: new" shape=ellipse color="#11ccbb"]
   }
 }
 "
