@@ -24,17 +24,14 @@ function initCommands(yargs: Argv, commandBuilders: ExtractTokenType<typeof CLI_
 }
 
 export function runCli(commands: Array<typeof CLI_EXTENSION_TOKEN>, globalFlags: GlobalFlags, argv: string[]) {
+  if (Yargs(argv).argv.dryRun) {
+    globalFlags.setFlag('dryRun', true)
+  }
   const yargs = initCommands(Yargs(hideBin(argv)), commands)
     .command('help <subcommand>', 'Get help for subcommand', {}, (argv) => {
       initCommands(Yargs([(argv as Record<string, string>).subcommand, '--help']), commands)
         .wrap(120)
         .showHelp('info')
-    })
-    .middleware((argv) => {
-      if (argv.dryRun === true) {
-        globalFlags.setFlag('dryRun', argv.dryRun)
-      }
-      return argv
     })
     .demandCommand()
     .strict()
