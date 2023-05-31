@@ -1,7 +1,6 @@
 import type { AbstractVcs, AddTagOptions, CommitOptions, CommitResult, PushOptions, PushError } from '../../types'
 import type { GlobalFlags } from '../../lib/cli/global-flags'
 
-import { logger } from '../../lib/logger'
 import { logDryRun } from '../../lib/utils'
 
 export class DecoratedVcs implements AbstractVcs<any> {
@@ -81,16 +80,13 @@ export class DecoratedVcs implements AbstractVcs<any> {
     return this.vcs.isLastAvailableRef(rev)
   }
 
+  @logDryRun
   async push(opts?: PushOptions): Promise<void> {
-    if (this.localMode) {
+    if (this.localMode || this.dryRun) {
       return
     }
 
     try {
-      if (this.dryRun) {
-        logger.info('pushing changes in dry run mode')
-      }
-
       return this.vcs.push({
         ...opts,
         dryRun: this.dryRun,
