@@ -18,7 +18,7 @@ jobs:
       - uses: ./.github/actions/setup
       - run: npm run build
       - run: node scripts/remark-readme.js
-      - run: npm exec pvm publish -- --canary --tag beta -s all
+      - run: npm exec pvm publish -- --canary --tag beta -s all --canary-unified --canary-base-version 1.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PVM_SLACK_TOKEN: ${{ secrets.PVM_SLACK_TOKEN }}
