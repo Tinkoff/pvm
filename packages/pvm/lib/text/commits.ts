@@ -1,4 +1,7 @@
-import { tags as serviceLabelPatterns } from '../analyzer/simple'
+const isPatchRe = /^(fix|patch):/i
+const isMajorRe = /^BREAKING CHANGE:/
+
+const serviceLabelPatterns = [isPatchRe, isMajorRe]
 
 export function stripServiceLabels(text: string): string {
   return serviceLabelPatterns.reduce((acc, labelRe) => {
