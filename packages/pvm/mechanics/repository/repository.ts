@@ -39,7 +39,7 @@ interface ApplyVersionOpts {
 export class Repository {
   cwd: string
   config: Config
-  platform: PlatformInterface<any, any>
+  platform?: PlatformInterface<any, any>
   hostApi: HostApi
   ref: string | undefined
 
@@ -168,8 +168,7 @@ export class Repository {
       }
     }
 
-    const platform = this.platform
-    const updateHints = (await platform.getUpdateHintsByCommit(revParse('HEAD', this.cwd))) ?? {}
+    const updateHints = (await this.platform?.getUpdateHintsByCommit(revParse('HEAD', this.cwd))) ?? {}
 
     validateUpdateHints(this.config, updateHints)
 

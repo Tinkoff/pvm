@@ -57,7 +57,7 @@ function ensureCommitsDepth(cwd: string, from: string, to: string): void {
 // вычисляет последний релиз, и на основе него получаем коммиты и список пакетов на новый релиз
 async function sinceLastRelease(di: Container, targetRef: string, opts: SinceLastReleaseOpts): Promise<ChangedContext> {
   const config = di.get(CONFIG_TOKEN)
-  const platform = di.get(PLATFORM_TOKEN)
+  const platform = di.get({ token: PLATFORM_TOKEN, optional: true })
   const updConfig = config.update
   const cwd = config.cwd
 
@@ -69,7 +69,7 @@ async function sinceLastRelease(di: Container, targetRef: string, opts: SinceLas
 
   const gitShell = (cmd: string) => __dangerous_shell(cmd, { cwd })
 
-  const noReleaseRef = noReleaseRefOpt || getOldestDescendantCommitRef(config.cwd, platform.getCurrentBranch() || getCurrentBranchIgnoreEnv(cwd), targetRef)
+  const noReleaseRef = noReleaseRefOpt || getOldestDescendantCommitRef(config.cwd, platform?.getCurrentBranch() || getCurrentBranchIgnoreEnv(cwd), targetRef)
 
   const lastRelease = lastReleaseTag(config, targetRef)
 
