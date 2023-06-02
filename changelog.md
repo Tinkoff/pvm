@@ -3,6 +3,55 @@ id: index
 title: Change Log
 ---
 
+## v0.56.18
+**2023.06.02**
+
+
+
+### 📝 Documentation
+
+* troubleshooting ([76](https://github.com/Tinkoff/pvm/issues/76)) ([#d1385e9](https://github.com/Tinkoff/pvm/commit/d1385e9e4037eb373386fc7a3bcb8dbd6a1f7383))
+
+
+### Other
+
+* Use builtin.list-with-packages default for changelogs ([#6ed9e28](https://github.com/Tinkoff/pvm/commit/6ed9e28326e286907ecb34f2b13129e29a7e2546))
+
+
+
+
+List of updated packages:
+- @pvm/add-tag@0.56.18
+- @pvm/artifacts@0.56.18
+- @pvm/changelog@0.56.18
+- @pvm/core@0.56.18
+- @pvm/cowners@0.56.18
+- @pvm/files@0.56.18
+- @pvm/gitlab@0.56.18
+- @pvm/mattermost@0.56.18
+- @pvm/notifications@0.56.18
+- @pvm/pkgset@0.56.18
+- @pvm/plugin-conventional-changelog@0.56.18
+- @pvm/plugin-conventional-semantic-release@0.56.18
+- @pvm/plugin-http-proxy@0.56.18
+- @pvm/releases@0.56.18
+- @pvm/repository@0.56.18
+- @pvm/slack@0.56.18
+- @pvm/suffixes@0.56.18
+- @pvm/template@0.56.18
+- @pvm/types@0.56.18
+- @pvm/update@0.56.18
+- @pvm/vcs-fs@0.56.18
+- @pvm/vcs-git@0.56.18
+- @pvm/vcs@0.56.18
+- @pvm/viz@0.56.18
+- @pvm/pvm@0.56.18
+- @pvm/tokens-core@0.56.18
+- @pvm/plugin-common-plugins@0.56.18
+- @pvm/plugin-core@0.56.18
+- @pvm/plugin-github@0.56.18
+- @pvm/di@0.56.18
+
 ## v0.56.17
 **2023.01.30**
 
