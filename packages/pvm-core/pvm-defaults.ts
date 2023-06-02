@@ -82,7 +82,7 @@ export const defaultConfig: ConfigSchema = {
     },
     skip_empty: false,
     renderer: {
-      type: 'builtin.list',
+      type: 'builtin.list-with-packages',
       tag_head_level: 2,
       show_date: true,
     },
