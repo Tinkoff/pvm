@@ -34,4 +34,4 @@ Some examples:
 - `pvm publish -s stale` publishes stale packages (where registry version outdated).
 - `pvm publish -s all` publish all packages.
 
-Curious ? See [documentation](https://tinkoff.github.io/pvm/) for more detailed information.
+Curious? See [documentation](https://tinkoff.github.io/pvm/) for more detailed information.
