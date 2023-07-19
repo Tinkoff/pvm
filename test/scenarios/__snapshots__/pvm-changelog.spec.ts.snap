@@ -6,10 +6,18 @@ exports[`pvm/changelog [mono] in default config should use package version for p
 
 change a again
 
+List of updated packages:
+- a@1.2.0
+- b@2.0.2
+
 ## v1.1.0
 **2018.11.27**
 
-change a"
+change a
+
+List of updated packages:
+- a@1.1.0
+- b@2.0.1"
 `;
 
 exports[`pvm/changelog [nomono] should not generate empty section if there are no commits since release 1`] = `
@@ -18,15 +26,24 @@ exports[`pvm/changelog [nomono] should not generate empty section if there are n
 
 The Captain’s Daughter
 
+List of updated packages:
+- simple-one@2.0.0
+
 ## v1.1.0
 **2018.11.27**
 
 Dubrovsky
 
+List of updated packages:
+- simple-one@1.1.0
+
 ## v1.0.0
 **2018.11.27**
 
-Eugene Onegin"
+Eugene Onegin
+
+List of updated packages:
+- simple-one@1.0.0"
 `;
 
 exports[`pvm/changelog should able to regenerate changelog from scratch 1`] = `
@@ -35,8 +52,17 @@ exports[`pvm/changelog should able to regenerate changelog from scratch 1`] = `
 
 change b and c
 
+List of updated packages:
+- b@2.2.0
+- c@1.0.0
+
 ## release-2018.11.27-Gorno-Altaysk
 **2018.11.27**
 
-change a and b"
+change a and b
+
+List of updated packages:
+- a@1.1.0
+- b@2.1.0
+- c@1.0.0-beta.1"
 `;
