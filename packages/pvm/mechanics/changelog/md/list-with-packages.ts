@@ -35,7 +35,7 @@ class ListWithPackagesRenderer implements IncrementalRenderer {
     const createdAt = new Date(release.created_at)
 
     let heading
-    if ('pkgIdentity' in release) {
+    if (forPkg) {
       const pkg = release.packages.find(pkgData => pkgData.name === forPkg)
       if (!pkg) {
         return null
